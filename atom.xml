@@ -6,7 +6,7 @@
   <link href="http://rymuscle.github.io/atom.xml" rel="self"/>
   
   <link href="http://rymuscle.github.io/"/>
-  <updated>2023-11-14T09:32:22.527Z</updated>
+  <updated>2023-11-14T13:05:29.410Z</updated>
   <id>http://rymuscle.github.io/</id>
   
   <author>
@@ -17,18 +17,19 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>数据结构分类</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T09:32:22.527Z</updated>
+    <title>二叉树遍历</title>
+    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/"/>
+    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/</id>
+    <published>2020-10-27T13:52:36.000Z</published>
+    <updated>2023-11-14T13:05:29.410Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="数据结构分类"><a href="#数据结构分类" class="headerlink" title="数据结构分类"></a>数据结构分类</h3><p>数据结构可以从两个维度分为： <code>逻辑结构</code> 和 <code>物理结构</code></p><p><code>逻辑结构</code> 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）</p><p><code>物理结构</code> 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 <code>连续空间存储（数组）</code> 和 <code>分散空间存储（链表）</code></p><span id="more"></span><h3 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h3><ol><li><code>逻辑结构</code> 又可被分为 <code>线性</code> 和 <code>非线性</code> 两大类</li></ol><ul><li><code>线性结构</code>比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。 </li><li><code>非线性结构</code>则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ul><ol start="2"><li>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如<blockquote><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p></blockquote></li></ol><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><ol><li><p><code>数组</code> 和 <code>链表</code>这两种逻辑数据结构，对应了内存上的两个最基本的物理存储结构 <code>连续存储</code>、<code>分散存储</code>，因此 <code>数组</code> 和 <code>链表</code>是最基本的逻辑数据结构，其他更为复杂的逻辑数据结构要使用哪种物理结构进行存储时，都需要基于这两个最基础的逻辑数据结构进行选择。</p></li><li><p><strong>可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终在物理介质上都是两种存储方式 <code>连续存储</code>、<code>分散存储</code>。 而这两种物理存储方式对应了最基础的两个数据结构 <code>数组</code>、<code>链表</code>。</strong></p></li><li><p><strong>所以无论你的数据是哪种<code>逻辑结构</code>的组合，最终也要选择基于什么样的<code>物理结构</code>进行存储，而 <code>数组</code> 和 <code>链表</code> 这两种基础数据结构分别对应了不同的物理存储结构。</strong></p></li></ol><p>如，下图中对于 <code>堆</code> 这种数据结构(<strong>逻辑上的</strong>)，可以采用 链表 或 数组 两种不同的 数据结构(<strong>物理上的</strong>) 进行存储。<br><img src="/images/1699950608316.jpg" width="400px" style="margin-left:0px;"/></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    <content type="html"><![CDATA[<p>到目前为止，我们的<code>二叉树</code>从下层的<code>物理结构</code>角度来看, 仍然是使用<code>链表</code>这种最基本的的数据结构进行的存储，因此其遍历方式仍是通过指针逐个访问节点。 <span style="color:red;">然而</span>，从上层的<code>逻辑角度</code>来看，<code>二叉树</code>是一种<code>非线性数据结构</code>，这就使得树的遍历要比遍历链表更加复杂，需要借助搜索算法来实现。</p><p>二叉树常见的遍历方式包括 <code>层序遍历</code>、<code>前序遍历</code>、<code>中序遍历</code> 和 <code>后序遍历</code> 等。</p><h3 id="「层序遍历-level-order-traversal」"><a href="#「层序遍历-level-order-traversal」" class="headerlink" title="「层序遍历 level-order traversal」"></a>「层序遍历 level-order traversal」</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>从顶部到底部逐层遍历二叉树，并在每一层按照从左到右的顺序访问节点。<br>层序遍历本质上属于 <code>「广度优先遍历 breadth-first traversal」</code> ，它体现了一种“一圈一圈向外扩展”的逐层遍历方式。</p><div style="display: flex; height: 400px;"><img src="/images/binary_tree_bfs.png" width="400px" style="margin-left:0px;"/><img src="/images/WX20231114-210129@2x.png" width="350px" style="margin-left:10px;border: 1px solid #ccc;border-radius: 5px;"/></div><h4 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h4><p>广度优先遍历通常借助“队列”来实现。队列遵循“先进先出”的规则，而广度优先遍历则遵循“逐层推进”的规则，两者背后的思想是一致的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure><h3 id="前序遍历"><a href="#前序遍历" class="headerlink" title="前序遍历"></a>前序遍历</h3><h3 id="中序遍历"><a href="#中序遍历" class="headerlink" title="中序遍历"></a>中序遍历</h3><h3 id="后序遍历"><a href="#后序遍历" class="headerlink" title="后序遍历"></a>后序遍历</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree_traversal/">hello-algo</a></li><li>《数据结构与算法之美》王争y_tree.png” width&#x3D;”450px” style&#x3D;”margin-left:0px;”&#x2F;&gt;</li></ul><h3 id="前序遍历-1"><a href="#前序遍历-1" class="headerlink" title="前序遍历"></a>前序遍历</h3><h3 id="中序遍历-1"><a href="#中序遍历-1" class="headerlink" title="中序遍历"></a>中序遍历</h3><h3 id="后序遍历-1"><a href="#后序遍历-1" class="headerlink" title="后序遍历"></a>后序遍历</h3><h3 id="参考文献-1"><a href="#参考文献-1" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree_traversal/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
     
     
-    <summary type="html">&lt;h3 id=&quot;数据结构分类&quot;&gt;&lt;a href=&quot;#数据结构分类&quot; class=&quot;headerlink&quot; title=&quot;数据结构分类&quot;&gt;&lt;/a&gt;数据结构分类&lt;/h3&gt;&lt;p&gt;数据结构可以从两个维度分为： &lt;code&gt;逻辑结构&lt;/code&gt; 和 &lt;code&gt;物理结构&lt;/code&gt;&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;逻辑结构&lt;/code&gt; 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;物理结构&lt;/code&gt; 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构&lt;br&gt;在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 &lt;code&gt;连续空间存储（数组）&lt;/code&gt; 和 &lt;code&gt;分散空间存储（链表）&lt;/code&gt;&lt;/p&gt;</summary>
+      
+      
+    <summary type="html">&lt;p&gt;到目前为止，我们的&lt;code&gt;二叉树&lt;/code&gt;从下层的&lt;code&gt;物理结构&lt;/code&gt;角度来看, 仍然是使用&lt;code&gt;链表&lt;/code&gt;这种最基本的的数据结构进行的存储，因此其遍历方式仍是通过指针逐个访问节点。 &lt;span style=&quot;color:red;&quot;&gt;然而</summary>
+      
     
     
     
@@ -40,19 +41,16 @@
   </entry>
   
   <entry>
-    <title>二叉树</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-02/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-02/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T07:12:49.973Z</updated>
+    <title>常见二叉树类型</title>
+    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/"/>
+    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/</id>
+    <published>2020-10-27T13:23:19.000Z</published>
+    <updated>2023-11-14T12:38:39.738Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p><ol><li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure></li><li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p></li></ol><h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p><ol><li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li><li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ol><p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>]]></content>
+    <content type="html"><![CDATA[<h3 id="「完美二叉树-perfect-binary-tree」"><a href="#「完美二叉树-perfect-binary-tree」" class="headerlink" title="「完美二叉树 perfect binary tree」"></a>「完美二叉树 perfect binary tree」</h3><p>所有层的节点都被完全填满。<br>在完美二叉树中，叶节点的度为 0，其余所有节点的度都为 2；若树高度为 h，则节点总数为 $2^{h+1}-1$ 。<br>呈现标准的指数级关系，反映了自然界中常见的细胞分裂现象。<br><img src="/images/perfect_binary_tree.png" width="450px" style="margin-left:0px;"/></p><span id="more"></span><h3 id="「完全二叉树-complete-binary-tree」"><a href="#「完全二叉树-complete-binary-tree」" class="headerlink" title="「完全二叉树 complete binary tree」"></a>「完全二叉树 complete binary tree」</h3><p>只有最底层的节点未被填满，且最底层节点尽量靠左填充。<br><img src="/images/complete_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="「完满二叉树-full-binary-tree」"><a href="#「完满二叉树-full-binary-tree」" class="headerlink" title="「完满二叉树 full binary tree」"></a>「完满二叉树 full binary tree」</h3><p>除了叶节点之外，其余所有节点都有两个子节点<br><img src="/images/full_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="「平衡二叉树-balanced-binary-tree」"><a href="#「平衡二叉树-balanced-binary-tree」" class="headerlink" title="「平衡二叉树 balanced binary tree」"></a>「平衡二叉树 balanced binary tree」</h3><p><strong>任意节点</strong>的左子树和右子树的高度之差的绝对值不超过 1<br><img src="/images/balanced_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="二叉树的退化"><a href="#二叉树的退化" class="headerlink" title="二叉树的退化"></a>二叉树的退化</h3><p>当二叉树的每层节点都被填满时，达到 <code>完美二叉树</code>，完美二叉树是理想情况，可以充分发挥二叉树“分治”的优势。<br>而当所有节点都偏向一侧时，二叉树退化为 <code>链表</code>，链表则是另一个极端，各项操作都变为线性操作，时间复杂度退化至 <code>O(n)</code>。<br><img src="/images/binary_tree_best_worst_cases.png" width="450px" style="margin-left:0px;"/></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
     
     
-      
-      
-    <summary type="html">&lt;h1 id=&quot;逻辑结构-和-物理结构&quot;&gt;&lt;a href=&quot;#逻辑结构-和-物理结构&quot; class=&quot;headerlink&quot; title=&quot;逻辑结构 和 物理结构&quot;&gt;&lt;/a&gt;逻辑结构 和 物理结构&lt;/h1&gt;&lt;p&gt;数据结构可以从两个维度划分为： &lt;strong&gt;逻辑结构&lt;/stro</summary>
-      
+    <summary type="html">&lt;h3 id=&quot;「完美二叉树-perfect-binary-tree」&quot;&gt;&lt;a href=&quot;#「完美二叉树-perfect-binary-tree」&quot; class=&quot;headerlink&quot; title=&quot;「完美二叉树 perfect binary tree」&quot;&gt;&lt;/a&gt;「完美二叉树 perfect binary tree」&lt;/h3&gt;&lt;p&gt;所有层的节点都被完全填满。&lt;br&gt;在完美二叉树中，叶节点的度为 0，其余所有节点的度都为 2；若树高度为 h，则节点总数为 $2^{h+1}-1$ 。&lt;br&gt;呈现标准的指数级关系，反映了自然界中常见的细胞分裂现象。&lt;br&gt;&lt;img src=&quot;/images/perfect_binary_tree.png&quot; width=&quot;450px&quot; style=&quot;margin-left:0px;&quot;/&gt;&lt;/p&gt;</summary>
     
     
     
@@ -61,7 +59,61 @@
     
     <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
     
-    <category term="算法" scheme="http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/"/>
+  </entry>
+  
+  <entry>
+    <title>「二叉树 binary tree」</title>
+    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/"/>
+    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/</id>
+    <published>2020-10-27T12:15:32.000Z</published>
+    <updated>2023-11-14T12:38:39.743Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="认识二叉树"><a href="#认识二叉树" class="headerlink" title="认识二叉树"></a>认识二叉树</h3><ol><li>「二叉树 binary tree」是一种<code>非线性数据结构</code>，体现着“一分为二”的分治逻辑。与<code>链表</code>类似，二叉树的基本单元是节点，每个节点包含：值、左子节点引用、右子节点引用。</li></ol><img src="/images/binary_tree_definition.png" width="400px" style="margin-left:0px;"/><ol start="2"><li>常见术语<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">根节点 root node」：位于二叉树顶层的节点，没有父节点。</span><br><span class="line">「叶节点 leaf node」：没有子节点的节点，其两个指针均指向。</span><br><span class="line">「边 edge」：连接两个节点的线段，即节点引用（指针）。</span><br><span class="line">节点所在的「层 level」：从顶至底递增，根节点所在层为 1 。</span><br><span class="line">节点的「度 degree」：节点的子节点的数量。在二叉树中，度的取值范围是 0、1、2 。</span><br><span class="line">二叉树的「高度 height」：从根节点到最远叶节点所经过的边的数量。</span><br><span class="line">节点的「深度 depth」：从根节点到该节点所经过的边的数量。</span><br><span class="line">节点的「高度 height」：从距离该节点最远的叶节点到该节点所经过的边的数量。</span><br></pre></td></tr></table></figure><div style="display: flex;"><img src="/images/WX20231114-190226@2x.png" width="340px" style="margin-left:0px;"/><img src="/images/binary_tree_terminology.png" width="310px" style="margin-left:20px;"/></div></li></ol><span id="more"></span><h3 id="二叉树-链表存储-基本操作"><a href="#二叉树-链表存储-基本操作" class="headerlink" title="二叉树 (链表存储) 基本操作"></a>二叉树 (链表存储) 基本操作</h3><h4 id="初始化二叉树"><a href="#初始化二叉树" class="headerlink" title="初始化二叉树"></a>初始化二叉树</h4><ol><li><p>从二叉树的结构图来看，它的节点和链表的节点非常像，因此用<code>链表</code>来存储<code>二叉树</code>也挺顺理成章的 😝。</p></li><li><p>其实初始化二叉树的过程和初始化一个链表没什么区别(将一些节点用指针串联起来)。只不过串联的逻辑稍有不同。</p> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 初始化节点</span><br><span class="line">TreeNode n1 = new TreeNode(1);</span><br><span class="line">TreeNode n2 = new TreeNode(2);</span><br><span class="line">TreeNode n3 = new TreeNode(3);</span><br><span class="line">TreeNode n4 = new TreeNode(4);</span><br><span class="line">TreeNode n5 = new TreeNode(5);</span><br><span class="line">// 构建引用指向（即指针）</span><br><span class="line">n1.left = n2;</span><br><span class="line">n1.right = n3;</span><br><span class="line">n2.left = n4;</span><br><span class="line">n2.right = n5;</span><br></pre></td></tr></table></figure><p>这棵二叉树的逻辑结构如下：</p><img src="/images/b-t-01.png" width="100px" style="margin-left:0px;"/></li><li><p>当然，对于上面的多个节点，你有多种不同的连接方式，将它们连成多种不同的二叉树：</p><img src="/images/b-t-02.png" width="250px" style="margin-left:0px;"/></li></ol><h4 id="插入、删除-节点"><a href="#插入、删除-节点" class="headerlink" title="插入、删除 节点"></a>插入、删除 节点</h4><p>与<code>链表</code>类似， 在<code>二叉树</code>中 插入、删除节点 ，可以通过修改指针来实现<br><img src="/images/binary_tree_add_remove.png" width="450px" style="margin-left:0px;"/></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TreeNode P = new TreeNode(0);</span><br><span class="line">// 在 n1 -&gt; n2 中间插入节点 P</span><br><span class="line">n1.left = P;</span><br><span class="line">P.left = n2;</span><br><span class="line">// 删除节点 P</span><br><span class="line">n1.left = n2;</span><br></pre></td></tr></table></figure><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;h3 id=&quot;认识二叉树&quot;&gt;&lt;a href=&quot;#认识二叉树&quot; class=&quot;headerlink&quot; title=&quot;认识二叉树&quot;&gt;&lt;/a&gt;认识二叉树&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;「二叉树 binary tree」是一种&lt;code&gt;非线性数据结构&lt;/code&gt;，体现着“一分为二”的分治逻辑。与&lt;code&gt;链表&lt;/code&gt;类似，二叉树的基本单元是节点，每个节点包含：值、左子节点引用、右子节点引用。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;img src=&quot;/images/binary_tree_definition.png&quot; width=&quot;400px&quot; style=&quot;margin-left:0px;&quot;/&gt;
+
+
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;常见术语&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;根节点 root node」：位于二叉树顶层的节点，没有父节点。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;「叶节点 leaf node」：没有子节点的节点，其两个指针均指向。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;「边 edge」：连接两个节点的线段，即节点引用（指针）。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点所在的「层 level」：从顶至底递增，根节点所在层为 1 。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「度 degree」：节点的子节点的数量。在二叉树中，度的取值范围是 0、1、2 。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;二叉树的「高度 height」：从根节点到最远叶节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「深度 depth」：从根节点到该节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「高度 height」：从距离该节点最远的叶节点到该节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;div style=&quot;display: flex;&quot;&gt;
+&lt;img src=&quot;/images/WX20231114-190226@2x.png&quot; width=&quot;340px&quot; style=&quot;margin-left:0px;&quot;/&gt;
+&lt;img src=&quot;/images/binary_tree_terminology.png&quot; width=&quot;310px&quot; style=&quot;margin-left:20px;&quot;/&gt;
+&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;</summary>
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>数据结构分类</title>
+    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/"/>
+    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/</id>
+    <published>2020-10-11T12:15:32.000Z</published>
+    <updated>2023-11-14T10:38:20.997Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="数据结构分类"><a href="#数据结构分类" class="headerlink" title="数据结构分类"></a>数据结构分类</h3><p>数据结构可以从两个维度分为： <code>逻辑结构</code> 和 <code>物理结构</code>。</p><p><code>逻辑结构</code> 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）；</p><p><code>物理结构</code> 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构；<br>在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 <code>连续空间存储（数组）</code> 和 <code>分散空间存储（链表）</code></p><span id="more"></span><h3 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h3><ol><li><code>逻辑结构</code> 又可被分为 <code>线性</code> 和 <code>非线性</code> 两大类</li></ol><ul><li><code>线性结构</code>比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。 </li><li><code>非线性结构</code>则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ul><ol start="2"><li>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如<blockquote><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p></blockquote></li></ol><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><ol><li><p><code>数组</code> 和 <code>链表</code>这两种逻辑数据结构，对应了内存上的两个最基本的物理存储结构 <code>连续存储</code>、<code>分散存储</code>，因此 <code>数组</code> 和 <code>链表</code>是最基本的逻辑数据结构，其他更为复杂的逻辑数据结构要使用哪种物理结构进行存储时，都需要基于这两个最基础的逻辑数据结构进行选择。</p></li><li><p><strong>可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终在物理介质上都是两种存储方式 <code>连续存储</code>、<code>分散存储</code>。 而这两种物理存储方式对应了最基础的两个数据结构 <code>数组</code>、<code>链表</code>。</strong></p></li><li><p><strong>所以无论你的数据是哪种<code>逻辑结构</code>的组合，最终也要选择基于什么样的<code>物理结构</code>进行存储，而 <code>数组</code> 和 <code>链表</code> 这两种基础数据结构分别对应了不同的物理存储结构。</strong></p></li></ol><p>如，下图中对于 <code>堆</code> 这种数据结构(<strong>逻辑上的</strong>)，可以采用 链表 或 数组 两种不同的 数据结构(<strong>物理上的</strong>) 进行存储。<br><img src="/images/1699950608316.jpg" width="400px" style="margin-left:0px;"/></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;h3 id=&quot;数据结构分类&quot;&gt;&lt;a href=&quot;#数据结构分类&quot; class=&quot;headerlink&quot; title=&quot;数据结构分类&quot;&gt;&lt;/a&gt;数据结构分类&lt;/h3&gt;&lt;p&gt;数据结构可以从两个维度分为： &lt;code&gt;逻辑结构&lt;/code&gt; 和 &lt;code&gt;物理结构&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;逻辑结构&lt;/code&gt; 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）；&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;物理结构&lt;/code&gt; 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构；&lt;br&gt;在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 &lt;code&gt;连续空间存储（数组）&lt;/code&gt; 和 &lt;code&gt;分散空间存储（链表）&lt;/code&gt;&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
     
   </entry>
   

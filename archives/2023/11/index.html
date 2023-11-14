@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   
   
-  <title>Archive: 2023/11 | Rymuscle</title>
+  <title>Archive: 2023/11 | Rymuscle的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
   
   
-    <link rel="alternate" href="/atom.xml" title="Rymuscle" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Rymuscle的技术博客" type="application/atom+xml">
   
   
     <link rel="shortcut icon" href="/favicon.png">
@@ -33,6 +33,10 @@
 
   
   
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
   
 <meta name="generator" content="Hexo 7.0.0"></head>
 
@@ -43,14 +47,14 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Rymuscle</a>
+        <a href="/" id="logo">Rymuscle的技术博客</a>
       </h1>
       
     </div>
     <div id="header-inner" class="inner">
       <nav id="main-nav">
         
-          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> Home</a>
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> shou</a>
         
           <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> Archive</a>
         
@@ -187,16 +191,8 @@
         <span> | </span><a href="/about/">Contact the blogger</a>
       </p>
       
-        <p>
-          <i class="fa fa-visitors"></i>
-          <i id="busuanzi_container_site_uv"><i id="busuanzi_value_site_uv"></i></i>
-          ，
-          <i class="fa fa-views"></i>
-          <i id="busuanzi_container_site_pv"><i id="busuanzi_value_site_pv"></i></i>
-        </p>
-      
       <p>
-        <span>Copyright &copy; 2023 John Doe.</span>
+        <span>Copyright &copy; 2023 Rymuscle.</span>
         <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
         <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
       </p>
@@ -226,14 +222,31 @@
 
 
 
+
+
+
+
   
-<script src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
 
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
 
-
-
-
-
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: [''],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
   
 
   

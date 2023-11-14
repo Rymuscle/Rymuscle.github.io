@@ -86,7 +86,7 @@
 </header>
 
       <div class="outer">
-        <section id="main"><article id="post-data-structure-algorithm/树-01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+        <section id="main"><article id="post-data-structure-algorithm/01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -123,7 +123,7 @@
 
       
       
-<a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/#comments" class="article-comment-link">
+<a href="/2020/10/11/data-structure-algorithm/01/#comments" class="article-comment-link">
   
     
     
@@ -152,15 +152,24 @@
 <li><code>非线性结构</code>则相反，呈非线性排列。如：树、堆、图、哈希表。</li>
 </ul>
 <ol start="2">
-<li><p>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如</p>
-<blockquote>
+<li>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如<blockquote>
 <p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p>
 </blockquote>
 </li>
-<li><p>lant: 可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终都是用 数组、链表 这两种物理结构存储到内存中的。<br><img src="/source/images/1699950608316.jpg"></p>
+</ol>
+<h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><ol>
+<li><p><code>数组</code> 和 <code>链表</code>这两种逻辑数据结构，对应了内存上的两个最基本的物理存储结构 <code>连续存储</code>、<code>分散存储</code>，因此 <code>数组</code> 和 <code>链表</code>是最基本的逻辑数据结构，其他更为复杂的逻辑数据结构要使用哪种物理结构进行存储时，都需要基于这两个最基础的逻辑数据结构进行选择。</p>
+</li>
+<li><p><strong>可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终在物理介质上都是两种存储方式 <code>连续存储</code>、<code>分散存储</code>。 而这两种物理存储方式对应了最基础的两个数据结构 <code>数组</code>、<code>链表</code>。</strong></p>
+</li>
+<li><p><strong>所以无论你的数据是哪种<code>逻辑结构</code>的组合，最终也要选择基于什么样的<code>物理结构</code>进行存储，而 <code>数组</code> 和 <code>链表</code> 这两种基础数据结构分别对应了不同的物理存储结构。</strong></p>
 </li>
 </ol>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a><br>《数据结构与算法之美》王争</p>
+<p>如，下图中对于 <code>堆</code> 这种数据结构(<strong>逻辑上的</strong>)，可以采用 链表 或 数组 两种不同的 数据结构(<strong>物理上的</strong>) 进行存储。<br><img src="/images/1699950608316.jpg" width="400px" style="margin-left:0px;"/></p>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a></li>
+<li>《数据结构与算法之美》王争</li>
+</ul>
 
         
             <div id="toc-article">
@@ -168,7 +177,7 @@
   <div class="widget-wrap" id="toc-wrap">
     <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
     <div class="widget">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%88%86%E7%B1%BB"><span class="toc-text">数据结构分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="toc-text">逻辑结构</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%88%86%E7%B1%BB"><span class="toc-text">数据结构分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E7%BB%93%E6%9E%84"><span class="toc-text">逻辑结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#lant"><span class="toc-text">lant:</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
     </div>
   </div>
 
@@ -199,15 +208,15 @@
         
 <nav id="article-nav">
   
-    <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-02/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">older</strong>
+  
+    <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-02/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
       <div class="article-nav-title">
         
           二叉树
         
       </div>
     </a>
-  
   
 </nav>
 
@@ -239,11 +248,11 @@
       <ul>
         
           <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/">数据结构分类</a>
+            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-02/">二叉树</a>
           </li>
         
           <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-02/">二叉树</a>
+            <a href="/2020/10/11/data-structure-algorithm/01/">数据结构分类</a>
           </li>
         
       </ul>

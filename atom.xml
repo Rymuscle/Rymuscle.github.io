@@ -6,7 +6,7 @@
   <link href="http://rymuscle.github.io/atom.xml" rel="self"/>
   
   <link href="http://rymuscle.github.io/"/>
-  <updated>2023-11-14T07:46:30.663Z</updated>
+  <updated>2023-11-14T08:33:37.671Z</updated>
   <id>http://rymuscle.github.io/</id>
   
   <author>
@@ -17,19 +17,18 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>二叉树</title>
+    <title>数据结构分类</title>
     <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-01/"/>
     <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-01/</id>
     <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T07:46:30.663Z</updated>
+    <updated>2023-11-14T08:33:37.671Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p><ol><li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure></li><li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p></li></ol><h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p><ol><li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li><li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ol><p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>]]></content>
+    <content type="html"><![CDATA[<h3 id="数据结构分类"><a href="#数据结构分类" class="headerlink" title="数据结构分类"></a>数据结构分类</h3><p>数据结构可以从两个维度分为： <code>逻辑结构</code> 和 <code>物理结构</code></p><p><code>逻辑结构</code> 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）</p><p><code>物理结构</code> 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 <code>连续空间存储（数组）</code> 和 <code>分散空间存储（链表）</code></p><span id="more"></span><h3 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h3><ol><li><code>逻辑结构</code> 又可被分为 <code>线性</code> 和 <code>非线性</code> 两大类</li></ol><ul><li><code>线性结构</code>比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。 </li><li><code>非线性结构</code>则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ul><ol start="2"><li><p>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如</p><blockquote><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p></blockquote></li><li><p>lant: 可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终都是用 数组、链表 这两种物理结构存储到内存中的。<br><img src="/images/1699950608316.jpg"></p></li></ol><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a><br>《数据结构与算法之美》王争</p>]]></content>
     
     
-      
-      
-    <summary type="html">&lt;h1 id=&quot;逻辑结构-和-物理结构&quot;&gt;&lt;a href=&quot;#逻辑结构-和-物理结构&quot; class=&quot;headerlink&quot; title=&quot;逻辑结构 和 物理结构&quot;&gt;&lt;/a&gt;逻辑结构 和 物理结构&lt;/h1&gt;&lt;p&gt;数据结构可以从两个维度划分为： &lt;strong&gt;逻辑结构&lt;/stro</summary>
-      
+    <summary type="html">&lt;h3 id=&quot;数据结构分类&quot;&gt;&lt;a href=&quot;#数据结构分类&quot; class=&quot;headerlink&quot; title=&quot;数据结构分类&quot;&gt;&lt;/a&gt;数据结构分类&lt;/h3&gt;&lt;p&gt;数据结构可以从两个维度分为： &lt;code&gt;逻辑结构&lt;/code&gt; 和 &lt;code&gt;物理结构&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;逻辑结构&lt;/code&gt; 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;物理结构&lt;/code&gt; 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构&lt;br&gt;在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 &lt;code&gt;连续空间存储（数组）&lt;/code&gt; 和 &lt;code&gt;分散空间存储（链表）&lt;/code&gt;&lt;/p&gt;</summary>
     
     
     
@@ -37,8 +36,6 @@
     
     
     <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-    <category term="算法" scheme="http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
@@ -46,84 +43,6 @@
     <title>二叉树</title>
     <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-02/"/>
     <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-02/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T07:12:49.973Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p><ol><li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure></li><li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p></li></ol><h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p><ol><li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li><li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ol><p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;逻辑结构-和-物理结构&quot;&gt;&lt;a href=&quot;#逻辑结构-和-物理结构&quot; class=&quot;headerlink&quot; title=&quot;逻辑结构 和 物理结构&quot;&gt;&lt;/a&gt;逻辑结构 和 物理结构&lt;/h1&gt;&lt;p&gt;数据结构可以从两个维度划分为： &lt;strong&gt;逻辑结构&lt;/stro</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-    <category term="算法" scheme="http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>二叉树</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-03/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-03/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T07:12:49.973Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p><ol><li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure></li><li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p></li></ol><h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p><ol><li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li><li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ol><p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;逻辑结构-和-物理结构&quot;&gt;&lt;a href=&quot;#逻辑结构-和-物理结构&quot; class=&quot;headerlink&quot; title=&quot;逻辑结构 和 物理结构&quot;&gt;&lt;/a&gt;逻辑结构 和 物理结构&lt;/h1&gt;&lt;p&gt;数据结构可以从两个维度划分为： &lt;strong&gt;逻辑结构&lt;/stro</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-    <category term="算法" scheme="http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>二叉树</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-04/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-04/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-14T07:12:49.973Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p><ol><li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure></li><li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p></li></ol><h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p><ol><li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li><li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ol><p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p><p>参考：<a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;逻辑结构-和-物理结构&quot;&gt;&lt;a href=&quot;#逻辑结构-和-物理结构&quot; class=&quot;headerlink&quot; title=&quot;逻辑结构 和 物理结构&quot;&gt;&lt;/a&gt;逻辑结构 和 物理结构&lt;/h1&gt;&lt;p&gt;数据结构可以从两个维度划分为： &lt;strong&gt;逻辑结构&lt;/stro</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-    <category term="算法" scheme="http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>二叉树</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-05/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/%E6%A0%91-05/</id>
     <published>2020-10-11T12:15:32.000Z</published>
     <updated>2023-11-14T07:12:49.973Z</updated>
     

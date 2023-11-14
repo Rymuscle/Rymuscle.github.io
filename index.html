@@ -24,6 +24,10 @@
 
   
   
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
   
     
 <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
@@ -91,7 +95,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/">二叉树</a>
+      <a class="p-name article-title" href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/">数据结构分类</a>
     </h1>
   
 
@@ -122,40 +126,19 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p>
-<ol>
-<li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p>
-</li>
-</ol>
-<h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p>
-<ol>
-<li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li>
-<li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li>
-</ol>
-<p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure>
-<p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>
-
-        
-        
+        <h3 id="数据结构分类"><a href="#数据结构分类" class="headerlink" title="数据结构分类"></a>数据结构分类</h3><p>数据结构可以从两个维度分为： <code>逻辑结构</code> 和 <code>物理结构</code></p>
+<p><code>逻辑结构</code> 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）</p>
+<p><code>物理结构</code> 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 <code>连续空间存储（数组）</code> 和 <code>分散空间存储（链表）</code></p>
       
     </div>
     <footer class="article-footer">
       
-        <div class="article-tag-wrap">
-          
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
 
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-          
-
-
-        </div>
+        <p class="article-more-link">
+          <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/#more">Read More</a>
+        </p>
       
       
       
@@ -234,249 +217,10 @@
   <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
 
           
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/树-03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/11/data-structure-algorithm/%E6%A0%91-03/">二叉树</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-11T12:15:32.000Z" itemprop="datePublished">2020年10月11日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-03/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
+    <div class="social-share">
+      <span>分享到:</span>
     </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p>
-<ol>
-<li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p>
-</li>
-</ol>
-<h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p>
-<ol>
-<li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li>
-<li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li>
-</ol>
-<p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure>
-<p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>
 
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-          
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/树-04" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/11/data-structure-algorithm/%E6%A0%91-04/">二叉树</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-11T12:15:32.000Z" itemprop="datePublished">2020年10月11日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-04/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p>
-<ol>
-<li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p>
-</li>
-</ol>
-<h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p>
-<ol>
-<li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li>
-<li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li>
-</ol>
-<p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure>
-<p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-          
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/树-05" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/11/data-structure-algorithm/%E6%A0%91-05/">二叉树</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-11T12:15:32.000Z" itemprop="datePublished">2020年10月11日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-05/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h1 id="逻辑结构-和-物理结构"><a href="#逻辑结构-和-物理结构" class="headerlink" title="逻辑结构 和 物理结构"></a>逻辑结构 和 物理结构</h1><p>数据结构可以从两个维度划分为： <strong>逻辑结构</strong> 和 <strong>物理结构</strong> 两大类</p>
-<ol>
-<li><p>逻辑结构 是 揭示了数据元素之间的逻辑关系，是抽象意义上的结构 （也是我们后面重点关注和讨论的）</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在数组和链表中，数据按照顺序依次排列，体现了数据之间的线性关系；</span><br><span class="line">而在树中，数据从顶部向下按层次排列，表现出祖先与后代之间的派生关系；</span><br><span class="line">图则由节点和边构成，反映了复杂的网络关系。</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在算法运行过程中，相关数据都存储在内存中，<strong>物理结构</strong> 正是反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构<br>可分为 <strong>连续空间存储（数组）</strong> 和 <strong>分散空间存储（链表）</strong></p>
-</li>
-</ol>
-<h1 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h1><p>逻辑结构可被分为“线性”和“非线性”两大类</p>
-<ol>
-<li>线性结构比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。</li>
-<li>非线性结构则相反，呈非线性排列。如：树、堆、图、哈希表。</li>
-</ol>
-<p>所有数据结构都是基于 数组、链表 或二者的组合实现的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">例如，栈和队列既可以使用数组实现，也可以使用链表实现；</span><br><span class="line">而哈希表的实现可能同时包含数组和链表。</span><br></pre></td></tr></table></figure>
-<p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p>
-<p>参考：<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/</a></p>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li></ul>
-
-          
 
 
         </div>
@@ -500,23 +244,11 @@
       <ul>
         
           <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/">二叉树</a>
+            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-01/">数据结构分类</a>
           </li>
         
           <li>
             <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-02/">二叉树</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-03/">二叉树</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-04/">二叉树</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/11/data-structure-algorithm/%E6%A0%91-05/">二叉树</a>
           </li>
         
       </ul>
@@ -529,7 +261,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 20px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
     </div>
   </div>
 
@@ -538,7 +270,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">5</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -548,7 +280,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">5</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -558,7 +290,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">5</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 

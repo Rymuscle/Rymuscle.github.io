@@ -47,7 +47,7 @@
       </h1>
       
         <h2 id="subtitle-wrap">
-          <a href="/" id="subtitle">不断前行，一切美好都将如约而至~</a>
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
         </h2>
       
     </div>
@@ -87,6 +87,149 @@
 
       <div class="outer">
         <section id="main">
+  <article id="post-data-structure-algorithm/10-5.bst" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/28/data-structure-algorithm/10-5.bst/">二叉查找树</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-10-28T13:35:43.000Z" itemprop="datePublished">2020年10月28日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+      
+<a href="/2020/10/28/data-structure-algorithm/10-5.bst/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>说到<code>二叉查找树</code>，从名字你也能看出这种数据结构是用二叉树来做快速查找的。 事实上<code>二叉搜索树</code>最大的特点就是，支持动态数据集合的快速插入、删除、查找操作。<br>而我们之前学过的<code>散列表</code>也是支持这些操作的，并且<code>散列表</code>的这些操作比<code>二叉查找树</code>更高效，时间复杂度是 <code>O(1)</code>。<br>既然有了这么高效的<code>散列表</code>，还要<code>二叉查找树</code>干啥？有没有哪些地方是<code>散列表</code>做不了，必须要用<code>二叉查找树</code>来做的呢？</p>
+<p>带着这些问题，我们就来学习今天的内容，<strong>二叉查找树</strong>！</p>
+<h3 id="二叉搜索树-binary-search-tree」"><a href="#二叉搜索树-binary-search-tree」" class="headerlink" title="二叉搜索树 binary search tree」"></a>二叉搜索树 binary search tree」</h3>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-data-structure-algorithm/10-4.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/">用数组表示(存储)二叉树</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-10-28T12:57:19.000Z" itemprop="datePublished">2020年10月28日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+      
+<a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <ol>
+<li><p>之前我们的<code>二叉树</code>是使用<code>链表</code>这种最基本的数据结构来存储的（<code>链式存储</code>）。 而本篇我们将使用<code>数组</code>这种最基本的结构来存储<code>二叉树</code>（<code>顺序存储</code>）。</p>
+<img src="/images/WX20231115-113301@2x.png" width="400px" style="margin-left:0px;"/>
+</li>
+<li><p>尝试用数组存储一棵二叉树</p>
+<blockquote>
+<p>如果将根节点A存储在下标 <code>i = 1</code> 的位置，那左子节点B会存储在下标 <code>2 * i = 2</code> 的位置，右子节点C会存储在 <code>2 * i + 1 = 3</code> 的位置。<br>以此类推，B 节点的左子节点D会存储在 <code>2 * i = 2 * 2 = 4</code> 的位置，右子节点E存储在 <code>2 * i + 1 = 2 * 2 + 1 = 5</code> 的位置。<br>……<br>最终的二叉树和数组的对应关系如下图:<br><img src="/images/WX20231115-114707@2x.png" width="250px" style="margin-left:0px;"/><br>总结一下，就是，<strong>如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&#x2F;2 的位置存储就是它的父节点。</strong><br><strong>通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。</strong></p>
+</blockquote>
+</li>
+<li><p>比较遗憾的是，刚刚我们举的例子是将一棵完全二叉树存储到了数组中，为了方便通过下标计算树中各节点位置，所以“浪费”了一个下标为 0 的存储位置。<span style="color:red">但如果我们往数组中存储的是一棵非完全二叉树，那就会浪费比较多的数组存储空间了</span>。</p>
+<div style="display: flex;align-content: center;">
+<img src="/images/WX20231115-115837@2x.png" width="260px" />
+<img src="/images/array_representation_with_empty.png" width="350px" style="margin-left: 20px;"/>
+</div></li>
+</ol>
+<p>可以看到，我们为了使  <code>根节点下标为i, 左子节点下标为2 * i, 右子节点下标为 2 * i + 1</code> 这个公式来仍然生效(<strong>方便计算各节点位置从而串起整棵树</strong>)，<span style="color:red">就不得不将一些None节点的位置也在数组中留出来。 这样就会浪费比较多的数组存储空间。</span></p>
+      
+    </div>
+    <footer class="article-footer">
+      
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+        <p class="article-more-link">
+          <a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/#more">Read More</a>
+        </p>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
   <article id="post-data-structure-algorithm/10-3.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
@@ -261,6 +404,9 @@
 <img src="/images/binary_tree_terminology.png" width="310px" style="margin-left:20px;"/>
 </div></li>
 </ol>
+<h3 id="二叉树-链式存储-基本操作"><a href="#二叉树-链式存储-基本操作" class="headerlink" title="二叉树 (链式存储) 基本操作"></a>二叉树 (链式存储) 基本操作</h3><h4 id="初始化二叉树"><a href="#初始化二叉树" class="headerlink" title="初始化二叉树"></a>初始化二叉树</h4><ol>
+<li>从二叉树的结构图来看，它的节点和链表的节点非常像，因此用<code>链表</code>来存储<code>二叉树</code>也挺顺理成章的 😝。<br>而且链式存储也比较简单、直观，很方便地通过节点的左右指针就能将整棵树串起来，大部分二叉树代码都是通过这种结构来实现的。<img src="/images/WX20231115-113929@2x.png" width="350px" style="margin-left:0px;"/></li>
+</ol>
       
     </div>
     <footer class="article-footer">
@@ -351,6 +497,14 @@
       <ul>
         
           <li>
+            <a href="/2020/10/28/data-structure-algorithm/10-5.bst/">二叉查找树</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/">用数组表示(存储)二叉树</a>
+          </li>
+        
+          <li>
             <a href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/">二叉树遍历</a>
           </li>
         
@@ -360,10 +514,6 @@
         
           <li>
             <a href="/2020/10/27/data-structure-algorithm/10-1.binary-tree/">「二叉树 binary tree」</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/11/data-structure-algorithm/01.dataStructure-type/">数据结构分类</a>
           </li>
         
       </ul>
@@ -376,7 +526,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a>
+      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 20px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
     </div>
   </div>
 
@@ -385,7 +535,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">4</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">6</span></li></ul>
     </div>
   </div>
 
@@ -395,7 +545,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">4</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">6</span></li></ul>
     </div>
   </div>
 
@@ -405,7 +555,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">4</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

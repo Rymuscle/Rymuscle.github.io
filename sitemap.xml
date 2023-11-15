@@ -2,7 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/</loc>
+    <loc>http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/</loc>
+    
+    <lastmod>2023-11-15</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/</loc>
     
     <lastmod>2023-11-15</lastmod>
     
@@ -13,7 +22,16 @@
   <url>
     <loc>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/</loc>
     
-    <lastmod>2023-11-14</lastmod>
+    <lastmod>2023-11-15</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/</loc>
+    
+    <lastmod>2023-11-15</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -57,6 +75,13 @@
   
   <url>
     <loc>http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
+    <lastmod>2023-11-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
     <lastmod>2023-11-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

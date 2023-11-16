@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>「数据结构与算法」堆 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-data-structure-algorithm/11-1.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      「数据结构与算法」堆
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-11-02T13:16:14.000Z" itemprop="datePublished">2020年11月02日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2020/11/02/data-structure-algorithm/11-1.heap/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><blockquote>
+<p>lant:<br><span style="color:#363795"><br><strong>之所以<code>树</code>这种数据结构学完紧接着就是<code>堆</code>，是因为其实<code>堆</code>也是<code>树</code>，不过是一种<code>特殊的树</code>，怎么个特殊法呢?<br>首先它得是一棵<code>完全二叉树</code>；<br>其次，堆中的每个节点的值都必须 大于等于&#x2F;小于等于 其子树中每个节点的值；(前者叫<code>大顶堆</code>，后者叫<code>小顶堆</code>)</strong><br></span><br><img src="/images/data-structure-algorithm/min_heap_and_max_heap.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。</p>
+</blockquote>
+<span id="more"></span>
+<br/>
+
+<blockquote>
+<p>根据堆的特性区判断下面这几个<code>二叉树</code>是不是<code>堆</code><br><img src="/images/data-structure-algorithm/4c452a1ad3b2d152daa2727d06097099.webp" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其中第 1 个和第 2 个是大顶堆，第 3 个是小顶堆，第 4 个不是堆。<br/><br><span style="color:darkorange;font-weight: bold;">除此之外，从图中还可以看出来，对于同一组数据，我们可以构建多种不同形态的堆。</span></p>
+</blockquote>
+<h3 id="堆的应用"><a href="#堆的应用" class="headerlink" title="堆的应用"></a>堆的应用</h3><p>在熟悉<code>堆</code>这种数据结构的常用操作前，我们还是先了解下<code>堆</code>一般被用到哪些场景吧。</p>
+<ol>
+<li><p>首先就是 <code>优先队列</code>：<br><code>堆</code>通常作为实现<code>优先队列</code>的首选数据结构，其入队和出队操作的时间复杂度均为 <code>O(logn)</code>，而建队操作为 <code>O(n)</code>，这些操作都非常高效。</p>
+</li>
+<li><p>堆排序：<br>给定一组数据，我们可以用它们建立一个堆，然后不断地执行元素出堆操作，从而得到有序数据。然而，我们通常会使用一种更优雅的方式实现堆排序，详见后续的堆排序章节。</p>
+</li>
+<li><p>求解 <code>Top K</code> (即获取最大的K个元素)：<br>这是一个经典的算法问题，同时也是一种典型应用，例如选择热度前 10 的新闻作为微博热搜，选取销量前 10 的商品等。</p>
+</li>
+</ol>
+<h3 id="堆的实现"><a href="#堆的实现" class="headerlink" title="堆的实现"></a>堆的实现</h3><h4 id="堆的存储与表示"><a href="#堆的存储与表示" class="headerlink" title="堆的存储与表示"></a>堆的存储与表示</h4><p>之前在学<code>二叉树</code>时，已经了解到<code>完全二叉树</code>非常适合用<code>数组</code>来存储。而<code>堆</code>正是一种<code>完全二叉树</code>，所以我们也将采用<code>数组</code>来存储<code>堆</code>。</p>
+<p>当使用<code>数组</code>表示<code>二叉树</code>时，元素代表节点值，索引代表节点在二叉树中的位置。节点指针通过<code>索引映射公式</code>来实现。<br>如下图，给定索引 i，其左子节点索引为 2<em>i，右子节点索引为 2</em>i+1，父节点索引为 i&#x2F;2（向下取整）。当索引越界时，表示空节点或节点不存在。<br><img src="/images/data-structure-algorithm/representation_of_heap.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<p>我们可以将索引映射公式封装成函数，方便后续使用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/* 获取左子节点索引 */</span><br><span class="line">int left(int i) &#123;</span><br><span class="line">    return 2 * i + 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取右子节点索引 */</span><br><span class="line">int right(int i) &#123;</span><br><span class="line">    return 2 * i + 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取父节点索引 */</span><br><span class="line">int parent(int i) &#123;</span><br><span class="line">    return (i - 1) / 2; // 向下整除</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h4><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="元素入堆-heapify-堆化操作"><a href="#元素入堆-heapify-堆化操作" class="headerlink" title="元素入堆 - -  heapify 堆化操作"></a>元素入堆 - -  <span style="color:orange">heapify 堆化操作</span></h4><p>我们首先将元素添加到堆底。 之后，<span style="color:red;">由于元素值可能大于堆中其他元素，堆的成立条件可能会被破坏</span>。因此，需要修复从插入节点到根节点的路径上的各个节点，这个操作被称为<span style="color:orange;font-weight:600;">「堆化 heapify」</span>。</p>
+<p>考虑从入堆节点开始，从底至顶执行堆化。如下图所示，我们比较插入节点与其父节点的值，如果插入节点更大，则将它们交换。然后继续执行此操作，从底至顶修复堆中的各个节点，直至越过根节点或遇到无须交换的节点时结束。</p>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+
+<h3 id=""><a href="#" class="headerlink" title=""></a></h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></li>
+<li>《数据结构与算法之美》王争</li>
+</ul>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86"><span class="toc-text">堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86%E7%9A%84%E5%BA%94%E7%94%A8"><span class="toc-text">堆的应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-text">堆的实现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A0%86%E7%9A%84%E5%AD%98%E5%82%A8%E4%B8%8E%E8%A1%A8%E7%A4%BA"><span class="toc-text">堆的存储与表示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%A0%86%E9%A1%B6%E5%85%83%E7%B4%A0"><span class="toc-text">访问堆顶元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%83%E7%B4%A0%E5%85%A5%E5%A0%86-heapify-%E5%A0%86%E5%8C%96%E6%93%8D%E4%BD%9C"><span class="toc-text">元素入堆 - -  heapify 堆化操作</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-text"></span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2020/10/31/data-structure-algorithm/10-9.red-blackTree/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          「数据结构与算法」红黑树 Red-Black Tree
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/31/data-structure-algorithm/10-9.red-blackTree/">「数据结构与算法」红黑树 Red-Black Tree</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/30/data-structure-algorithm/10-8.2-3Tree/">「数据结构与算法」2-3树</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
+          </li>
+        
+          <li>
+            <a href="/2020/10/29/data-structure-algorithm/10-6.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（上）</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 20px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">11</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2023 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   
-  <title>用数组表示(存储)二叉树 | rymuscle的技术博客</title>
+  <title>「数据结构与算法」用数组表示(存储)二叉树 | rymuscle的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
   
@@ -94,7 +94,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      用数组表示(存储)二叉树
+      「数据结构与算法」用数组表示(存储)二叉树
     </h1>
   
 
@@ -141,17 +141,17 @@
       
         <ol>
 <li><p>之前我们的<code>二叉树</code>是使用<code>链表</code>这种最基本的数据结构来存储的（<code>链式存储</code>）。 而本篇我们将使用<code>数组</code>这种最基本的结构来存储<code>二叉树</code>（<code>顺序存储</code>）。</p>
-<img src="/images/WX20231115-113301@2x.png" width="400px" style="margin-left:0px;"/>
+<img src="/images/data-structure-algorithm/WX20231115-113301@2x.png" width="400px" style="margin-left:0px;"/>
 </li>
 <li><p>尝试用数组存储一棵二叉树</p>
 <blockquote>
-<p>如果将根节点A存储在下标 <code>i = 1</code> 的位置，那左子节点B会存储在下标 <code>2 * i = 2</code> 的位置，右子节点C会存储在 <code>2 * i + 1 = 3</code> 的位置。<br>以此类推，B 节点的左子节点D会存储在 <code>2 * i = 2 * 2 = 4</code> 的位置，右子节点E存储在 <code>2 * i + 1 = 2 * 2 + 1 = 5</code> 的位置。<br>……<br>最终的二叉树和数组的对应关系如下图:<br><img src="/images/WX20231115-114707@2x.png" width="250px" style="margin-left:0px;"/><br>总结一下，就是，<strong>如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&#x2F;2 的位置存储就是它的父节点。</strong><br><strong>通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。</strong></p>
+<p>如果将根节点A存储在下标 <code>i = 1</code> 的位置，那左子节点B会存储在下标 <code>2 * i = 2</code> 的位置，右子节点C会存储在 <code>2 * i + 1 = 3</code> 的位置。<br>以此类推，B 节点的左子节点D会存储在 <code>2 * i = 2 * 2 = 4</code> 的位置，右子节点E存储在 <code>2 * i + 1 = 2 * 2 + 1 = 5</code> 的位置。<br>……<br>最终的二叉树和数组的对应关系如下图:<br><img src="/images/data-structure-algorithm/WX20231115-114707@2x.png" width="250px" style="margin-left:0px;"/><br>总结一下，就是，<strong>如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&#x2F;2 的位置存储就是它的父节点。</strong><br><strong>通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。</strong></p>
 </blockquote>
 </li>
 <li><p>比较遗憾的是，刚刚我们举的例子是将一棵完全二叉树存储到了数组中，为了方便通过下标计算树中各节点位置，所以“浪费”了一个下标为 0 的存储位置。<span style="color:red">但如果我们往数组中存储的是一棵非完全二叉树，那就会浪费比较多的数组存储空间了</span>。</p>
 <div style="display: flex;align-content: center;">
-<img src="/images/WX20231115-115837@2x.png" width="260px" />
-<img src="/images/array_representation_with_empty.png" width="350px" style="margin-left: 20px;"/>
+<img src="/images/data-structure-algorithm/WX20231115-115837@2x.png" width="260px" />
+<img src="/images/data-structure-algorithm/array_representation_with_empty.png" width="350px" style="margin-left: 20px;"/>
 </div></li>
 </ol>
 <p>可以看到，我们为了使  <code>根节点下标为i, 左子节点下标为2 * i, 右子节点下标为 2 * i + 1</code> 这个公式来仍然生效(<strong>方便计算各节点位置从而串起整棵树</strong>)，<span style="color:red">就不得不将一些None节点的位置也在数组中留出来。 这样就会浪费比较多的数组存储空间。</span></p>
@@ -165,7 +165,7 @@
 <ol start="4">
 <li><p>lant:</p>
 <blockquote>
-<p>所以，其实二叉树中，也就<code>完全二叉树</code>比较适合用 数组来存储。 因为如果一棵二叉树是一棵<code>完全二叉树</code>，那它用数组存储就会非常节省空间，它不需要像链式存储那样要存储额外的左右子节点的指针。<br>这也是为什么<code>完全二叉树</code>要求最后一层的子节点都靠左的原因，因为右边的None节点会一起排在数组的末尾，可以直接省略，也不影响 <code>数组存储二叉树的公式</code> 计算。<br><img src="/images/WX20231115-120907@2x.png" width="420px" /><br><img src="/images/WX20231115-120750@2x.png" width="420px" /></p>
+<p>所以，其实二叉树中，也就<code>完全二叉树</code>比较适合用 数组来存储。 因为如果一棵二叉树是一棵<code>完全二叉树</code>，那它用数组存储就会非常节省空间，它不需要像链式存储那样要存储额外的左右子节点的指针。<br>这也是为什么<code>完全二叉树</code>要求最后一层的子节点都靠左的原因，因为右边的None节点会一起排在数组的末尾，可以直接省略，也不影响 <code>数组存储二叉树的公式</code> 计算。<br><img src="/images/data-structure-algorithm/WX20231115-120907@2x.png" width="420px" /><br><img src="/images/data-structure-algorithm/WX20231115-120750@2x.png" width="420px" /></p>
 </blockquote>
 </li>
 <li><p>优势与局限性<br>二叉树的数组表示主要有以下优点：</p>
@@ -228,7 +228,7 @@
       <strong class="article-nav-caption">older</strong>
       <div class="article-nav-title">
         
-          二叉树遍历
+          「数据结构与算法」二叉树遍历
         
       </div>
     </a>
@@ -238,7 +238,7 @@
       <strong class="article-nav-caption">newer</strong>
       <div class="article-nav-title">
         
-          二叉搜索树 binary search tree
+          「数据结构与算法」二叉搜索树 binary search tree
         
       </div>
     </a>
@@ -273,23 +273,23 @@
       <ul>
         
           <li>
-            <a href="/2020/10/30/data-structure-algorithm/10-7.AVL/">平衡二叉搜索树--AVL树（下）</a>
+            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆</a>
           </li>
         
           <li>
-            <a href="/2020/10/29/data-structure-algorithm/10-6.AVL/">平衡二叉搜索树--AVL树（上）</a>
+            <a href="/2020/10/31/data-structure-algorithm/10-9.red-blackTree/">「数据结构与算法」红黑树 Red-Black Tree</a>
           </li>
         
           <li>
-            <a href="/2020/10/28/data-structure-algorithm/10-5.bst/">二叉搜索树 binary search tree</a>
+            <a href="/2020/10/30/data-structure-algorithm/10-8.2-3Tree/">「数据结构与算法」2-3树</a>
           </li>
         
           <li>
-            <a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/">用数组表示(存储)二叉树</a>
+            <a href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
           </li>
         
           <li>
-            <a href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/">二叉树遍历</a>
+            <a href="/2020/10/29/data-structure-algorithm/10-6.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（上）</a>
           </li>
         
       </ul>
@@ -311,7 +311,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">8</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">11</span></li></ul>
     </div>
   </div>
 
@@ -321,7 +321,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">8</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">11</span></li></ul>
     </div>
   </div>
 
@@ -331,7 +331,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">8</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

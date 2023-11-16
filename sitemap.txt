@@ -1,3 +1,4 @@
+http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/
 http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/
 http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/
 http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-6.AVL/

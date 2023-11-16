@@ -87,6 +87,78 @@
 
       <div class="outer">
         <section id="main">
+  <article id="post-data-structure-algorithm/11-2.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 （中篇）</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-11-03T14:43:20.000Z" itemprop="datePublished">2020年11月03日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+      
+<a href="/2020/11/03/data-structure-algorithm/11-2.heap/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="建堆操作"><a href="#建堆操作" class="headerlink" title="建堆操作"></a>建堆操作</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li>
+<li>《数据结构与算法之美》王争</li>
+</ul>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
   <article id="post-data-structure-algorithm/11-1.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
@@ -95,7 +167,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆</a>
+      <a class="p-name article-title" href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆 （上篇）⭐️</a>
     </h1>
   
 
@@ -684,76 +756,6 @@
 </article>
 
 
-  <article id="post-data-structure-algorithm/10-1.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/27/data-structure-algorithm/10-1.binary-tree/">「数据结构与算法」二叉树 binary tree</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-27T12:15:32.000Z" itemprop="datePublished">2020年10月27日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/27/data-structure-algorithm/10-1.binary-tree/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="认识二叉树"><a href="#认识二叉树" class="headerlink" title="认识二叉树"></a>认识二叉树</h3><ol>
-<li>「二叉树 binary tree」是一种<code>非线性数据结构</code>，体现着“一分为二”的分治逻辑。与<code>链表</code>类似，二叉树的基本单元是节点，每个节点包含：值、左子节点引用、右子节点引用。</li>
-</ol>
-<img src="/images/data-structure-algorithm/binary_tree_definition.png" width="400px" style="margin-left:0px;"/>
-
-
-<ol start="2">
-<li>常见术语<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">根节点 root node」：位于二叉树顶层的节点，没有父节点。</span><br><span class="line">「叶节点 leaf node」：没有子节点的节点，其两个指针均指向。</span><br><span class="line">「边 edge」：连接两个节点的线段，即节点引用（指针）。</span><br><span class="line">节点所在的「层 level」：从顶至底递增，根节点所在层为 1 。</span><br><span class="line">节点的「度 degree」：节点的子节点的数量。在二叉树中，度的取值范围是 0、1、2 。</span><br><span class="line">二叉树的「高度 height」：从根节点到最远叶节点所经过的边的数量。</span><br><span class="line">节点的「深度 depth」：从根节点到该节点所经过的边的数量。</span><br><span class="line">节点的「高度 height」：从距离该节点最远的叶节点到该节点所经过的边的数量。</span><br></pre></td></tr></table></figure>
-<div style="display: flex;">
-<img src="/images/data-structure-algorithm/WX20231114-190226@2x.png" width="340px" style="margin-left:0px;"/>
-<img src="/images/data-structure-algorithm/binary_tree_terminology.png" width="310px" style="margin-left:20px;"/>
-</div></li>
-</ol>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/27/data-structure-algorithm/10-1.binary-tree/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
 
     <nav id="page-nav">
 
@@ -772,7 +774,11 @@
       <ul>
         
           <li>
-            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆</a>
+            <a href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 （中篇）</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆 （上篇）⭐️</a>
           </li>
         
           <li>
@@ -785,10 +791,6 @@
         
           <li>
             <a href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
-          </li>
-        
-          <li>
-            <a href="/2020/10/29/data-structure-algorithm/10-6.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（上）</a>
           </li>
         
       </ul>
@@ -810,7 +812,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">11</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -820,7 +822,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">11</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -830,7 +832,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">11</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

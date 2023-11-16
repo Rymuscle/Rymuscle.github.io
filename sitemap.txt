@@ -1,6 +1,8 @@
-http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/
-http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/
+http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/
+http://rymuscle.github.io/2020/10/30/data-structure-algorithm/10-7.AVL/
+http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-6.AVL/
+http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/
 http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/

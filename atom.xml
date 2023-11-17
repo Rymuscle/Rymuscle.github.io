@@ -6,7 +6,7 @@
   <link href="http://rymuscle.github.io/atom.xml" rel="self"/>
   
   <link href="http://rymuscle.github.io/"/>
-  <updated>2023-11-16T07:31:31.311Z</updated>
+  <updated>2023-11-16T08:05:43.744Z</updated>
   <id>http://rymuscle.github.io/</id>
   
   <author>
@@ -17,19 +17,148 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>「数据结构与算法」堆 （中篇）</title>
-    <link href="http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/"/>
-    <id>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/</id>
-    <published>2020-11-03T14:43:20.000Z</published>
-    <updated>2023-11-16T07:31:31.311Z</updated>
+    <title>redis基本数据结构浅析 之 BitMap(位图)</title>
+    <link href="http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/"/>
+    <id>http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/</id>
+    <published>2021-04-18T10:36:56.000Z</published>
+    <updated>2023-11-16T08:05:43.744Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="建堆操作"><a href="#建堆操作" class="headerlink" title="建堆操作"></a>建堆操作</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
     
     
       
       
-    <summary type="html">&lt;h3 id=&quot;建堆操作&quot;&gt;&lt;a href=&quot;#建堆操作&quot; class=&quot;headerlink&quot; title=&quot;建堆操作&quot;&gt;&lt;/a&gt;建堆操作&lt;/h3&gt;&lt;h3 id=&quot;参考文献&quot;&gt;&lt;a href=&quot;#参考文献&quot; class=&quot;headerlink&quot; title=&quot;参考文献&quot;&gt;&lt;/a</summary>
+    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
       
+    
+    
+    
+    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>redis基本数据结构浅析 之 Sorted set(有序集合)</title>
+    <link href="http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/"/>
+    <id>http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/</id>
+    <published>2021-04-17T06:09:51.000Z</published>
+    <updated>2023-11-16T08:05:43.756Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+      
+    
+    
+    
+    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>redis基本数据结构浅析 之 set(集合)</title>
+    <link href="http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/"/>
+    <id>http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/</id>
+    <published>2021-04-15T14:12:04.000Z</published>
+    <updated>2023-11-16T08:05:43.753Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+      
+    
+    
+    
+    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>redis基本数据结构浅析 之 List(列表)</title>
+    <link href="http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/"/>
+    <id>http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/</id>
+    <published>2021-04-14T12:43:20.000Z</published>
+    <updated>2023-11-16T08:05:43.760Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+      
+    
+    
+    
+    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>redis基本数据结构浅析 之 Hash表</title>
+    <link href="http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/"/>
+    <id>http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/</id>
+    <published>2021-04-11T11:43:20.000Z</published>
+    <updated>2023-11-17T05:13:20.611Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="O-1-时间复杂度的操作"><a href="#O-1-时间复杂度的操作" class="headerlink" title="O(1)时间复杂度的操作"></a>O(1)时间复杂度的操作</h3><ol><li>了解数据结构的都知道，<code>Hash表</code>这种数据结构最基本的 增<code>HSET</code>、删<code>HDEL</code>、改<code>HSET``HSETNX</code>、查<code>HGET</code>、<code>HEXISTS</code> 操作时间复杂度都是<code>O(1)</code>；</li><li><code>HLEN</code> 获取哈希中的字段数  (todo: redis估计也是在散列表发生变化时，对长度额外做了记录)</li><li>留意：<code>HSET</code>已经具备了<code>HMSET</code>同时为指定的一个hash key设置多个field&#x2F;value的功能，所以从 Redis 版本 4.0.0 开始，此命令被视为已弃用。(参考<a href="https://www.tkcnn.com/redis/commands/Hmset.html">redis手册</a>)</li></ol><h3 id="O-n-时间复杂度的操作"><a href="#O-n-时间复杂度的操作" class="headerlink" title="O(n)时间复杂度的操作"></a>O(n)时间复杂度的操作</h3><ol><li>不过，redis中 <code>HSET</code>、<code>HDEL</code> 都支持同时设置或者删除多个field, 此时的时间复杂度就是 <code>O(n)</code> 了。</li><li><code>HGETALL key</code> 获取哈希表中指定key 中的所有字段和值</li><li><code>HVALS key</code> 获取哈希表中指定key 中的所有值</li><li><code>HKEYS key</code> 获取哈希表中指定key 中的所有字段</li></ol><span style="color:#6A9113;font-weight:600">lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些操作在操作Hash表时，都是针对指定 key 进行操作的。<br/>你的每个key中的 field/value 对儿会很多么?<br/>所以，效率下降应该不是特别严重，感觉也还算是常量级的时间复杂度吧!</span><h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>特别适合存储对象信息</p><blockquote><p><strong>比如存储 用户信息 这种map信息:</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset jm:user:1 name austin age 25 address guangzhou </span><br><span class="line">&gt;hset jm:user:2 name austin age 25 address guangzhou</span><br></pre></td></tr></table></figure><p><span style="color:red">如果用普通的 key&#x2F;value 结构来存储，主要有下面两种存储方式:</span><br>用户信息对象有多少成员就存成多少个key-value对儿，用用户ID+对应属性的名称作为唯一标识来取得对应属性的值，key部分的用户ID为重复存储，如果存在大量这样的数据，内存浪费还是非常可观的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1:name austin</span><br><span class="line">&gt;set user:1:age 25</span><br><span class="line">&gt;set user:1:address guangzhou</span><br></pre></td></tr></table></figure><p>将用户ID作为查找key,把其他信息封装成一个对象以序列化的方式存储，这种方式的缺点是，增加了序列化&#x2F;反序列化的开销，并且在需要修改其中一项信息时，需要把整个对象取回，并且修改操作需要对并发进行保护，引入CAS等复杂问题。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125; </span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br></pre></td></tr></table></figure></blockquote><br/><blockquote><p><strong>再比如存储 帖子 点赞数,评论数,点击数 信息</strong>：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset article:1 star 9 comment 3 click 21</span><br><span class="line">&gt;hset article:2 star 2 comment 0 click 7</span><br><span class="line">&gt;hset article:3 star 6 comment 4 click 19</span><br></pre></td></tr></table></figure></blockquote><br/><blockquote><p><strong>甚至存储 订单信息：</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset order:692343390123213 amount 218.5 orderTime 2021-04-11 19:20:20 productId 1232 productName 黑人牙膏 ...</span><br><span class="line">&gt;hset order:128043390155801 amount 18.9 orderTime 2021-04-11 13:11:09 productId 345 productName 黑人牙刷 ...</span><br><span class="line">&gt;hset order:752344450123149 amount 21.35 orderTime 2021-04-11 21:29:56 productId 124 productName 短袖 ...</span><br></pre></td></tr></table></figure></blockquote><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.tkcnn.com/redis/commands/Hset.html">Redis手册</a></p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;O-1-时间复杂度的操作&quot;&gt;&lt;a href=&quot;#O-1-时间复杂度的操作&quot; class=&quot;headerlink&quot; title=&quot;O(1)时间复杂度的操作&quot;&gt;&lt;/a&gt;O(1)时间复杂度的操作&lt;/h3&gt;&lt;ol&gt;
+&lt;li&gt;了解数据结构的都知道，&lt;code&gt;Hash表&lt;/</summary>
+      
+    
+    
+    
+    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」建堆 从 O(nlogn) 到 O(n) 🐂🐂🐂</title>
+    <link href="http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/"/>
+    <id>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/</id>
+    <published>2020-11-03T14:07:39.000Z</published>
+    <updated>2023-11-17T08:56:00.272Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="方式一-逐个元素执行-入堆-操作"><a href="#方式一-逐个元素执行-入堆-操作" class="headerlink" title="方式一: 逐个元素执行 入堆 操作"></a>方式一: 逐个元素执行 <code>入堆</code> 操作</h3><ul><li>首先创建一个空堆，然后遍历数组，依次对每个元素执行“入堆操作”，即先将元素添加至堆的尾部，再对该元素执行<span style="color:orange;font-weight:600;">“从底至顶”堆化。</span></li><li>每当一个元素入堆，堆的长度就加一。由于节点是从顶到底依次被添加进<code>二叉树</code>的，因此<code>堆</code>是 <code>自上而下</code> 地构建的。</li><li>设元素数量为 n ，每个元素的入堆操作使用 <code>O(log n)</code> 时间，因此该建堆方法的时间复杂度为 <code>O(log n)</code>。</li></ul><h3 id="方式二-通过遍历堆化实现"><a href="#方式二-通过遍历堆化实现" class="headerlink" title="方式二: 通过遍历堆化实现"></a>方式二: 通过遍历堆化实现</h3><p>第一种建堆思路的处理过程是从前往后遍历数组数据，并且每个数据插入堆中时，都是<code>从下往上堆化</code>。<br>实际上，我们可以用一种更为高效的建堆方法(从后往前遍历数组，并且每个数据都是<code>从上往下堆化</code>)：</p><blockquote><img src="/images/data-structure-algorithm/WX20231117-161901@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>因为叶子节点往下堆化只能自己跟自己比较，不需要堆化，所以我们直接从第一个非叶子节点开始，依次堆化就行了。<span style="color:#6A9113;font-weight:600;">因此在开始倒序遍历数组时，要从下标为 n/2 开始往前遍历，因为只有 下标从 n/2 到 1 的数据才需要进行堆化，而下标从 n/2 + 1 到 n 的节点是叶子节点，不需要堆化</span>。<span style="color:orange;font-weight:600;">实际上，对于完全二叉树来说，下标从 n/2 到 n 的节点都是叶子节点。</span></blockquote><span id="more"></span><br/><h3 id="时间复杂度分析"><a href="#时间复杂度分析" class="headerlink" title="时间复杂度分析"></a>时间复杂度分析</h3><p>这里主要是针对第二种建堆方法进行分析。</p><p>假设完全二叉树的节点数量为 n，则叶节点数量为 (n+1)&#x2F;2，其中 为向下整除。因此需要堆化的节点数量为 (n-1)&#x2F;2。<br>在从顶至底堆化的过程中，每个节点最多堆化到叶节点，因此最大迭代次数为二叉树高度 logn。<br>将上述两者相乘，可得到建堆过程的时间复杂度为 O(logn)。</p><p><strong>但这个估算结果并不准确，因为我们没有考虑到二叉树底层节点数量远多于顶层节点的性质（lant：越往下，节点越多，一棵完美的二叉树其叶节点就能占一半数量）。</strong></p><blockquote><p>为了减小计算难度，假设给定一个节点数量为 n，高度为 h 的“完美二叉树”，该假设不会影响计算结果的正确性。<br><img src="/images/data-structure-algorithm/heapify_operations_count.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><img src="/images/data-structure-algorithm/WX20231117-165116@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><p><span style="color:#6A9113;font-weight:600;">其时间复杂度最终为 O(n), 非常高效。</span>   🐂！</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;h3 id=&quot;方式一-逐个元素执行-入堆-操作&quot;&gt;&lt;a href=&quot;#方式一-逐个元素执行-入堆-操作&quot; class=&quot;headerlink&quot; title=&quot;方式一: 逐个元素执行 入堆 操作&quot;&gt;&lt;/a&gt;方式一: 逐个元素执行 &lt;code&gt;入堆&lt;/code&gt; 操作&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;首先创建一个空堆，然后遍历数组，依次对每个元素执行“入堆操作”，即先将元素添加至堆的尾部，再对该元素执行&lt;span style=&quot;color:orange;font-weight:600;&quot;&gt;“从底至顶”堆化。&lt;/span&gt;&lt;/li&gt;
+&lt;li&gt;每当一个元素入堆，堆的长度就加一。由于节点是从顶到底依次被添加进&lt;code&gt;二叉树&lt;/code&gt;的，因此&lt;code&gt;堆&lt;/code&gt;是 &lt;code&gt;自上而下&lt;/code&gt; 地构建的。&lt;/li&gt;
+&lt;li&gt;设元素数量为 n ，每个元素的入堆操作使用 &lt;code&gt;O(log n)&lt;/code&gt; 时间，因此该建堆方法的时间复杂度为 &lt;code&gt;O(log n)&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;方式二-通过遍历堆化实现&quot;&gt;&lt;a href=&quot;#方式二-通过遍历堆化实现&quot; class=&quot;headerlink&quot; title=&quot;方式二: 通过遍历堆化实现&quot;&gt;&lt;/a&gt;方式二: 通过遍历堆化实现&lt;/h3&gt;&lt;p&gt;第一种建堆思路的处理过程是从前往后遍历数组数据，并且每个数据插入堆中时，都是&lt;code&gt;从下往上堆化&lt;/code&gt;。&lt;br&gt;实际上，我们可以用一种更为高效的建堆方法(从后往前遍历数组，并且每个数据都是&lt;code&gt;从上往下堆化&lt;/code&gt;)：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;img src=&quot;/images/data-structure-algorithm/WX20231117-161901@2x.png&quot; width=&quot;350px&quot; style=&quot;margin-left:0px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;
+因为叶子节点往下堆化只能自己跟自己比较，不需要堆化，所以我们直接从第一个非叶子节点开始，依次堆化就行了。
+&lt;span style=&quot;color:#6A9113;font-weight:600;&quot;&gt;因此在开始倒序遍历数组时，要从下标为 n/2 开始往前遍历，因为只有 下标从 n/2 到 1 的数据才需要进行堆化，而下标从 n/2 + 1 到 n 的节点是叶子节点，不需要堆化&lt;/span&gt;。
+&lt;span style=&quot;color:orange;font-weight:600;&quot;&gt;实际上，对于完全二叉树来说，下标从 n/2 到 n 的节点都是叶子节点。&lt;/span&gt;
+&lt;/blockquote&gt;</summary>
     
     
     
@@ -41,16 +170,40 @@
   </entry>
   
   <entry>
-    <title>「数据结构与算法」堆 （上篇）⭐️</title>
+    <title>「数据结构与算法」堆 基本操作</title>
+    <link href="http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/"/>
+    <id>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/</id>
+    <published>2020-11-03T11:43:20.000Z</published>
+    <updated>2023-11-17T08:54:28.805Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="建堆-暂无基础-后面再说"><a href="#建堆-暂无基础-后面再说" class="headerlink" title="建堆 - 暂无基础 后面再说"></a>建堆 - 暂无基础 后面再说</h3><p>之前已经了解 <code>堆</code> 这种数据结构的底层采用是 <code>数组</code> 这种最基本数据结构进行存储的(即 物理上是<code>顺序存储</code>)。<br>现在的问题是，假如给了我们一组数据，我们如何使用这些元素在<strong>逻辑上</strong>构建出一个 <code>堆</code> 呢？<br>毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝</p><p>不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。</p><h3 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h3><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><span id="more"></span><br/><h3 id="元素入堆-heapify-堆化操作"><a href="#元素入堆-heapify-堆化操作" class="headerlink" title="元素入堆 - -  heapify 堆化操作"></a>元素入堆 - -  <span style="color:orange">heapify 堆化操作</span></h3><p>我们首先将元素添加到堆底。 之后，<span style="color:red;">由于元素值可能大于堆中其他元素，堆的成立条件可能会被破坏</span>。因此，需要修复从插入节点到根节点的路径上的各个节点，这个操作被称为<span style="color:orange;font-weight:600;">「堆化 heapify」</span>。</p><p>考虑从入堆节点开始，从底至顶执行堆化。如下图所示，我们比较插入节点与其父节点的值，如果插入节点更大，则将它们交换。然后继续执行此操作，从底至顶修复堆中的各个节点，直至越过根节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><p><strong>设节点总数为n，则树的高度为<code>log(n)</code>。由此可知，堆化操作的循环轮数最多为<code>O(logn)</code>，元素入堆操作的时间复杂度为<code>O(logn)</code>。</strong><br>代码参考<a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></p><h3 id="堆顶元素出堆"><a href="#堆顶元素出堆" class="headerlink" title="堆顶元素出堆"></a>堆顶元素出堆</h3><p>堆顶元素是二叉树的根节点，即数组首元素。 如果我们直接从数组中删除首元素，那<span style="color:red;">最后堆化出来的堆可能并不满足完全二叉树的特性</span>。如下图案例：<br><img src="/images/data-structure-algorithm/WX20231116-151752@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p><span style="color:#6A9113;font-weight:600">因此我们需要改变一下思路，比如以下这个巧妙的步骤:</span></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换堆顶元素与堆底元素（即交换根节点与最右叶节点）。</span><br><span class="line">交换完成后，将堆底从列表中删除（由于已经交换，实际上删除的是原来的堆顶元素）。</span><br><span class="line">从根节点开始，从顶至底执行堆化。</span><br></pre></td></tr></table></figure><p><span style="color:#6A9113;font-weight:600">因为我们移除的是数组中的最后一个元素，而在堆化的过程中，都是交换操作，不会出现数组中的“空洞”，所以这种方法堆化之后的结果，肯定满足完全二叉树的特性。</span></p><blockquote><p>如下图，“从顶至底堆化”的操作方向与“从底至顶堆化”相反，我们将根节点的值与其两个子节点的值进行比较，将最大的子节点与根节点交换。然后循环执行此操作，直到越过叶节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><img src="/images/data-structure-algorithm/heap_pop_step10.png" width="262px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote><p>与元素入堆操作相似，堆顶元素出堆操作的时间复杂度也为 <code>O(logn)</code>。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+    <summary type="html">&lt;h3 id=&quot;建堆-暂无基础-后面再说&quot;&gt;&lt;a href=&quot;#建堆-暂无基础-后面再说&quot; class=&quot;headerlink&quot; title=&quot;建堆 - 暂无基础 后面再说&quot;&gt;&lt;/a&gt;建堆 - 暂无基础 后面再说&lt;/h3&gt;&lt;p&gt;之前已经了解 &lt;code&gt;堆&lt;/code&gt; 这种数据结构的底层采用是 &lt;code&gt;数组&lt;/code&gt; 这种最基本数据结构进行存储的(即 物理上是&lt;code&gt;顺序存储&lt;/code&gt;)。&lt;br&gt;现在的问题是，假如给了我们一组数据，我们如何使用这些元素在&lt;strong&gt;逻辑上&lt;/strong&gt;构建出一个 &lt;code&gt;堆&lt;/code&gt; 呢？&lt;br&gt;毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝&lt;/p&gt;
+&lt;p&gt;不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。&lt;/p&gt;
+&lt;h3 id=&quot;访问堆顶元素&quot;&gt;&lt;a href=&quot;#访问堆顶元素&quot; class=&quot;headerlink&quot; title=&quot;访问堆顶元素&quot;&gt;&lt;/a&gt;访问堆顶元素&lt;/h3&gt;&lt;p&gt;堆顶元素即为二叉树的根节点，也就是数组的首个元素&lt;/p&gt;
+&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;/* 访问堆顶元素 */&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;int peek() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    return maxHeap.get(0);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</summary>
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」堆</title>
     <link href="http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/"/>
     <id>http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/</id>
     <published>2020-11-02T13:16:14.000Z</published>
-    <updated>2023-11-16T07:31:20.962Z</updated>
+    <updated>2023-11-17T08:11:10.667Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><blockquote><p>lant:<br><span style="color:#363795"><br><strong>之所以<code>树</code>这种数据结构学完紧接着就是<code>堆</code>，是因为其实<code>堆</code>也是<code>树</code>，不过是一种<code>特殊的树</code>，怎么个特殊法呢?<br>首先它得是一棵<code>完全二叉树</code>；<br>其次，堆中的每个节点的值都必须 大于等于&#x2F;小于等于 其子树中每个节点的值；(前者叫<code>大顶堆</code>，后者叫<code>小顶堆</code>)</strong><br></span><br><img src="/images/data-structure-algorithm/min_heap_and_max_heap.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。</p></blockquote><span id="more"></span><br/><blockquote><p>根据堆的特性区判断下面这几个<code>二叉树</code>是不是<code>堆</code><br><img src="/images/data-structure-algorithm/4c452a1ad3b2d152daa2727d06097099.webp" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其中第 1 个和第 2 个是大顶堆，第 3 个是小顶堆，第 4 个不是堆。<br/><br><span style="color:darkorange;font-weight: bold;">除此之外，从图中还可以看出来，对于同一组数据，我们可以构建多种不同形态的堆。</span></p></blockquote><h3 id="堆的应用"><a href="#堆的应用" class="headerlink" title="堆的应用"></a>堆的应用</h3><p>在熟悉<code>堆</code>这种数据结构的常用操作前，我们还是先了解下<code>堆</code>一般被用到哪些场景吧。</p><ol><li><p>首先就是 <code>优先队列</code>：<br><code>堆</code>通常作为实现<code>优先队列</code>的首选数据结构，其入队和出队操作的时间复杂度均为 <code>O(logn)</code>，而建队操作为 <code>O(n)</code>，这些操作都非常高效。</p></li><li><p>堆排序：<br>给定一组数据，我们可以用它们建立一个堆，然后不断地执行元素出堆操作，从而得到有序数据。然而，我们通常会使用一种更优雅的方式实现堆排序，详见后续的堆排序章节。</p></li><li><p>求解 <code>Top K</code> (即获取最大的K个元素)：<br>这是一个经典的算法问题，同时也是一种典型应用，例如选择热度前 10 的新闻作为微博热搜，选取销量前 10 的商品等。</p></li></ol><h3 id="堆的实现"><a href="#堆的实现" class="headerlink" title="堆的实现"></a>堆的实现</h3><h4 id="堆的存储与表示"><a href="#堆的存储与表示" class="headerlink" title="堆的存储与表示"></a>堆的存储与表示</h4><p>之前在学<code>二叉树</code>时，已经了解到<code>完全二叉树</code>非常适合用<code>数组</code>来存储。而<code>堆</code>正是一种<code>完全二叉树</code>，所以我们也将采用<code>数组</code>来存储<code>堆</code>。</p><p>当使用<code>数组</code>表示<code>二叉树</code>时，元素代表节点值，索引代表节点在二叉树中的位置。节点指针通过<code>索引映射公式</code>来实现。<br>如下图，给定索引 i，其左子节点索引为 2<em>i，右子节点索引为 2</em>i+1，父节点索引为 i&#x2F;2（向下取整）。当索引越界时，表示空节点或节点不存在。<br><img src="/images/data-structure-algorithm/representation_of_heap.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p>我们可以将索引映射公式封装成函数，方便后续使用</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/* 获取左子节点索引 */</span><br><span class="line">int left(int i) &#123;</span><br><span class="line">    return 2 * i + 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取右子节点索引 */</span><br><span class="line">int right(int i) &#123;</span><br><span class="line">    return 2 * i + 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取父节点索引 */</span><br><span class="line">int parent(int i) &#123;</span><br><span class="line">    return (i - 1) / 2; // 向下整除</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h4 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h4><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h4 id="元素入堆-heapify-堆化操作"><a href="#元素入堆-heapify-堆化操作" class="headerlink" title="元素入堆 - -  heapify 堆化操作"></a>元素入堆 - -  <span style="color:orange">heapify 堆化操作</span></h4><p>我们首先将元素添加到堆底。 之后，<span style="color:red;">由于元素值可能大于堆中其他元素，堆的成立条件可能会被破坏</span>。因此，需要修复从插入节点到根节点的路径上的各个节点，这个操作被称为<span style="color:orange;font-weight:600;">「堆化 heapify」</span>。</p><p>考虑从入堆节点开始，从底至顶执行堆化。如下图所示，我们比较插入节点与其父节点的值，如果插入节点更大，则将它们交换。然后继续执行此操作，从底至顶修复堆中的各个节点，直至越过根节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><p><strong>设节点总数为n，则树的高度为<code>log(n)</code>。由此可知，堆化操作的循环轮数最多为<code>O(logn)</code>，元素入堆操作的时间复杂度为<code>O(logn)</code>。</strong><br>代码参考<a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></p><h4 id="堆顶元素出堆"><a href="#堆顶元素出堆" class="headerlink" title="堆顶元素出堆"></a>堆顶元素出堆</h4><p>堆顶元素是二叉树的根节点，即数组首元素。 如果我们直接从数组中删除首元素，那<span style="color:red;">最后堆化出来的堆可能并不满足完全二叉树的特性</span>。如下图案例：<br><img src="/images/data-structure-algorithm/WX20231116-151752@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p><span style="color:#6A9113;font-weight:600">因此我们需要改变一下思路，比如以下这个巧妙的步骤:</span></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换堆顶元素与堆底元素（即交换根节点与最右叶节点）。</span><br><span class="line">交换完成后，将堆底从列表中删除（由于已经交换，实际上删除的是原来的堆顶元素）。</span><br><span class="line">从根节点开始，从顶至底执行堆化。</span><br></pre></td></tr></table></figure><p><span style="color:#6A9113;font-weight:600">因为我们移除的是数组中的最后一个元素，而在堆化的过程中，都是交换操作，不会出现数组中的“空洞”，所以这种方法堆化之后的结果，肯定满足完全二叉树的特性。</span></p><blockquote><p>如下图，“从顶至底堆化”的操作方向与“从底至顶堆化”相反，我们将根节点的值与其两个子节点的值进行比较，将最大的子节点与根节点交换。然后循环执行此操作，直到越过叶节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><img src="/images/data-structure-algorithm/heap_pop_step10.png" width="262px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote><p>与元素入堆操作相似，堆顶元素出堆操作的时间复杂度也为 <code>O(logn)</code>。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    <content type="html"><![CDATA[<h3 id="认识堆"><a href="#认识堆" class="headerlink" title="认识堆"></a>认识堆</h3><blockquote><p>lant:<br><span style="color:#363795"><br><strong>之所以<code>树</code>这种数据结构学完紧接着就是<code>堆</code>，是因为其实<code>堆</code>也是<code>树</code>，不过是一种<code>特殊的树</code>，怎么个特殊法呢?<br>首先它得是一棵<code>完全二叉树</code>；<br>其次，堆中的每个节点的值都必须 大于等于&#x2F;小于等于 其子树中每个节点的值；(前者叫<code>大顶堆</code>，后者叫<code>小顶堆</code>)</strong><br></span><br><img src="/images/data-structure-algorithm/min_heap_and_max_heap.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。</p></blockquote><span id="more"></span><br/><blockquote><p>根据堆的特性区判断下面这几个<code>二叉树</code>是不是<code>堆</code><br><img src="/images/data-structure-algorithm/4c452a1ad3b2d152daa2727d06097099.webp" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其中第 1 个和第 2 个是大顶堆，第 3 个是小顶堆，第 4 个不是堆。<br/><br><span style="color:darkorange;font-weight: bold;">除此之外，从图中还可以看出来，对于同一组数据，我们可以构建多种不同形态的堆。</span></p></blockquote><h3 id="堆的存储与表示"><a href="#堆的存储与表示" class="headerlink" title="堆的存储与表示"></a>堆的存储与表示</h3><p>之前在学<code>二叉树</code>时，已经了解到<code>完全二叉树</code>非常适合用<code>数组</code>来存储。而<code>堆</code>正是一种<code>完全二叉树</code>，所以我们也将采用<code>数组</code>来存储<code>堆</code>。</p><p>当使用<code>数组</code>表示<code>二叉树</code>时，元素代表节点值，索引代表节点在二叉树中的位置。节点指针通过<code>索引映射公式</code>来实现。<br>如下图，给定索引 i，其左子节点索引为 2<em>i，右子节点索引为 2</em>i+1，父节点索引为 i&#x2F;2（向下取整）。当索引越界时，表示空节点或节点不存在。<br><img src="/images/data-structure-algorithm/representation_of_heap.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p>我们可以将索引映射公式封装成函数，方便后续使用</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/* 获取左子节点索引 */</span><br><span class="line">int left(int i) &#123;</span><br><span class="line">    return 2 * i + 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取右子节点索引 */</span><br><span class="line">int right(int i) &#123;</span><br><span class="line">    return 2 * i + 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取父节点索引 */</span><br><span class="line">int parent(int i) &#123;</span><br><span class="line">    return (i - 1) / 2; // 向下整除</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><p>其实我们从<code>堆的存储</code>原理中看出，将<code>堆</code>中元素放入数组的顺序，其实是个 <code>“层序遍历”(即 广度优先遍历)</code> 的顺序来的。</p><h3 id="堆的应用"><a href="#堆的应用" class="headerlink" title="堆的应用"></a>堆的应用</h3><p>在熟悉<code>堆</code>这种数据结构的常用操作前，我们还是先了解下<code>堆</code>一般被用到哪些场景吧。</p><ol><li><p>首先就是 <code>优先队列</code>：<code>堆</code>通常作为实现<code>优先队列</code>的首选数据结构</p><blockquote><p>lant:<br>因为我们如果对一个<code>堆</code>结构不断地做<code>堆顶元素出堆</code>操作(下一篇会讲到这个操作)，你会发现元素会根据大顶堆&#x2F;小顶堆的不同，按照从大到小&#x2F;从小到大的顺序依次排列出来，且元素入堆和出堆的时间复杂度均为<code>O(logn)</code>。<br>如果是个大顶堆的话，我们就可以将其看做一个<code>优先队列</code>(元素进入后，可以按值从大到小被取出)，其入队和出队操作的时间复杂度均为 <code>O(logn)</code>，而建堆操作为 <code>O(n)</code>，这些操作都非常高效。</p></blockquote></li><li><p>堆排序：<br>给定一组数据，我们可以用它们建立一个堆，然后不断地执行元素出堆操作，从而得到有序数据。然而，我们通常会使用一种更优雅的方式实现堆排序，详见后续的堆排序章节。</p></li><li><p>求解 <code>Top K</code> (即获取最大的K个元素)：<br>这是一个经典的算法问题，同时也是一种典型应用，例如选择热度前 10 的新闻作为微博热搜，选取销量前 10 的商品等。</p></li></ol><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
     
     
-    <summary type="html">&lt;h3 id=&quot;堆&quot;&gt;&lt;a href=&quot;#堆&quot; class=&quot;headerlink&quot; title=&quot;堆&quot;&gt;&lt;/a&gt;堆&lt;/h3&gt;&lt;blockquote&gt;
+    <summary type="html">&lt;h3 id=&quot;认识堆&quot;&gt;&lt;a href=&quot;#认识堆&quot; class=&quot;headerlink&quot; title=&quot;认识堆&quot;&gt;&lt;/a&gt;认识堆&lt;/h3&gt;&lt;blockquote&gt;
 &lt;p&gt;lant:&lt;br&gt;&lt;span style=&quot;color:#363795&quot;&gt;&lt;br&gt;&lt;strong&gt;之所以&lt;code&gt;树&lt;/code&gt;这种数据结构学完紧接着就是&lt;code&gt;堆&lt;/code&gt;，是因为其实&lt;code&gt;堆&lt;/code&gt;也是&lt;code&gt;树&lt;/code&gt;，不过是一种&lt;code&gt;特殊的树&lt;/code&gt;，怎么个特殊法呢?&lt;br&gt;首先它得是一棵&lt;code&gt;完全二叉树&lt;/code&gt;；&lt;br&gt;其次，堆中的每个节点的值都必须 大于等于&amp;#x2F;小于等于 其子树中每个节点的值；(前者叫&lt;code&gt;大顶堆&lt;/code&gt;，后者叫&lt;code&gt;小顶堆&lt;/code&gt;)&lt;/strong&gt;&lt;br&gt;&lt;/span&gt;&lt;br&gt;&lt;img src=&quot;/images/data-structure-algorithm/min_heap_and_max_heap.png&quot; width=&quot;450px&quot; style=&quot;margin-left:0px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;&lt;br&gt;对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。&lt;/p&gt;
 &lt;/blockquote&gt;</summary>
     

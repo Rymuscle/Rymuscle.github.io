@@ -2,7 +2,43 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/</loc>
+    
+    <lastmod>2023-11-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/</loc>
+    
+    <lastmod>2023-11-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/</loc>
+    
+    <lastmod>2023-11-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/</loc>
+    
+    <lastmod>2023-11-17</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/</loc>
     
     <lastmod>2023-11-16</lastmod>
     
@@ -11,7 +47,25 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/</loc>
+    <loc>http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/</loc>
+    
+    <lastmod>2023-11-16</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/</loc>
+    
+    <lastmod>2023-11-16</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/</loc>
     
     <lastmod>2023-11-16</lastmod>
     
@@ -121,7 +175,7 @@
 
   <url>
     <loc>http://rymuscle.github.io/</loc>
-    <lastmod>2023-11-16</lastmod>
+    <lastmod>2023-11-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -129,14 +183,14 @@
   
   <url>
     <loc>http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
-    <lastmod>2023-11-16</lastmod>
+    <lastmod>2023-11-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2023-11-16</lastmod>
+    <lastmod>2023-11-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -145,7 +199,14 @@
   
   <url>
     <loc>http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2023-11-16</lastmod>
+    <lastmod>2023-11-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/categories/redis/</loc>
+    <lastmod>2023-11-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

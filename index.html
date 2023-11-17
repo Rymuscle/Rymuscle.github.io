@@ -87,7 +87,7 @@
 
       <div class="outer">
         <section id="main">
-  <article id="post-data-structure-algorithm/11-2.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-redis/04. basic-data-structure-sorted-BitMap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -95,7 +95,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 （中篇）</a>
+      <a class="p-name article-title" href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
     </h1>
   
 
@@ -106,17 +106,17 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-03T14:43:20.000Z" itemprop="datePublished">2020年11月03日</time>
+  <time class="dt-published" datetime="2021-04-18T10:36:56.000Z" itemprop="datePublished">2021年04月18日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+    <a class="article-category-link" href="/categories/redis/">redis</a>
   </div>
 
       
       
-<a href="/2020/11/03/data-structure-algorithm/11-2.heap/#comments" class="article-comment-link">
+<a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -126,10 +126,319 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="建堆操作"><a href="#建堆操作" class="headerlink" title="建堆操作"></a>建堆操作</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li>
-<li>《数据结构与算法之美》王争</li>
-</ul>
+        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-redis/04. basic-data-structure-sorted-set" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-17T06:09:51.000Z" itemprop="datePublished">2021年04月17日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/redis/">redis</a>
+  </div>
+
+      
+      
+<a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-redis/03. basic-data-structure-set" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-15T14:12:04.000Z" itemprop="datePublished">2021年04月15日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/redis/">redis</a>
+  </div>
+
+      
+      
+<a href="/2021/04/15/redis/03.%20basic-data-structure-set/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-redis/02. basic-data-structure-list" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-14T12:43:20.000Z" itemprop="datePublished">2021年04月14日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/redis/">redis</a>
+  </div>
+
+      
+      
+<a href="/2021/04/14/redis/02.%20basic-data-structure-list/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-redis/01. basic-data-structure-hash" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-04-11T11:43:20.000Z" itemprop="datePublished">2021年04月11日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/redis/">redis</a>
+  </div>
+
+      
+      
+<a href="/2021/04/11/redis/01.%20basic-data-structure-hash/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="O-1-时间复杂度的操作"><a href="#O-1-时间复杂度的操作" class="headerlink" title="O(1)时间复杂度的操作"></a>O(1)时间复杂度的操作</h3><ol>
+<li>了解数据结构的都知道，<code>Hash表</code>这种数据结构最基本的 增<code>HSET</code>、删<code>HDEL</code>、改<code>HSET``HSETNX</code>、查<code>HGET</code>、<code>HEXISTS</code> 操作时间复杂度都是<code>O(1)</code>；</li>
+<li><code>HLEN</code> 获取哈希中的字段数  (todo: redis估计也是在散列表发生变化时，对长度额外做了记录)</li>
+<li>留意：<code>HSET</code>已经具备了<code>HMSET</code>同时为指定的一个hash key设置多个field&#x2F;value的功能，所以从 Redis 版本 4.0.0 开始，此命令被视为已弃用。(参考<a target="_blank" rel="noopener" href="https://www.tkcnn.com/redis/commands/Hmset.html">redis手册</a>)</li>
+</ol>
+<h3 id="O-n-时间复杂度的操作"><a href="#O-n-时间复杂度的操作" class="headerlink" title="O(n)时间复杂度的操作"></a>O(n)时间复杂度的操作</h3><ol>
+<li>不过，redis中 <code>HSET</code>、<code>HDEL</code> 都支持同时设置或者删除多个field, 此时的时间复杂度就是 <code>O(n)</code> 了。</li>
+<li><code>HGETALL key</code> 获取哈希表中指定key 中的所有字段和值</li>
+<li><code>HVALS key</code> 获取哈希表中指定key 中的所有值</li>
+<li><code>HKEYS key</code> 获取哈希表中指定key 中的所有字段</li>
+</ol>
+<span style="color:#6A9113;font-weight:600">
+lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些操作在操作Hash表时，都是针对指定 key 进行操作的。
+<br/>
+你的每个key中的 field/value 对儿会很多么?
+<br/>
+所以，效率下降应该不是特别严重，感觉也还算是常量级的时间复杂度吧!
+</span>
+
+<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>特别适合存储对象信息</p>
+<blockquote>
+<p><strong>比如存储 用户信息 这种map信息:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset jm:user:1 name austin age 25 address guangzhou </span><br><span class="line">&gt;hset jm:user:2 name austin age 25 address guangzhou</span><br></pre></td></tr></table></figure>
+<p><span style="color:red">如果用普通的 key&#x2F;value 结构来存储，主要有下面两种存储方式:</span><br>用户信息对象有多少成员就存成多少个key-value对儿，用用户ID+对应属性的名称作为唯一标识来取得对应属性的值，key部分的用户ID为重复存储，如果存在大量这样的数据，内存浪费还是非常可观的。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1:name austin</span><br><span class="line">&gt;set user:1:age 25</span><br><span class="line">&gt;set user:1:address guangzhou</span><br></pre></td></tr></table></figure>
+<p>将用户ID作为查找key,把其他信息封装成一个对象以序列化的方式存储，这种方式的缺点是，增加了序列化&#x2F;反序列化的开销，并且在需要修改其中一项信息时，需要把整个对象取回，并且修改操作需要对并发进行保护，引入CAS等复杂问题。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125; </span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<br/>
+
+<blockquote>
+<p><strong>再比如存储 帖子 点赞数,评论数,点击数 信息</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset article:1 star 9 comment 3 click 21</span><br><span class="line">&gt;hset article:2 star 2 comment 0 click 7</span><br><span class="line">&gt;hset article:3 star 6 comment 4 click 19</span><br></pre></td></tr></table></figure>
+</blockquote>
+<br/>
+
+<blockquote>
+<p><strong>甚至存储 订单信息：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset order:692343390123213 amount 218.5 orderTime 2021-04-11 19:20:20 productId 1232 productName 黑人牙膏 ...</span><br><span class="line">&gt;hset order:128043390155801 amount 18.9 orderTime 2021-04-11 13:11:09 productId 345 productName 黑人牙刷 ...</span><br><span class="line">&gt;hset order:752344450123149 amount 21.35 orderTime 2021-04-11 21:29:56 productId 124 productName 短袖 ...</span><br></pre></td></tr></table></figure>
+</blockquote>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.tkcnn.com/redis/commands/Hset.html">Redis手册</a></p>
 
         
         
@@ -159,6 +468,136 @@
 </article>
 
 
+  <article id="post-data-structure-algorithm/11-3.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/11/03/data-structure-algorithm/11-3.heap/">「数据结构与算法」建堆 从 O(nlogn) 到 O(n) 🐂🐂🐂</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-11-03T14:07:39.000Z" itemprop="datePublished">2020年11月03日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+      
+<a href="/2020/11/03/data-structure-algorithm/11-3.heap/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="方式一-逐个元素执行-入堆-操作"><a href="#方式一-逐个元素执行-入堆-操作" class="headerlink" title="方式一: 逐个元素执行 入堆 操作"></a>方式一: 逐个元素执行 <code>入堆</code> 操作</h3><ul>
+<li>首先创建一个空堆，然后遍历数组，依次对每个元素执行“入堆操作”，即先将元素添加至堆的尾部，再对该元素执行<span style="color:orange;font-weight:600;">“从底至顶”堆化。</span></li>
+<li>每当一个元素入堆，堆的长度就加一。由于节点是从顶到底依次被添加进<code>二叉树</code>的，因此<code>堆</code>是 <code>自上而下</code> 地构建的。</li>
+<li>设元素数量为 n ，每个元素的入堆操作使用 <code>O(log n)</code> 时间，因此该建堆方法的时间复杂度为 <code>O(log n)</code>。</li>
+</ul>
+<h3 id="方式二-通过遍历堆化实现"><a href="#方式二-通过遍历堆化实现" class="headerlink" title="方式二: 通过遍历堆化实现"></a>方式二: 通过遍历堆化实现</h3><p>第一种建堆思路的处理过程是从前往后遍历数组数据，并且每个数据插入堆中时，都是<code>从下往上堆化</code>。<br>实际上，我们可以用一种更为高效的建堆方法(从后往前遍历数组，并且每个数据都是<code>从上往下堆化</code>)：</p>
+<blockquote>
+<img src="/images/data-structure-algorithm/WX20231117-161901@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+因为叶子节点往下堆化只能自己跟自己比较，不需要堆化，所以我们直接从第一个非叶子节点开始，依次堆化就行了。
+<span style="color:#6A9113;font-weight:600;">因此在开始倒序遍历数组时，要从下标为 n/2 开始往前遍历，因为只有 下标从 n/2 到 1 的数据才需要进行堆化，而下标从 n/2 + 1 到 n 的节点是叶子节点，不需要堆化</span>。
+<span style="color:orange;font-weight:600;">实际上，对于完全二叉树来说，下标从 n/2 到 n 的节点都是叶子节点。</span>
+</blockquote>
+      
+    </div>
+    <footer class="article-footer">
+      
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+        <p class="article-more-link">
+          <a href="/2020/11/03/data-structure-algorithm/11-3.heap/#more">Read More</a>
+        </p>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-data-structure-algorithm/11-2.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 基本操作</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-11-03T11:43:20.000Z" itemprop="datePublished">2020年11月03日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+      
+<a href="/2020/11/03/data-structure-algorithm/11-2.heap/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="建堆-暂无基础-后面再说"><a href="#建堆-暂无基础-后面再说" class="headerlink" title="建堆 - 暂无基础 后面再说"></a>建堆 - 暂无基础 后面再说</h3><p>之前已经了解 <code>堆</code> 这种数据结构的底层采用是 <code>数组</code> 这种最基本数据结构进行存储的(即 物理上是<code>顺序存储</code>)。<br>现在的问题是，假如给了我们一组数据，我们如何使用这些元素在<strong>逻辑上</strong>构建出一个 <code>堆</code> 呢？<br>毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝</p>
+<p>不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。</p>
+<h3 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h3><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      
+        
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+        <p class="article-more-link">
+          <a href="/2020/11/03/data-structure-algorithm/11-2.heap/#more">Read More</a>
+        </p>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
   <article id="post-data-structure-algorithm/11-1.heap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
@@ -167,7 +606,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆 （上篇）⭐️</a>
+      <a class="p-name article-title" href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆</a>
     </h1>
   
 
@@ -198,7 +637,7 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><blockquote>
+        <h3 id="认识堆"><a href="#认识堆" class="headerlink" title="认识堆"></a>认识堆</h3><blockquote>
 <p>lant:<br><span style="color:#363795"><br><strong>之所以<code>树</code>这种数据结构学完紧接着就是<code>堆</code>，是因为其实<code>堆</code>也是<code>树</code>，不过是一种<code>特殊的树</code>，怎么个特殊法呢?<br>首先它得是一棵<code>完全二叉树</code>；<br>其次，堆中的每个节点的值都必须 大于等于&#x2F;小于等于 其子树中每个节点的值；(前者叫<code>大顶堆</code>，后者叫<code>小顶堆</code>)</strong><br></span><br><img src="/images/data-structure-algorithm/min_heap_and_max_heap.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。</p>
 </blockquote>
       
@@ -363,399 +802,6 @@
 </article>
 
 
-  <article id="post-data-structure-algorithm/10-7.AVL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-29T15:13:09.000Z" itemprop="datePublished">2020年10月29日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/29/data-structure-algorithm/10-7.AVL/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="AVL-树常用操作"><a href="#AVL-树常用操作" class="headerlink" title="AVL 树常用操作"></a>AVL 树常用操作</h3><h4 id="插入操作"><a href="#插入操作" class="headerlink" title="插入操作"></a>插入操作</h4><p>AVL 树的节点插入操作与二叉搜索树在主体上类似。唯一的区别在于，在 AVL 树中插入节点后，从该节点到根节点的路径上可能会出现一系列失衡节点。因此，我们需要从这个节点开始，自底向上执行旋转操作，使所有失衡节点恢复平衡。</p>
-<h4 id="删除操作"><a href="#删除操作" class="headerlink" title="删除操作"></a>删除操作</h4><p>类似地，在二叉搜索树的删除节点方法的基础上，需要从底至顶地执行旋转操作，使所有失衡节点恢复平衡</p>
-<h4 id="查找节点"><a href="#查找节点" class="headerlink" title="查找节点"></a>查找节点</h4><p>AVL 树的节点查找操作与二叉搜索树一致，在此不再赘述。</p>
-<h3 id="AVL-树典型应用"><a href="#AVL-树典型应用" class="headerlink" title="AVL 树典型应用"></a>AVL 树典型应用</h3><p>组织和存储大型数据，适用于高频查找、低频增删的场景。<br>用于构建数据库中的索引系统。<br>红黑树在许多应用中比 AVL 树更受欢迎。这是因为<strong>红黑树的平衡条件相对宽松</strong>，在红黑树中插入与删除节点所需的旋转操作相对较少，其节点增删操作的平均效率更高。</p>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_tree/avl_tree/">hello-algo</a></li>
-<li>《数据结构与算法之美》王争</li>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/yang_yulei/article/details/26066409">https://blog.csdn.net/yang_yulei/article/details/26066409</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/594775323">https://zhuanlan.zhihu.com/p/594775323</a></li>
-<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/604835603?utm_id=0">https://zhuanlan.zhihu.com/p/604835603?utm_id=0</a></li>
-</ul>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/10-6.AVL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/29/data-structure-algorithm/10-6.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（上）</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-29T14:09:21.000Z" itemprop="datePublished">2020年10月29日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/29/data-structure-algorithm/10-6.AVL/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="lant："><a href="#lant：" class="headerlink" title="lant："></a>lant：</h3><p>通过上一篇对 <code>BST</code> 和 <code>hash表</code> 这两种数据结构的对比，我们知道虽然 <code>BST</code>在平衡状态下的 查、插、删 时间复杂度能达到<code>O(logn)</code>，但相比 <code>hash表</code>的 <code>O(1)</code>常量级时间复杂度还是逊色一点，不过它有<code>hash表</code>无法做到的，所以有存在的必要性和合理性。<br>但上面也提到了，BST需要在平衡状态下才能发挥出威力，否则它的操作效率会逐渐降低到<code>O(n)</code>级。<br>为了解决极端情况下，二叉树会退化为链表的情况，我们就需要设计一种<code>平衡二叉查找树</code>，也就是今天要讲的这种数据结构。<br>通俗的讲，<code>平衡二叉查找树</code>就是说，一棵<code>二叉查找树</code>在频繁地增删改查操作后，它依然能不断通过自我修复来维护自身的平衡性，从而始终保持高效的数据操作性能。</p>
-<h3 id="自平衡二叉查找树"><a href="#自平衡二叉查找树" class="headerlink" title="自平衡二叉查找树"></a>自平衡二叉查找树</h3><p>其实<code>平衡二叉查找树</code>有挺多，常见的比如 <code>AVL树</code>，<code>SplayTree(伸展树)</code>、<code>Treap(树堆)</code>、<code>红黑树</code>。<br>不过你可能留意到，每当提到<code>平衡二叉查找树</code>，听到的基本都是<code>红黑树</code>。它的出镜率甚至要高于“平衡二叉查找 树”这几个字，有时候，我们甚至默认<code>平衡二叉查找树</code>就是<code>红黑树</code>，不过本篇暂时不聊这个明星树，后面会专门再聊。<br>下面先看最早的AVL树。</p>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/29/data-structure-algorithm/10-6.AVL/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/10-5.bst" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/28/data-structure-algorithm/10-5.bst/">「数据结构与算法」二叉搜索树 binary search tree</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-28T13:35:43.000Z" itemprop="datePublished">2020年10月28日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/28/data-structure-algorithm/10-5.bst/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>说到<code>二叉查找树</code>，从名字你也能猜出这种数据结构的估计就是用二叉树来做快速查找的。<br>事实上<code>二叉搜索树</code>最大的特点就是，支持动态数据集合的快速插入、删除、查找操作。<br>而我们之前学过的<code>散列表</code>也是支持这些操作的，并且<code>散列表</code>的这些操作比<code>二叉查找树</code>更高效，时间复杂度是 <code>O(1)</code>。<br>既然有了这么高效的<code>散列表</code>，还要<code>二叉查找树</code>干啥？有没有哪些地方是<code>散列表</code>做不了，必须要用<code>二叉查找树</code>来做的呢？</p>
-<p>带着这些问题，下面来学习今天的内容，<strong>二叉查找树</strong>！</p>
-<h3 id="二叉搜索树-binary-search-tree"><a href="#二叉搜索树-binary-search-tree" class="headerlink" title="二叉搜索树 binary search tree"></a>二叉搜索树 binary search tree</h3><p>首先<code>二叉查找树</code>是建立在<code>二叉树</code>的基础上的，不过，它在<code>二叉树</code>的基础上又新增了自己的特性：<br><strong>二叉查找树要求，在树中的任意一个节点，其左子树中的每个节点的值，都要小于这个节点的值，而右子树节点的值都大于这个节点的值。</strong>下面是几个<code>二叉查找树</code>的例子，估计你一看应该就清楚了<br><img src="/images/data-structure-algorithm/b-s-t-0001.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/28/data-structure-algorithm/10-5.bst/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/10-4.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/">「数据结构与算法」用数组表示(存储)二叉树</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-28T12:57:19.000Z" itemprop="datePublished">2020年10月28日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <ol>
-<li><p>之前我们的<code>二叉树</code>是使用<code>链表</code>这种最基本的数据结构来存储的（<code>链式存储</code>）。 而本篇我们将使用<code>数组</code>这种最基本的结构来存储<code>二叉树</code>（<code>顺序存储</code>）。</p>
-<img src="/images/data-structure-algorithm/WX20231115-113301@2x.png" width="400px" style="margin-left:0px;"/>
-</li>
-<li><p>尝试用数组存储一棵二叉树</p>
-<blockquote>
-<p>如果将根节点A存储在下标 <code>i = 1</code> 的位置，那左子节点B会存储在下标 <code>2 * i = 2</code> 的位置，右子节点C会存储在 <code>2 * i + 1 = 3</code> 的位置。<br>以此类推，B 节点的左子节点D会存储在 <code>2 * i = 2 * 2 = 4</code> 的位置，右子节点E存储在 <code>2 * i + 1 = 2 * 2 + 1 = 5</code> 的位置。<br>……<br>最终的二叉树和数组的对应关系如下图:<br><img src="/images/data-structure-algorithm/WX20231115-114707@2x.png" width="250px" style="margin-left:0px;"/><br>总结一下，就是，<strong>如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&#x2F;2 的位置存储就是它的父节点。</strong><br><strong>通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。</strong></p>
-</blockquote>
-</li>
-<li><p>比较遗憾的是，刚刚我们举的例子是将一棵完全二叉树存储到了数组中，为了方便通过下标计算树中各节点位置，所以“浪费”了一个下标为 0 的存储位置。<span style="color:red">但如果我们往数组中存储的是一棵非完全二叉树，那就会浪费比较多的数组存储空间了</span>。</p>
-<div style="display: flex;align-content: center;">
-<img src="/images/data-structure-algorithm/WX20231115-115837@2x.png" width="260px" />
-<img src="/images/data-structure-algorithm/array_representation_with_empty.png" width="350px" style="margin-left: 20px;"/>
-</div></li>
-</ol>
-<p>可以看到，我们为了使  <code>根节点下标为i, 左子节点下标为2 * i, 右子节点下标为 2 * i + 1</code> 这个公式来仍然生效(<strong>方便计算各节点位置从而串起整棵树</strong>)，<span style="color:red">就不得不将一些None节点的位置也在数组中留出来。 这样就会浪费比较多的数组存储空间。</span></p>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/28/data-structure-algorithm/10-4.binary-tree/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/10-3.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/">「数据结构与算法」二叉树遍历</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-27T13:52:36.000Z" itemprop="datePublished">2020年10月27日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>到目前为止，我们的<code>二叉树</code>从下层的<code>物理结构</code>角度来看, 仍然是使用<code>链表</code>这种最基本的的数据结构进行的存储，因此其遍历方式仍是通过指针逐个访问节点。 <span style="color:red;">然而</span>，从上层的<code>逻辑角度</code>来看，<code>二叉树</code>是一种<code>非线性数据结构</code>，这就使得二叉树(<span style="color:orange;">在应用层逻辑上</span>)的遍历要比遍历链表更加复杂，需要借助搜索算法来实现。</p>
-<p>二叉树常见的遍历方式包括 <code>层序遍历</code>、<code>前序遍历</code>、<code>中序遍历</code> 和 <code>后序遍历</code> 等。</p>
-<h3 id="广度优先遍历-–-「层序遍历-level-order-traversal」"><a href="#广度优先遍历-–-「层序遍历-level-order-traversal」" class="headerlink" title="广度优先遍历 – 「层序遍历 level-order traversal」"></a>广度优先遍历 – 「层序遍历 level-order traversal」</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>从顶部到底部逐层遍历二叉树，并在每一层按照从左到右的顺序访问节点。<br>层序遍历本质上属于 <code>「广度优先遍历 breadth-first traversal」</code> ，它体现了一种“一圈一圈向外扩展”的逐层遍历方式。</p>
-<div style="display: flex;">
-<img src="/images/data-structure-algorithm/binary_tree_bfs.png" width="400px" style="margin-left:0px;"/>
-<img src="/images/data-structure-algorithm/WX20231114-210129@2x.png" width="350px" style="margin-left:10px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/10-2.binary-tree" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/10/27/data-structure-algorithm/10-2.binary-tree/">「数据结构与算法」常见二叉树类型</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-10-27T13:23:19.000Z" itemprop="datePublished">2020年10月27日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/10/27/data-structure-algorithm/10-2.binary-tree/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="「完美二叉树-perfect-binary-tree」"><a href="#「完美二叉树-perfect-binary-tree」" class="headerlink" title="「完美二叉树 perfect binary tree」"></a>「完美二叉树 perfect binary tree」</h3><p>所有层的节点都被完全填满。<br>在完美二叉树中，叶节点的度为 0，其余所有节点的度都为 2；若树高度为 h，则节点总数为 $2^{h+1}-1$ 。<br>呈现标准的指数级关系，反映了自然界中常见的细胞分裂现象。<br><img src="/images/data-structure-algorithm/perfect_binary_tree.png" width="450px" style="margin-left:0px;"/></p>
-      
-    </div>
-    <footer class="article-footer">
-      
-        
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-        <p class="article-more-link">
-          <a href="/2020/10/27/data-structure-algorithm/10-2.binary-tree/#more">Read More</a>
-        </p>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
 
     <nav id="page-nav">
 
@@ -774,23 +820,23 @@
       <ul>
         
           <li>
-            <a href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 （中篇）</a>
+            <a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
           </li>
         
           <li>
-            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆 （上篇）⭐️</a>
+            <a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
           </li>
         
           <li>
-            <a href="/2020/10/31/data-structure-algorithm/10-9.red-blackTree/">「数据结构与算法」红黑树 Red-Black Tree</a>
+            <a href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
           </li>
         
           <li>
-            <a href="/2020/10/30/data-structure-algorithm/10-8.2-3Tree/">「数据结构与算法」2-3树</a>
+            <a href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
           </li>
         
           <li>
-            <a href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
+            <a href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
           </li>
         
       </ul>
@@ -812,7 +858,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">12</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">13</span></li></ul>
     </div>
   </div>
 
@@ -822,7 +868,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">13</span></li></ul>
     </div>
   </div>
 
@@ -832,7 +878,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

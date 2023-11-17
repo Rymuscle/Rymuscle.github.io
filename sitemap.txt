@@ -1,5 +1,11 @@
+http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/
 http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/
 http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/
+http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/
+http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/
+http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/
+http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/
+http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/
 http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/
 http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-6.AVL/
 http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/
@@ -15,3 +21,4 @@ http://rymuscle.github.io/
 http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/
 http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/
 http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/
+http://rymuscle.github.io/categories/redis/

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
   
-  <title>「数据结构与算法」堆 （中篇） | rymuscle的技术博客</title>
+  <title>「数据结构与算法」堆 基本操作 | rymuscle的技术博客</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   
   
@@ -94,7 +94,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「数据结构与算法」堆 （中篇）
+      「数据结构与算法」堆 基本操作
     </h1>
   
 
@@ -105,7 +105,7 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-03T14:43:20.000Z" itemprop="datePublished">2020年11月03日</time>
+  <time class="dt-published" datetime="2020-11-03T11:43:20.000Z" itemprop="datePublished">2020年11月03日</time>
 </span>
       
   <div class="article-category">
@@ -139,7 +139,57 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="建堆操作"><a href="#建堆操作" class="headerlink" title="建堆操作"></a>建堆操作</h3><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+        <h3 id="建堆-暂无基础-后面再说"><a href="#建堆-暂无基础-后面再说" class="headerlink" title="建堆 - 暂无基础 后面再说"></a>建堆 - 暂无基础 后面再说</h3><p>之前已经了解 <code>堆</code> 这种数据结构的底层采用是 <code>数组</code> 这种最基本数据结构进行存储的(即 物理上是<code>顺序存储</code>)。<br>现在的问题是，假如给了我们一组数据，我们如何使用这些元素在<strong>逻辑上</strong>构建出一个 <code>堆</code> 呢？<br>毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝</p>
+<p>不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。</p>
+<h3 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h3><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<br/>
+
+<h3 id="元素入堆-heapify-堆化操作"><a href="#元素入堆-heapify-堆化操作" class="headerlink" title="元素入堆 - -  heapify 堆化操作"></a>元素入堆 - -  <span style="color:orange">heapify 堆化操作</span></h3><p>我们首先将元素添加到堆底。 之后，<span style="color:red;">由于元素值可能大于堆中其他元素，堆的成立条件可能会被破坏</span>。因此，需要修复从插入节点到根节点的路径上的各个节点，这个操作被称为<span style="color:orange;font-weight:600;">「堆化 heapify」</span>。</p>
+<p>考虑从入堆节点开始，从底至顶执行堆化。如下图所示，我们比较插入节点与其父节点的值，如果插入节点更大，则将它们交换。然后继续执行此操作，从底至顶修复堆中的各个节点，直至越过根节点或遇到无须交换的节点时结束。</p>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_push_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_push_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+
+<p><strong>设节点总数为n，则树的高度为<code>log(n)</code>。由此可知，堆化操作的循环轮数最多为<code>O(logn)</code>，元素入堆操作的时间复杂度为<code>O(logn)</code>。</strong><br>代码参考<a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></p>
+<h3 id="堆顶元素出堆"><a href="#堆顶元素出堆" class="headerlink" title="堆顶元素出堆"></a>堆顶元素出堆</h3><p>堆顶元素是二叉树的根节点，即数组首元素。 如果我们直接从数组中删除首元素，那<span style="color:red;">最后堆化出来的堆可能并不满足完全二叉树的特性</span>。如下图案例：<br><img src="/images/data-structure-algorithm/WX20231116-151752@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<p><span style="color:#6A9113;font-weight:600">因此我们需要改变一下思路，比如以下这个巧妙的步骤:</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换堆顶元素与堆底元素（即交换根节点与最右叶节点）。</span><br><span class="line">交换完成后，将堆底从列表中删除（由于已经交换，实际上删除的是原来的堆顶元素）。</span><br><span class="line">从根节点开始，从顶至底执行堆化。</span><br></pre></td></tr></table></figure>
+<p><span style="color:#6A9113;font-weight:600">因为我们移除的是数组中的最后一个元素，而在堆化的过程中，都是交换操作，不会出现数组中的“空洞”，所以这种方法堆化之后的结果，肯定满足完全二叉树的特性。</span></p>
+<blockquote>
+<p>如下图，“从顶至底堆化”的操作方向与“从底至顶堆化”相反，我们将根节点的值与其两个子节点的值进行比较，将最大的子节点与根节点交换。然后循环执行此操作，直到越过叶节点或遇到无须交换的节点时结束。</p>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_pop_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_pop_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<div style="display:flex;">
+<img src="/images/data-structure-algorithm/heap_pop_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/heap_pop_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</div>
+<img src="/images/data-structure-algorithm/heap_pop_step10.png" width="262px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</blockquote>
+<p>与元素入堆操作相似，堆顶元素出堆操作的时间复杂度也为 <code>O(logn)</code>。</p>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
 <li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li>
 <li>《数据结构与算法之美》王争</li>
 </ul>
@@ -150,7 +200,7 @@
   <div class="widget-wrap" id="toc-wrap">
     <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
     <div class="widget">
-      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E5%A0%86%E6%93%8D%E4%BD%9C"><span class="toc-text">建堆操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BB%BA%E5%A0%86-%E6%9A%82%E6%97%A0%E5%9F%BA%E7%A1%80-%E5%90%8E%E9%9D%A2%E5%86%8D%E8%AF%B4"><span class="toc-text">建堆 - 暂无基础 后面再说</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BF%E9%97%AE%E5%A0%86%E9%A1%B6%E5%85%83%E7%B4%A0"><span class="toc-text">访问堆顶元素</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%83%E7%B4%A0%E5%85%A5%E5%A0%86-heapify-%E5%A0%86%E5%8C%96%E6%93%8D%E4%BD%9C"><span class="toc-text">元素入堆 - -  heapify 堆化操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86%E9%A1%B6%E5%85%83%E7%B4%A0%E5%87%BA%E5%A0%86"><span class="toc-text">堆顶元素出堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
     </div>
   </div>
 
@@ -185,11 +235,20 @@
       <strong class="article-nav-caption">older</strong>
       <div class="article-nav-title">
         
-          「数据结构与算法」堆 （上篇）⭐️
+          「数据结构与算法」堆
         
       </div>
     </a>
   
+  
+    <a href="/2020/11/03/data-structure-algorithm/11-3.heap/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          「数据结构与算法」建堆 从 O(nlogn) 到 O(n) 🐂🐂🐂
+        
+      </div>
+    </a>
   
 </nav>
 
@@ -221,23 +280,23 @@
       <ul>
         
           <li>
-            <a href="/2020/11/03/data-structure-algorithm/11-2.heap/">「数据结构与算法」堆 （中篇）</a>
+            <a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
           </li>
         
           <li>
-            <a href="/2020/11/02/data-structure-algorithm/11-1.heap/">「数据结构与算法」堆 （上篇）⭐️</a>
+            <a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
           </li>
         
           <li>
-            <a href="/2020/10/31/data-structure-algorithm/10-9.red-blackTree/">「数据结构与算法」红黑树 Red-Black Tree</a>
+            <a href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
           </li>
         
           <li>
-            <a href="/2020/10/30/data-structure-algorithm/10-8.2-3Tree/">「数据结构与算法」2-3树</a>
+            <a href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
           </li>
         
           <li>
-            <a href="/2020/10/29/data-structure-algorithm/10-7.AVL/">「数据结构与算法」平衡二叉搜索树--AVL树（下）</a>
+            <a href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
           </li>
         
       </ul>
@@ -259,7 +318,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">12</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">13</span></li></ul>
     </div>
   </div>
 
@@ -269,7 +328,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">13</span></li></ul>
     </div>
   </div>
 
@@ -279,7 +338,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">12</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">18</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

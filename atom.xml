@@ -93,14 +93,14 @@
     <link href="http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/"/>
     <id>http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/</id>
     <published>2021-04-14T12:43:20.000Z</published>
-    <updated>2023-11-16T08:05:43.760Z</updated>
+    <updated>2023-11-21T02:34:46.002Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    <content type="html"><![CDATA[<p>Redis的<code>list</code>底层采用的数据结构是<code>双向链表</code>(每个子元素都是String类型)，可以通过push和pop操作从列表的头部或者尾部添加或者删除元素，这样List即可以作为栈，也可以作为队列。 获取越接近两端的元素速度越快，但通过索引访问时会比较慢。</p><blockquote><p><code>LPUSH key element [element ...]</code>： 将一个或多个值插入到列表头部<br>时间复杂度：每添加一个元素是<code>O(1)</code>，当添加 N 个元素时是 <code>O(N)</code>。</p></blockquote><blockquote><p>Lpop key [count] : 移出并获取列表的第一个元素<br>默认情况下，该命令从列表的开头弹出一个元素。当提供可选count参数时，将返回count个元素。<br>tip：count参数是从 Redis 版本 6.2.0 开始新增的。<br>时间复杂度：O(N) 其中 N 是返回的元素数，所以只返回一个元素的话，时间复杂度自然就是 O(1)。<br>#</p></blockquote><h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><ol><li>Redis list的应用场景非常多，也是Redis最重要的数据结构之一，比如twitter的关注列表，粉丝列表等都可以用Redis的list结构来实现。</li><li>List的另一个应用就是消息队列， 可以利用List的PUSH操作，将任务存在List中，然后工作线程再用POP操作将任务取出进行执行。</li></ol><p>比如微博： 在Redis中我们的最新微博ID使用了常驻缓存，这是一直更新的。但是我们做了限制不能超过5000个ID，因此我们的获取ID函数会一直询问Redis。只有在start&#x2F;count参数超出了这个范围的时候，才需要去访问数据库。我们的系统不会像传统方式那样“刷新”缓存，Redis实例中的信息永远是一致的。SQL数据库（或是硬盘上的其他类型数据库）只是在用户需要获取“很远”的数据时才会被触发，而主页或第一个评论页是不会麻烦到硬盘上的数据库了。</p><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
     
     
       
       
-    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+    <summary type="html">&lt;p&gt;Redis的&lt;code&gt;list&lt;/code&gt;底层采用的数据结构是&lt;code&gt;双向链表&lt;/code&gt;(每个子元素都是String类型)，可以通过push和pop操作从列表的头部或者尾部添加或者删除元素，这样List即可以作为栈，也可以作为队列。 获取越接近两端的元素速度越快</summary>
       
     
     
@@ -131,6 +131,131 @@
     
     
     <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」图的遍历 (TODO)</title>
+    <link href="http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/"/>
+    <id>http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/</id>
+    <published>2020-11-11T07:21:16.000Z</published>
+    <updated>2023-11-21T05:22:08.563Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>树代表的是“一对多”的关系，而图则具有更高的自由度，可以表示任意的“多对多”关系。<br>因此，我们可以把树看作是图的一种特例。显然，树的遍历操作也是图的遍历操作的一种特例。</p></blockquote><br/><blockquote><p>图和树都需要应用搜索算法来实现遍历操作。<br>图的遍历方式可分为两种：「广度优先遍历 breadth-first traversal」和「深度优先遍历 depth-first traversal」。<br>它们也常被称为「广度优先搜索 breadth-first search」和「深度优先搜索 depth-first search」，简称 BFS 和 DFS 。</p></blockquote><h3 id="广度优先遍历"><a href="#广度优先遍历" class="headerlink" title="广度优先遍历"></a>广度优先遍历</h3><p><code>广度优先遍历</code>是一种由近及远的遍历方式，从某个节点出发，始终优先访问距离最近的顶点，并一层层向外扩张。<br>如下图所示，从左上角顶点出发，先遍历该顶点的所有邻接顶点，然后遍历下一个顶点的所有邻接顶点，以此类推，直至所有顶点访问完毕。</p><blockquote><img src="/images/data-structure-algorithm/graph_bfs.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote><h4 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote><p>BFS 通常借助<code>队列</code>来实现。队列具有“先入先出”的性质，这与 BFS 的“由近及远”的思想异曲同工:</p><ol><li>将遍历起始顶点 startVet 加入队列，并开启循环。</li><li>在循环的每轮迭代中，弹出队首顶点并记录访问，然后将该顶点的所有邻接顶点加入到队列尾部。 </li><li>循环步骤 2. ，直到所有顶点被访问完成后结束。</li></ol><p>为了防止重复遍历顶点，我们需要借助一个哈希表 visited 来记录哪些节点已被访问。</p></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><br/><blockquote><p>广度优先遍历的序列是否唯一？<br>不唯一。广度优先遍历只要求按“由近及远”的顺序遍历，而多个相同距离的顶点的遍历顺序是允许被任意打乱的。以图 9-10 为例，顶点 (1)、(3) 的访问顺序可以交换、顶点 (2)、(4)、(6) 的访问顺序也可以任意交换。</p></blockquote><p>TODO 代码</p><h4 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会入队并出队一次，使用 (O(|V|)) 时间；在遍历邻接顶点的过程中，由于是无向图，因此所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。</p><p>空间复杂度： 列表 res ，哈希表 visited ，队列 que 中的顶点数量最多为 (|V|) ，使用 (O(|V|)) 空间。</p><h3 id="深度优先遍历"><a href="#深度优先遍历" class="headerlink" title="深度优先遍历"></a>深度优先遍历</h3><blockquote><p>深度优先遍历是一种优先走到底、无路可走再回头的遍历方式。<br>如下图所示，从左上角顶点出发，访问当前顶点的某个邻接顶点，直到走到尽头时返回，再继续走到尽头并返回，以此类推，直至所有顶点遍历完成。<br><img src="/images/data-structure-algorithm/graph_dfs.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="算法实现-1"><a href="#算法实现-1" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote><p>这种“走到尽头再返回”的算法范式通常基于递归来实现。与广度优先遍历类似，在深度优先遍历中我们也需要借助一个哈希表 visited 来记录已被访问的顶点，以避免重复访问顶点。<br>深度优先遍历的算法流程如下图</p><ul><li>直虚线代表向下递推，表示开启了一个新的递归方法来访问新顶点。</li><li>曲虚线代表向上回溯，表示此递归方法已经返回，回溯到了开启此递归方法的位置。<br>为了加深理解，建议将图示与代码结合起来，在脑中（或者用笔画下来）模拟整个 DFS 过程，包括每个递归方法何时开启、何时返回。</li></ul></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><blockquote><p>深度优先遍历的序列是否唯一？<br>与广度优先遍历类似，深度优先遍历序列的顺序也不是唯一的。给定某顶点，先往哪个方向探索都可以，即邻接顶点的顺序可以任意打乱，都是深度优先遍历。<br>以树的遍历为例，“根 (\rightarrow) 左 (\rightarrow) 右”、“左 (\rightarrow) 根 (\rightarrow) 右”、“左 (\rightarrow) 右 (\rightarrow) 根”分别对应前序、中序、后序遍历，它们展示了三种不同的遍历优先级，然而这三者都属于深度优先遍历。</p></blockquote><h4 id="复杂度分析-1"><a href="#复杂度分析-1" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会被访问 (1) 次，使用 (O(|V|)) 时间；所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。<br>空间复杂度： 列表 res ，哈希表 visited 顶点数量最多为 (|V|) ，递归深度最大为 (|V|) ，因此使用 (O(|V|)) 空间。</p><p>TODO 代码</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="hhttps://www.hello-algo.com/chapter_graph/graph_traversal/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;树代表的是“一对多”的关系，而图则具有更高的自由度，可以表示任意的“多对多”关系。&lt;br&gt;因此，我们可以把树看作是</summary>
+      
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」图的基础操作 (TODO)</title>
+    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-3.map/"/>
+    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-3.map/</id>
+    <published>2020-11-09T15:53:07.000Z</published>
+    <updated>2023-11-21T03:11:35.742Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>图的基础操作可分为对<code>边</code>的操作和对<code>顶点</code>的操作。在“邻接矩阵”和“邻接表”两种表示方法下，实现方式有所不同。</p><h3 id="基于邻接矩阵存储"><a href="#基于邻接矩阵存储" class="headerlink" title="基于邻接矩阵存储"></a>基于邻接矩阵存储</h3><blockquote><p>给定一个顶点数量为 n 的<code>无向图</code>，其各种操作如下：</p><ul><li>初始化：传入 n 个顶点，初始化长度为 n 的顶点列表 vertices ，使用 O(n)时间；初始化 n*n 大小的邻接矩阵 adjMat ，使用 $O(n^2)$ 时间。</li><li>添加或删除边：直接在邻接矩阵中修改指定的边即可，使用 O(1) 时间。而由于是无向图，因此需要同时更新两个方向的边。</li><li>添加顶点：在邻接矩阵的尾部<strong>添加一行一列</strong>，并全部填 0 即可，使用 O(n) 时间。</li><li>删除顶点：在邻接矩阵中删除一行一列。当删除首行首列时达到最差情况，需要将 $(n-1)^2$ 个元素“向左上移动”，从而使用 $O(n^2)$ 时间。</li></ul></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_matrix_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_matrix_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><p>代码实现可去参考本节末尾的文献</p><h3 id="基于邻接表存储"><a href="#基于邻接表存储" class="headerlink" title="基于邻接表存储"></a>基于邻接表存储</h3><blockquote><p>设无向图的顶点总数为n、边总数为m，则可根据下图所示的方法实现各种操作<br>初始化：在邻接表中创建 n 个顶点和 2m 条边，使用 O(n+m) 时间。<br>添加边：在顶点对应链表的末尾添加边即可，使用 O(1) 时间。因为是无向图，所以需要同时添加两个方向的边。<br>删除边：在顶点对应链表中查找并删除指定边，使用 O(m) 时间。在无向图中，需要同时删除两个方向的边。<br>添加顶点：在邻接表中添加一个链表，并将新增顶点作为链表头节点，使用 O(1) 时间。<br>删除顶点：需遍历整个邻接表，删除包含指定顶点的所有边，使用 O(n+m) 时间。</p></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_list_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_list_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;图的基础操作可分为对&lt;code&gt;边&lt;/code&gt;的操作和对&lt;code&gt;顶点&lt;/code&gt;的操作。在“邻接矩阵”和“邻接表”两种表示方法下，实</summary>
+      
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」图 的存储</title>
+    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-2.map/"/>
+    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-2.map/</id>
+    <published>2020-11-09T14:49:32.000Z</published>
+    <updated>2023-11-21T01:57:39.669Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>在前面掌握了图的概念之后，我们今天聚焦在 <code>图存储</code> 这一方面，看下如何在<strong>内存中</strong>存储图这种数据结构。<br>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。 后面会分好几章节来依次讲解图相关的算法。</p></blockquote><h3 id="邻接矩阵存储方法"><a href="#邻接矩阵存储方法" class="headerlink" title="邻接矩阵存储方法"></a>邻接矩阵存储方法</h3><blockquote><p>图最直观的一种存储方法就是 <code>邻接矩阵</code>（Adjacency Matrix）。<code>邻接矩阵</code>的底层依赖一个<code>二维数组</code>。</p><ul><li>对于<code>无向图</code>来说，如果顶点 i 与顶点 j 之间有边，我们就将 <code>A[i][j]</code> 和 <code>A[j][i]</code> 标记为 1；</li><li>对于<code>有向图</code>来说，如果顶点 i 到顶点 j 之间，有一条箭头从顶点 i 指向顶点 j 的边，那我们就将 <code>A[i][j]</code> 标记为 1。同理，如果有一条箭头从顶点 j 指向顶点 i 的边，我们就将 <code>A[j][i]</code> 标记为 1。</li><li>对于<code>带权图</code>，数组中就存储相应的权重。<img src="/images/data-structure-algorithm/WX20231121-092751@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li></ul></blockquote><br/><blockquote><p>用邻接矩阵来表示一个图，虽然简单、直观，但是比较浪费存储空间。为什么这么说呢？</p><ul><li>对于<code>无向图</code>来说，如果 A[i][j] 等于 1，那 A[j][i] 也肯定等于 1。实际上，我们只需要存储一个就可以了。<span style="color:Red;font-weight:600;">也就是说，无向图的二维数组中，如果我们将其用对角线划分为上下两部分，那我们只需要利用上面或者下面这样一半的空间就足够了，另外一半白白浪费掉了</span>。</li><li>还有，如果我们存储的是 <code>稀疏图</code>（Sparse Matrix），也就是说，<span style="color:Red;font-weight:600;">顶点很多，但每个顶点的边并不多</span>，那邻接矩阵的存储方法就更加浪费空间了。<br>比如微信有好几亿的用户，对应到图上就是好几亿的顶点。但是每个用户的好友并不会很多，一般也就三五百个而已。<br>如果我们用邻接矩阵来存储，那绝大部分的存储空间都被浪费了。</li></ul></blockquote><br/><blockquote><ul><li>但这也并不是说，邻接矩阵的存储方法就完全没有优点。<br>首先，邻接矩阵的存储方式简单、直接，因为基于数组，所以在获取两个顶点的关系时，就非常高效。<br>其次，用邻接矩阵存储图的另外一个好处是方便计算。这是因为，用邻接矩阵的方式存储图，可以将很多图的运算转换成矩阵之间的运算。比如求解最短路径问题时会提到一个Floyd-Warshall 算法，就是利用矩阵循环相乘若干次得到结果。</li></ul></blockquote><h3 id="邻接表存储方法"><a href="#邻接表存储方法" class="headerlink" title="邻接表存储方法"></a>邻接表存储方法</h3><blockquote><p>针对上面<code>邻接矩阵</code>比较浪费内存空间的问题，我们来看另外一种图的存储方法，<code>邻接表</code>（Adjacency List）。 下面是一张邻接表的图，你可以先看下<br><img src="/images/data-structure-algorithm/WX20231121-093652@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><blockquote><p>乍一看，邻接表是不是有点像散列表？<br>每个顶点对应一条链表，链表中存储的是与这个顶点相连接的其他顶点。<br>另外需要说明的是，图中画的是一个<code>有向图</code>的邻接表存储方式，每个顶点对应的链表里面，存储的是指向的顶点。<br>对于<code>无向图</code>来说，也是类似的，不过，每个顶点的链表中存储的，是跟这个顶点有边相连的顶点，你可以自己画下。</p></blockquote><br/><blockquote><p>还记得我们之前讲过的时间、空间复杂度互换的设计思想吗？<br><code>邻接矩阵</code>存储起来比较浪费空间，但是使用起来比较节省时间。<br>相反，<code>邻接表</code>存储起来比较节省空间，但是使用起来就比较耗时间。<br>就像图中的例子，如果我们要确定，是否存在一条从顶点 2 到顶点 4 的边，那我们就要遍历顶点 2 对应的那条链表，看链表中是否存在顶点 4。<br>而且，我们前面也讲过，链表的存储方式对缓存不友好。所以，比起<code>邻接矩阵</code>的存储方式，在<code>邻接表</code>中查询两个顶点之间的关系就没那么高效了。<br>在<code>散列表</code>那几节里，我讲到，在基于链表法解决冲突的散列表中，如果链过长，为了提高查找效率，我们可以将链表换成其他更加高效的数据结构，比如<code>平衡二叉查找树</code>等。<br>我们刚刚也讲到，邻接表长得很像散列。所以，我们也可以将<code>邻接表</code>同<code>散列表</code>一样进行“改进升级”。 比如将<code>邻接表</code>中的<code>链表</code>改成<code>平衡二叉查找树</code>。 实际开发中，我们可以选择用<code>红黑树</code>。 这样，我们就可以更加快速地查找两个顶点之间是否存在边了。<br>当然，这里的二叉查找树可以换成其他动态数据结构，比如<code>跳表</code>、<code>散列表</code>等。<br>除此之外，我们还可以将链表改成<code>有序动态数组</code>，可以通过二分查找的方法来快速定位两个顶点之间否是存在边。</p></blockquote><h3 id="精选留言"><a href="#精选留言" class="headerlink" title="精选留言"></a>精选留言</h3><img src="/images/data-structure-algorithm/WX20231121-094703@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/WX20231121-094454@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;在前面掌握了图的概念之后，我们今天聚焦在 &lt;code&gt;图存储&lt;/code&gt; 这一方面，看下如何在&lt;strong&gt;内</summary>
+      
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」图</title>
+    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-1.map/"/>
+    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-1.map/</id>
+    <published>2020-11-09T14:01:12.000Z</published>
+    <updated>2023-11-21T02:04:28.467Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>微博、微信、QQ 这些社交软件你肯定都玩过。 在微博中，两个人可以互相关注；在微信中，两个人可以互加好友。<br>那你知道，如何存储微博、微信等这些社交网络的好友关系吗？ 这就要用到我们今天要讲的这种数据结构：<code>图</code>。</p><p>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。<br>我们今天聚焦在 <code>图存储</code> 这一方面，后面会分好几节来依次讲解图相关的算法。</p></blockquote><h3 id="认识-图-无向"><a href="#认识-图-无向" class="headerlink" title="认识 图(无向)"></a>认识 图(无向)</h3><blockquote><p>前面已经学过了<code>树</code>这种<code>非线性数据结构</code>，今天我们要讲另一种<code>非线性数据结构</code> <code>图(Graph)</code>。 和<code>树</code>比起来，这是一种更加复杂的结构。</p></blockquote><h4 id="顶点"><a href="#顶点" class="headerlink" title="顶点"></a>顶点</h4><blockquote><p>我们知道，<code>树</code>中的元素我们称为<code>节点</code>，<code>图</code>中的元素我们就叫作<code>顶点</code>（vertex）。</p></blockquote><h4 id="边"><a href="#边" class="headerlink" title="边"></a>边</h4><blockquote><p>从下图可以看出，图中的一个<code>顶点</code>可以与任意其他顶点建立连接关系。我们把这种建立的关系叫作<code>边</code>（edge）。<br><img src="/images/data-structure-algorithm/WX20231121-085828@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="度"><a href="#度" class="headerlink" title="度"></a>度</h4><blockquote><p>我们生活中就有很多符合图这种结构的例子。比如，开篇问题中讲到的社交网络，就是一个非常典型的图结构。<br>我们就拿微信举例子吧。我们可以把每个用户看作一个顶点。如果两个用户之间互加好友，那就在两者之间建立一条边。所以，整个微信的好友关系就可以用一张图来表示。其中，每个用户有多少个好友，对应到图中，就叫作顶点的<code>度（degree）</code>，就是跟顶点相连接的边的条数。</p></blockquote><h3 id="有向图"><a href="#有向图" class="headerlink" title="有向图"></a>有向图</h3><blockquote><p>实际上，微博的社交关系跟微信还有点不一样，或者说更加复杂一点。<br>微博允许单向关注，也就是说，用户 A 关注了用户 B，但用户 B 可以不关注用户 A。那我们如何用图来表示这种单向的社交关系呢？</p></blockquote><blockquote><p>我们可以把刚刚讲的图结构稍微改造一下，引入边的“方向”的概念。<br>如果用户 A 关注了用户 B，我们就在图中画一条从 A 到 B 的带箭头的边，来表示边的方向。如果用户 A 和用户 B 互相关注了，那我们就画一条从 A 指向 B 的边，再画一条从 B指向 A 的边。我们把这种边有方向的图叫作“有向图”。以此类推，我们把边没有方向的图就叫作“无向图”。<br><img src="/images/data-structure-algorithm/WX20231121-090405@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="出度、入度"><a href="#出度、入度" class="headerlink" title="出度、入度"></a>出度、入度</h4><blockquote><p>我们刚刚讲过，无向图中有“度”这个概念，表示一个顶点有多少条边。在有向图中，我们把度分为<code>入度</code>（In-degree）和 <code>出度</code>（Out-degree）。<br>顶点的入度，表示有多少条边指向这个顶点；<br>顶点的出度，表示有多少条边是以这个顶点为起点指向其他顶点。<br>对应到微博的例子，入度就表示有多少粉丝，出度就表示关注了多少人。</p></blockquote><h3 id="加权图"><a href="#加权图" class="headerlink" title="加权图"></a>加权图</h3><blockquote><p>前面讲到了微信、微博、无向图、有向图，现在我们再来看另一种社交软件：QQ。 QQ 中的社交关系要更复杂的一点。不知道你有没有留意过 QQ 亲密度这样一个功能。<br>QQ不仅记录了用户之间的好友关系，还记录了两个用户之间的亲密度，如果两个用户经常往来，那亲密度就比较高；如果不经常往来，亲密度就比较低。 如何在图中记录这种好友关系的亲密度呢？<br>这里就要用到另一种图，<code>带权图</code>（weighted graph）。在带权图中，每条边都有一个权重 （weight），我们可以通过这个权重来表示 QQ 好友间的亲密度。<br><img src="/images/data-structure-algorithm/WX20231121-091103@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>关于图的概念比较多，今天也只是介绍了几个常用的，理解起来都不复杂。掌握了图的概念之后，我们再来看下，如何在内存中存储图这种数据结构呢？</p><h3 id="图常见应用"><a href="#图常见应用" class="headerlink" title="图常见应用"></a>图常见应用</h3><p>如下表所示，许多现实系统都可以用图来建模，相应的问题也可以约化为图计算问题。</p><table><thead><tr><th align="center"></th><th align="center">顶点</th><th align="center">边</th><th align="center">图计算问题</th></tr></thead><tbody><tr><td align="center">社交网络</td><td align="center">用户</td><td align="center">好友关系</td><td align="center">潜在好友推荐</td></tr><tr><td align="center">地铁线路</td><td align="center">站点</td><td align="center">站点间的连通性</td><td align="center">最短路线推荐</td></tr><tr><td align="center">太阳系</td><td align="center">星体</td><td align="center">星体间的万有引力作用</td><td align="center">行星轨迹计算</td></tr></tbody></table><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
+&lt;p&gt;微博、微信、QQ 这些社交软件你肯定都玩过。 在微博中，两个人可以互相关注；在微信中，两个人可以互加好友。&lt;br&gt;</summary>
+      
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>「数据结构与算法」堆 的应用 -- TopK问题 (TODO)</title>
+    <link href="http://rymuscle.github.io/2020/11/04/data-structure-algorithm/11-4.heap-TopK/"/>
+    <id>http://rymuscle.github.io/2020/11/04/data-structure-algorithm/11-4.heap-TopK/</id>
+    <published>2020-11-04T12:11:32.000Z</published>
+    <updated>2023-11-20T03:12:43.419Z</updated>
+    
+    <content type="html"><![CDATA[<p>给定一个长度为 n 的无序数组 nums ，请返回数组中前 k 大的元素。</p><p>对于该问题，我们先介绍两种思路比较直接的解法，再介绍效率更高的堆解法</p><h3 id="方法一：遍历"><a href="#方法一：遍历" class="headerlink" title="方法一：遍历"></a>方法一：遍历</h3><blockquote><p>如下图所示，进行k轮遍历，分别在每轮中提取第 1、2、……、k大的元素，时间复杂度为 O(kn)。<br><img src="/images/data-structure-algorithm/top_k_traversal.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><span style="color:red">此方法只适用于 k远小于n 的情况，因为当 k 与 n 比较接近时，其时间复杂度趋向于 O(n^2)，非常耗时。（因为 当 k&#x3D;n 时，我们可以得到完整的有序序列，此时等价于“选择排序”算法。）</span><br><br/></p></blockquote><h3 id="方法二：排序"><a href="#方法二：排序" class="headerlink" title="方法二：排序"></a>方法二：排序</h3><blockquote><p>如下图所示，我们可以先对数组 nums 进行排序，再返回最右边的 k 个元素，时间复杂度为 O(n logn)。<br>显然，该方法“超额”完成任务了，因为我们只需要找出最大的 k 个元素即可，而不需要排序其他元素。<br><img src="/images/data-structure-algorithm/top_k_sorting.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h3 id="高效解决Top-K问题-堆"><a href="#高效解决Top-K问题-堆" class="headerlink" title="高效解决Top-K问题 - - 堆"></a>高效解决Top-K问题 - - 堆</h3><p>我们可以基于堆更加高效地解决 Top-K 问题，流程如下：<br>*初始化一个小顶堆，其堆顶元素最小。<br>*先将数组的前 k 个元素依次入堆。<br>*从第 k+1 个元素开始，若当前元素大于堆顶元素，则将堆顶元素出堆，并将当前元素入堆。<br>*遍历完成后，堆中保存的就是最大的 k 个元素。</p><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><p>总共执行了 n 轮入堆和出堆，堆的最大长度为 k，因此时间复杂度为 <code>O(nlogk)</code>。该方法的效率很高，当 k 较小时，时间复杂度趋向 <code>O(n)</code>；当<br>较大时，时间复杂度不会超过 <code>O(nlogn)</code>。</p><p>另外，该方法适用于<strong>动态数据流</strong>的使用场景。在不断加入数据时，我们可以持续维护堆内的元素，从而实现最大 k 个元素的动态更新。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/top_k/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;p&gt;给定一个长度为 n 的无序数组 nums ，请返回数组中前 k 大的元素。&lt;/p&gt;
+&lt;p&gt;对于该问题，我们先介绍两种思路比较直接的解法，再介绍效率更高的堆解法&lt;/p&gt;
+&lt;h3 id=&quot;方法一：遍历&quot;&gt;&lt;a href=&quot;#方法一：遍历&quot; class=&quot;headerlink&quot; </summary>
+      
+    
+    
+    
+    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
     
     <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
@@ -390,83 +515,6 @@
 &lt;img src=&quot;/images/data-structure-algorithm/binary_tree_bfs.png&quot; width=&quot;400px&quot; style=&quot;margin-left:0px;&quot;/&gt;
 &lt;img src=&quot;/images/data-structure-algorithm/WX20231114-210129@2x.png&quot; width=&quot;350px&quot; style=&quot;margin-left:10px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;
 &lt;/div&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」常见二叉树类型</title>
-    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/"/>
-    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/</id>
-    <published>2020-10-27T13:23:19.000Z</published>
-    <updated>2023-11-16T02:42:56.811Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="「完美二叉树-perfect-binary-tree」"><a href="#「完美二叉树-perfect-binary-tree」" class="headerlink" title="「完美二叉树 perfect binary tree」"></a>「完美二叉树 perfect binary tree」</h3><p>所有层的节点都被完全填满。<br>在完美二叉树中，叶节点的度为 0，其余所有节点的度都为 2；若树高度为 h，则节点总数为 $2^{h+1}-1$ 。<br>呈现标准的指数级关系，反映了自然界中常见的细胞分裂现象。<br><img src="/images/data-structure-algorithm/perfect_binary_tree.png" width="450px" style="margin-left:0px;"/></p><span id="more"></span><h3 id="「完全二叉树-complete-binary-tree」"><a href="#「完全二叉树-complete-binary-tree」" class="headerlink" title="「完全二叉树 complete binary tree」"></a>「完全二叉树 complete binary tree」</h3><p>只有最底层的节点未被填满，且最底层节点尽量靠左填充。<br><img src="/images/data-structure-algorithm/complete_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="「完满二叉树-full-binary-tree」"><a href="#「完满二叉树-full-binary-tree」" class="headerlink" title="「完满二叉树 full binary tree」"></a>「完满二叉树 full binary tree」</h3><p>除了叶节点之外，其余所有节点都有两个子节点<br><img src="/images/data-structure-algorithm/full_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="「平衡二叉树-balanced-binary-tree」"><a href="#「平衡二叉树-balanced-binary-tree」" class="headerlink" title="「平衡二叉树 balanced binary tree」"></a>「平衡二叉树 balanced binary tree」</h3><p><strong>任意节点</strong>的左子树和右子树的高度之差的绝对值不超过 1<br><img src="/images/data-structure-algorithm/balanced_binary_tree.png" width="450px" style="margin-left:0px;"/></p><h3 id="二叉树的退化"><a href="#二叉树的退化" class="headerlink" title="二叉树的退化"></a>二叉树的退化</h3><p>当二叉树的每层节点都被填满时，达到 <code>完美二叉树</code>，完美二叉树是理想情况，可以充分发挥二叉树“分治”的优势。<br>而当所有节点都偏向一侧时，二叉树退化为 <code>链表</code>，链表则是另一个极端，各项操作都变为线性操作，时间复杂度退化至 <code>O(n)</code>。<br><img src="/images/data-structure-algorithm/binary_tree_best_worst_cases.png" width="450px" style="margin-left:0px;"/></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;「完美二叉树-perfect-binary-tree」&quot;&gt;&lt;a href=&quot;#「完美二叉树-perfect-binary-tree」&quot; class=&quot;headerlink&quot; title=&quot;「完美二叉树 perfect binary tree」&quot;&gt;&lt;/a&gt;「完美二叉树 perfect binary tree」&lt;/h3&gt;&lt;p&gt;所有层的节点都被完全填满。&lt;br&gt;在完美二叉树中，叶节点的度为 0，其余所有节点的度都为 2；若树高度为 h，则节点总数为 $2^{h+1}-1$ 。&lt;br&gt;呈现标准的指数级关系，反映了自然界中常见的细胞分裂现象。&lt;br&gt;&lt;img src=&quot;/images/data-structure-algorithm/perfect_binary_tree.png&quot; width=&quot;450px&quot; style=&quot;margin-left:0px;&quot;/&gt;&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」二叉树 binary tree</title>
-    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/"/>
-    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/</id>
-    <published>2020-10-27T12:15:32.000Z</published>
-    <updated>2023-11-16T02:42:56.807Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="认识二叉树"><a href="#认识二叉树" class="headerlink" title="认识二叉树"></a>认识二叉树</h3><ol><li>「二叉树 binary tree」是一种<code>非线性数据结构</code>，体现着“一分为二”的分治逻辑。与<code>链表</code>类似，二叉树的基本单元是节点，每个节点包含：值、左子节点引用、右子节点引用。</li></ol><img src="/images/data-structure-algorithm/binary_tree_definition.png" width="400px" style="margin-left:0px;"/><ol start="2"><li>常见术语<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">根节点 root node」：位于二叉树顶层的节点，没有父节点。</span><br><span class="line">「叶节点 leaf node」：没有子节点的节点，其两个指针均指向。</span><br><span class="line">「边 edge」：连接两个节点的线段，即节点引用（指针）。</span><br><span class="line">节点所在的「层 level」：从顶至底递增，根节点所在层为 1 。</span><br><span class="line">节点的「度 degree」：节点的子节点的数量。在二叉树中，度的取值范围是 0、1、2 。</span><br><span class="line">二叉树的「高度 height」：从根节点到最远叶节点所经过的边的数量。</span><br><span class="line">节点的「深度 depth」：从根节点到该节点所经过的边的数量。</span><br><span class="line">节点的「高度 height」：从距离该节点最远的叶节点到该节点所经过的边的数量。</span><br></pre></td></tr></table></figure><div style="display: flex;"><img src="/images/data-structure-algorithm/WX20231114-190226@2x.png" width="340px" style="margin-left:0px;"/><img src="/images/data-structure-algorithm/binary_tree_terminology.png" width="310px" style="margin-left:20px;"/></div></li></ol><span id="more"></span><h3 id="二叉树-链式存储-基本操作"><a href="#二叉树-链式存储-基本操作" class="headerlink" title="二叉树 (链式存储) 基本操作"></a>二叉树 (链式存储) 基本操作</h3><h4 id="初始化二叉树"><a href="#初始化二叉树" class="headerlink" title="初始化二叉树"></a>初始化二叉树</h4><ol><li><p>从二叉树的结构图来看，它的节点和链表的节点非常像，因此用<code>链表</code>来存储<code>二叉树</code>也挺顺理成章的 😝。<br>而且链式存储也比较简单、直观，很方便地通过节点的左右指针就能将整棵树串起来，大部分二叉树代码都是通过这种结构来实现的。</p><img src="/images/data-structure-algorithm/WX20231115-113929@2x.png" width="350px" style="margin-left:0px;"/></li><li><p>其实初始化二叉树的过程和初始化一个链表没什么区别(将一些节点用指针串联起来)。只不过串联的逻辑稍有不同。</p> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 初始化节点</span><br><span class="line">TreeNode n1 = new TreeNode(1);</span><br><span class="line">TreeNode n2 = new TreeNode(2);</span><br><span class="line">TreeNode n3 = new TreeNode(3);</span><br><span class="line">TreeNode n4 = new TreeNode(4);</span><br><span class="line">TreeNode n5 = new TreeNode(5);</span><br><span class="line">// 构建引用指向（即指针）</span><br><span class="line">n1.left = n2;</span><br><span class="line">n1.right = n3;</span><br><span class="line">n2.left = n4;</span><br><span class="line">n2.right = n5;</span><br></pre></td></tr></table></figure><p>这棵二叉树的逻辑结构如下：</p><img src="/images/data-structure-algorithm/b-t-01.png" width="100px" style="margin-left:0px;"/></li><li><p>当然，对于上面的多个节点，你有多种不同的连接方式，将它们连成多种不同的二叉树：</p><img src="/images/data-structure-algorithm/b-t-02.png" width="250px" style="margin-left:0px;"/></li></ol><h4 id="插入、删除-节点"><a href="#插入、删除-节点" class="headerlink" title="插入、删除 节点"></a>插入、删除 节点</h4><p>与<code>链表</code>类似， 在<code>二叉树</code>中 插入、删除节点 ，可以通过修改指针来实现<br><img src="/images/data-structure-algorithm/binary_tree_add_remove.png" width="450px" style="margin-left:0px;"/></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">TreeNode P = new TreeNode(0);</span><br><span class="line">// 在 n1 -&gt; n2 中间插入节点 P</span><br><span class="line">n1.left = P;</span><br><span class="line">P.left = n2;</span><br><span class="line">// 删除节点 P</span><br><span class="line">n1.left = n2;</span><br></pre></td></tr></table></figure><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;认识二叉树&quot;&gt;&lt;a href=&quot;#认识二叉树&quot; class=&quot;headerlink&quot; title=&quot;认识二叉树&quot;&gt;&lt;/a&gt;认识二叉树&lt;/h3&gt;&lt;ol&gt;
-&lt;li&gt;「二叉树 binary tree」是一种&lt;code&gt;非线性数据结构&lt;/code&gt;，体现着“一分为二”的分治逻辑。与&lt;code&gt;链表&lt;/code&gt;类似，二叉树的基本单元是节点，每个节点包含：值、左子节点引用、右子节点引用。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/binary_tree_definition.png&quot; width=&quot;400px&quot; style=&quot;margin-left:0px;&quot;/&gt;
-
-
-&lt;ol start=&quot;2&quot;&gt;
-&lt;li&gt;常见术语&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;根节点 root node」：位于二叉树顶层的节点，没有父节点。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;「叶节点 leaf node」：没有子节点的节点，其两个指针均指向。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;「边 edge」：连接两个节点的线段，即节点引用（指针）。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点所在的「层 level」：从顶至底递增，根节点所在层为 1 。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「度 degree」：节点的子节点的数量。在二叉树中，度的取值范围是 0、1、2 。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;二叉树的「高度 height」：从根节点到最远叶节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「深度 depth」：从根节点到该节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;节点的「高度 height」：从距离该节点最远的叶节点到该节点所经过的边的数量。&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;div style=&quot;display: flex;&quot;&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/WX20231114-190226@2x.png&quot; width=&quot;340px&quot; style=&quot;margin-left:0px;&quot;/&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/binary_tree_terminology.png&quot; width=&quot;310px&quot; style=&quot;margin-left:20px;&quot;/&gt;
-&lt;/div&gt;&lt;/li&gt;
-&lt;/ol&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」数据结构分类</title>
-    <link href="http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/"/>
-    <id>http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/</id>
-    <published>2020-10-11T12:15:32.000Z</published>
-    <updated>2023-11-16T02:42:56.798Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="数据结构分类"><a href="#数据结构分类" class="headerlink" title="数据结构分类"></a>数据结构分类</h3><p>数据结构可以从两个维度分为： <code>逻辑结构</code> 和 <code>物理结构</code>。</p><p><code>逻辑结构</code> 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）；</p><p><code>物理结构</code> 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构；<br>在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 <code>连续空间存储（数组）</code> 和 <code>分散空间存储（链表）</code></p><span id="more"></span><h3 id="逻辑结构"><a href="#逻辑结构" class="headerlink" title="逻辑结构"></a>逻辑结构</h3><ol><li><code>逻辑结构</code> 又可被分为 <code>线性</code> 和 <code>非线性</code> 两大类</li></ol><ul><li><code>线性结构</code>比较直观，指数据在逻辑关系上呈线性排列；如：数组、链表、栈、队列、哈希表。 </li><li><code>非线性结构</code>则相反，呈非线性排列。如：树、堆、图、哈希表。</li></ul><ol start="2"><li>所有数据结构都是基于 数组、链表 或二者的组合实现的，例如<blockquote><p>基于数组可实现：栈、队列、哈希表、树、堆、图、矩阵、张量（维度&gt;&#x3D;3的数组）等。<br>基于链表可实现：栈、队列、哈希表、树、堆、图等。</p></blockquote></li></ol><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><ol><li><p><code>数组</code> 和 <code>链表</code>这两种逻辑数据结构，对应了内存上的两个最基本的物理存储结构 <code>连续存储</code>、<code>分散存储</code>，因此 <code>数组</code> 和 <code>链表</code>是最基本的逻辑数据结构，其他更为复杂的逻辑数据结构要使用哪种物理结构进行存储时，都需要基于这两个最基础的逻辑数据结构进行选择。</p></li><li><p><strong>可以简单认为，对于一组数据，无论它们逻辑上是用哪种结构组合起来的。它们最终在物理介质上都是两种存储方式 <code>连续存储</code>、<code>分散存储</code>。 而这两种物理存储方式对应了最基础的两个数据结构 <code>数组</code>、<code>链表</code>。</strong></p></li><li><p><strong>所以无论你的数据是哪种<code>逻辑结构</code>的组合，最终也要选择基于什么样的<code>物理结构</code>进行存储，而 <code>数组</code> 和 <code>链表</code> 这两种基础数据结构分别对应了不同的物理存储结构。</strong></p></li></ol><p>如，下图中对于 <code>堆</code> 这种数据结构(<strong>逻辑上的</strong>)，可以采用 链表 或 数组 两种不同的 数据结构(<strong>物理上的</strong>) 进行存储。<br><img src="/images/data-structure-algorithm/1699950608316.jpg" width="400px" style="margin-left:0px;"/></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_data_structure/classification_of_data_structure/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;数据结构分类&quot;&gt;&lt;a href=&quot;#数据结构分类&quot; class=&quot;headerlink&quot; title=&quot;数据结构分类&quot;&gt;&lt;/a&gt;数据结构分类&lt;/h3&gt;&lt;p&gt;数据结构可以从两个维度分为： &lt;code&gt;逻辑结构&lt;/code&gt; 和 &lt;code&gt;物理结构&lt;/code&gt;。&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;逻辑结构&lt;/code&gt; 揭示了数据元素之间的逻辑关系，是抽象意义上的结构（也是我们后面重点关注和讨论的）；&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;物理结构&lt;/code&gt; 则反映了 按一定逻辑结构组成的数据元素 在计算机内存中真正的存储结构；&lt;br&gt;在算法运行过程中，相关数据都存储在内存中, 这些数据的存储方式可分为 &lt;code&gt;连续空间存储（数组）&lt;/code&gt; 和 &lt;code&gt;分散空间存储（链表）&lt;/code&gt;&lt;/p&gt;</summary>
     
     
     

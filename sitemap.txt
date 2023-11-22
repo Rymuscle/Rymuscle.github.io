@@ -1,8 +1,16 @@
+http://rymuscle.github.io/2020/09/22/data-structure-algorithm/0-2.data-structure-algo/
+http://rymuscle.github.io/2020/09/21/data-structure-algorithm/0-0.data-structure-algo/
+http://rymuscle.github.io/2020/09/21/data-structure-algorithm/0-1.data-structure-algo/
+http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/
+http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-3.map/
+http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/
+http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-1.map/
+http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-2.map/
+http://rymuscle.github.io/2020/11/04/data-structure-algorithm/11-4.heap-TopK/
 http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/
 http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/
 http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/
 http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/
-http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/
 http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/
 http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/
 http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/
@@ -12,7 +20,7 @@ http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-2.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-1.binary-tree/
 http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/
-http://rymuscle.github.io/2020/10/11/data-structure-algorithm/01.dataStructure-type/
+http://rymuscle.github.io/2020/10/11/data-structure-algorithm/1-0.dataStructure-type/
 http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-7.AVL/
 http://rymuscle.github.io/2020/10/31/data-structure-algorithm/10-9.red-blackTree/
 http://rymuscle.github.io/2020/10/30/data-structure-algorithm/10-8.2-3Tree/

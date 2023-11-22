@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>「数据结构与算法」图 的存储 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-data-structure-algorithm/12-2.map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      「数据结构与算法」图 的存储
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2020-11-09T14:49:32.000Z" itemprop="datePublished">2020年11月09日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2020/11/09/data-structure-algorithm/12-2.map/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
+<p>在前面掌握了图的概念之后，我们今天聚焦在 <code>图存储</code> 这一方面，看下如何在<strong>内存中</strong>存储图这种数据结构。<br>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。 后面会分好几章节来依次讲解图相关的算法。</p>
+</blockquote>
+<h3 id="邻接矩阵存储方法"><a href="#邻接矩阵存储方法" class="headerlink" title="邻接矩阵存储方法"></a>邻接矩阵存储方法</h3><blockquote>
+<p>图最直观的一种存储方法就是 <code>邻接矩阵</code>（Adjacency Matrix）。<code>邻接矩阵</code>的底层依赖一个<code>二维数组</code>。</p>
+<ul>
+<li>对于<code>无向图</code>来说，如果顶点 i 与顶点 j 之间有边，我们就将 <code>A[i][j]</code> 和 <code>A[j][i]</code> 标记为 1；</li>
+<li>对于<code>有向图</code>来说，如果顶点 i 到顶点 j 之间，有一条箭头从顶点 i 指向顶点 j 的边，那我们就将 <code>A[i][j]</code> 标记为 1。同理，如果有一条箭头从顶点 j 指向顶点 i 的边，我们就将 <code>A[j][i]</code> 标记为 1。</li>
+<li>对于<code>带权图</code>，数组中就存储相应的权重。<img src="/images/data-structure-algorithm/WX20231121-092751@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li>
+</ul>
+</blockquote>
+<br/>
+
+<blockquote>
+<p>用邻接矩阵来表示一个图，虽然简单、直观，但是比较浪费存储空间。为什么这么说呢？</p>
+<ul>
+<li>对于<code>无向图</code>来说，如果 A[i][j] 等于 1，那 A[j][i] 也肯定等于 1。实际上，我们只需要存储一个就可以了。<span style="color:Red;font-weight:600;">也就是说，无向图的二维数组中，如果我们将其用对角线划分为上下两部分，那我们只需要利用上面或者下面这样一半的空间就足够了，另外一半白白浪费掉了</span>。</li>
+<li>还有，如果我们存储的是 <code>稀疏图</code>（Sparse Matrix），也就是说，<span style="color:Red;font-weight:600;">顶点很多，但每个顶点的边并不多</span>，那邻接矩阵的存储方法就更加浪费空间了。<br>比如微信有好几亿的用户，对应到图上就是好几亿的顶点。但是每个用户的好友并不会很多，一般也就三五百个而已。<br>如果我们用邻接矩阵来存储，那绝大部分的存储空间都被浪费了。</li>
+</ul>
+</blockquote>
+<br/>
+
+<blockquote>
+<ul>
+<li>但这也并不是说，邻接矩阵的存储方法就完全没有优点。<br>首先，邻接矩阵的存储方式简单、直接，因为基于数组，所以在获取两个顶点的关系时，就非常高效。<br>其次，用邻接矩阵存储图的另外一个好处是方便计算。这是因为，用邻接矩阵的方式存储图，可以将很多图的运算转换成矩阵之间的运算。比如求解最短路径问题时会提到一个Floyd-Warshall 算法，就是利用矩阵循环相乘若干次得到结果。</li>
+</ul>
+</blockquote>
+<h3 id="邻接表存储方法"><a href="#邻接表存储方法" class="headerlink" title="邻接表存储方法"></a>邻接表存储方法</h3><blockquote>
+<p>针对上面<code>邻接矩阵</code>比较浪费内存空间的问题，我们来看另外一种图的存储方法，<code>邻接表</code>（Adjacency List）。 下面是一张邻接表的图，你可以先看下<br><img src="/images/data-structure-algorithm/WX20231121-093652@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+</blockquote>
+<blockquote>
+<p>乍一看，邻接表是不是有点像散列表？<br>每个顶点对应一条链表，链表中存储的是与这个顶点相连接的其他顶点。<br>另外需要说明的是，图中画的是一个<code>有向图</code>的邻接表存储方式，每个顶点对应的链表里面，存储的是指向的顶点。<br>对于<code>无向图</code>来说，也是类似的，不过，每个顶点的链表中存储的，是跟这个顶点有边相连的顶点，你可以自己画下。</p>
+</blockquote>
+<br/>
+
+<blockquote>
+<p>还记得我们之前讲过的时间、空间复杂度互换的设计思想吗？<br><code>邻接矩阵</code>存储起来比较浪费空间，但是使用起来比较节省时间。<br>相反，<code>邻接表</code>存储起来比较节省空间，但是使用起来就比较耗时间。<br>就像图中的例子，如果我们要确定，是否存在一条从顶点 2 到顶点 4 的边，那我们就要遍历顶点 2 对应的那条链表，看链表中是否存在顶点 4。<br>而且，我们前面也讲过，链表的存储方式对缓存不友好。所以，比起<code>邻接矩阵</code>的存储方式，在<code>邻接表</code>中查询两个顶点之间的关系就没那么高效了。<br>在<code>散列表</code>那几节里，我讲到，在基于链表法解决冲突的散列表中，如果链过长，为了提高查找效率，我们可以将链表换成其他更加高效的数据结构，比如<code>平衡二叉查找树</code>等。<br>我们刚刚也讲到，邻接表长得很像散列。所以，我们也可以将<code>邻接表</code>同<code>散列表</code>一样进行“改进升级”。 比如将<code>邻接表</code>中的<code>链表</code>改成<code>平衡二叉查找树</code>。 实际开发中，我们可以选择用<code>红黑树</code>。 这样，我们就可以更加快速地查找两个顶点之间是否存在边了。<br>当然，这里的二叉查找树可以换成其他动态数据结构，比如<code>跳表</code>、<code>散列表</code>等。<br>除此之外，我们还可以将链表改成<code>有序动态数组</code>，可以通过二分查找的方法来快速定位两个顶点之间否是存在边。</p>
+</blockquote>
+<h3 id="精选留言"><a href="#精选留言" class="headerlink" title="精选留言"></a>精选留言</h3><img src="/images/data-structure-algorithm/WX20231121-094703@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+<img src="/images/data-structure-algorithm/WX20231121-094454@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+<li>《数据结构与算法之美》王争</li>
+<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li>
+</ul>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%82%BB%E6%8E%A5%E7%9F%A9%E9%98%B5%E5%AD%98%E5%82%A8%E6%96%B9%E6%B3%95"><span class="toc-text">邻接矩阵存储方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%82%BB%E6%8E%A5%E8%A1%A8%E5%AD%98%E5%82%A8%E6%96%B9%E6%B3%95"><span class="toc-text">邻接表存储方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%B2%BE%E9%80%89%E7%95%99%E8%A8%80"><span class="toc-text">精选留言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="toc-text">参考文献</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2020/11/09/data-structure-algorithm/12-1.map/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          「数据结构与算法」图
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/11/09/data-structure-algorithm/12-3.map/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          「数据结构与算法」图的基础操作 (TODO)
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 20px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">21</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">21</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">26</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2023 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

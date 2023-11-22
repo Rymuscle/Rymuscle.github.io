@@ -2,9 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://rymuscle.github.io/2020/09/22/data-structure-algorithm/0-2.data-structure-algo/</loc>
+    <loc>http://rymuscle.github.io/2020/10/15/data-structure-algorithm/2-2.linked-list/</loc>
     
-    <lastmod>2023-11-21</lastmod>
+    <lastmod>2023-11-22</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2020/10/13/data-structure-algorithm/2-1.array/</loc>
+    
+    <lastmod>2023-11-22</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

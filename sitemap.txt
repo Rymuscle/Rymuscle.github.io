@@ -1,4 +1,5 @@
-http://rymuscle.github.io/2020/09/22/data-structure-algorithm/0-2.data-structure-algo/
+http://rymuscle.github.io/2020/10/15/data-structure-algorithm/2-2.linked-list/
+http://rymuscle.github.io/2020/10/13/data-structure-algorithm/2-1.array/
 http://rymuscle.github.io/2020/09/21/data-structure-algorithm/0-0.data-structure-algo/
 http://rymuscle.github.io/2020/09/21/data-structure-algorithm/0-1.data-structure-algo/
 http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/

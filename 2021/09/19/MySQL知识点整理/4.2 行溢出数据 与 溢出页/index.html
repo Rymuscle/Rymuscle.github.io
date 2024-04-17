@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>4.2 行溢出数据 与 溢出页 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/4.2 行溢出数据 与 溢出页" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      4.2 行溢出数据 与 溢出页
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-19T14:01:52.000Z" itemprop="datePublished">2021年09月19日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h1><blockquote>
+<p>我们知道，对于VARCHAR(M)类型的列最多可以占用65535个字节。(lant: 因为在变长字段长度列表中，每个变长字段实际存储的数据的长度值最多占2个字节，而2个字节最大能表示的数就是65535了)。<br>而之前我们也说过，VARCHAR(M)的<code>M</code>代表该类型最多存储的<code>字符数量</code></p>
+</blockquote>
+<h2 id="使用ascii定长字符集"><a href="#使用ascii定长字符集" class="headerlink" title="使用ascii定长字符集"></a>使用ascii定长字符集</h2><blockquote>
+<p>如果我们使用ascii字符集的话，一个字符就代表一个字节，我们看看VARCHAR(65535)是否可用:</p>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65535)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code></p>
+<p><code>ERROR 1118 (42000): Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535. This includes storage overhead, check the manual. You have to change some columns to TEXT or BLOBs</code></p>
+<p><code>mysql&gt;</code></p>
+<p>从报错信息里可以看出，MySQL对一条记录占用的最大存储空间是有限制的，除了BLOB或者TEXT类型的列之外， <strong><code>其他所有的列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> 。所以上面可以看到MySQL服务器建议我们把存储类型改为TEXT或者BLOB的类型。</p>
+<p>这65535个字节除了列本身的数据外，还包括一些其他数据，比如说为了存储一个VARCHAR(M)类型的列，其实需要占用3部分存储空间: <code>真实数据</code>、<code>真实数据的⻓度占用的字节</code>、<code>NULL值标识</code>(如果该列有NOT NULL属性则可以没有这部分存 储空间)…<br>如果该VARCHAR类型的列没有NOT NULL属性，那最多只能存储65532个字节的数据，<code>因为真实数据的⻓度在变长字段列表中会占2个字节，NULL 值标识需要占用1个字节</code>，再次尝试，果然成功了<br><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code><br><code>Query OK, 0 rows affected (0.02 sec)</code></p>
+</blockquote>
+<h2 id="使用变长字符集"><a href="#使用变长字符集" class="headerlink" title="使用变长字符集"></a>使用变长字符集</h2><p>如果VARCHAR(M)类型的列使用的不是ascii字符集，那会怎么样呢?</p>
+<blockquote>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo( </code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=gbk ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 32767); use BLOB or TEXT instead</code></p>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt;  c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=utf8 ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 21845); use BLOB or TEXT instead</code></p>
+</blockquote>
+<blockquote>
+<p>从执行结果中可以看出，如果VARCHAR(M)类型的列使用的不是ascii字符集，那<code>M的最大取值取决于该字符集表示一个字符最多需要的字节数</code>。<br>gbk字符集表示一个字符最多需要2个字符，在列的值允许为NULL的情况下，M的最大取值就是32766(也就是: 65535-2(变长字段列表占2字节)-1(null列表占1字节) &#x3D; 65532)，也就是说最多能存储32766(65532&#x2F;2)个字符;<br>utf8字符集表示一个字符最多需要3个字符，那在该字符集下，M的最大取值就是21844，就是说最多能存储21844(也就是: (65535-2-1)&#x2F;3)个字符。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>上述所言在列的值允许为NULL的情况下，gbk字符集下M的最大取值就是32766，utf8字符集下M的最大取值就是21844， <strong><code>这都是在表中只有一个字段的情况下说的</code></strong> ， <strong><code>一定要记住一个行中的所有列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> !</p>
+</blockquote>
+<h1 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h1><blockquote>
+<p>前边说过， <strong><code>MySQL中磁盘和内存交互的基本单位是⻚</code>，也就是说<code>MySQL是以⻚为基本单位来管理存储空间的</code>，<code>我们的记录都会被分配到某个⻚中存储</code></strong> 。</p>
+<p>而一个⻚的大小一般是16KB，也就是16384字节，而一个VARCHAR(M)类型的列就最多可以存储65532个字节，<code>这样就可能造成一个⻚存放不了一条记录的尴尬情况</code>。</p>
+<p>在Compact和Reduntant行格式中，对于占用存储空间非常大的列，<code>在记录的真实数据处只会存储该列的一部分数据，而剩余的数据则会被分散存储在几个其他的⻚中，然后记录的真实数据处用20个字节存储指向这些⻚的地址</code>(当然这20个字节中还包括这些分散在其他⻚面中的数据的占用的字节数)，从而可以找到剩余数据所在的⻚。<br><img src="/images/MySQL/4.2/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出来，对于Compact和Reduntant行格式来说，如果 某一列中的数据非常多的话，在本记录的真实数据处只会存储该列的 前768个字节的数据和一个指向其他⻚的地址，然后把剩下的数据存 放到其他⻚中，这个过程也叫做行溢出，存储超出768字节的那些⻚面也被称为<code>溢出⻚</code>。简图如下：<br><img src="/images/MySQL/4.2/2.jpg"><br>最后需要注意的是，不只是 VARCHAR(M) 类型的列，其他的 TEXT、BLOB 类型的列在存储数据非常多的时候也会发生行溢出。</p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#VARCHAR-M-%E6%9C%80%E5%A4%9A%E8%83%BD%E5%AD%98%E5%82%A8%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text">VARCHAR(M)最多能存储的数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8ascii%E5%AE%9A%E9%95%BF%E5%AD%97%E7%AC%A6%E9%9B%86"><span class="toc-text">使用ascii定长字符集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%8F%98%E9%95%BF%E5%AD%97%E7%AC%A6%E9%9B%86"><span class="toc-text">使用变长字符集</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E4%B8%AD%E7%9A%84%E6%95%B0%E6%8D%AE%E5%A4%AA%E5%A4%9A%E4%BA%A7%E7%94%9F%E7%9A%84%E6%BA%A2%E5%87%BA"><span class="toc-text">记录中的数据太多产生的溢出</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          4.1 compact 行格式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          4.3 Dynamic 和 Compressed 行格式
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

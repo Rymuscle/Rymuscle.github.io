@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>6.5 InnoDB 的联合索引 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/6.5 InnoDB 的联合索引" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      6.5 InnoDB 的联合索引
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-13T13:19:37.000Z" itemprop="datePublished">2021年10月13日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引。<br>比方说我们想让B+树按照c2和c3列的大小进行排序,这个包含两层含义:</p>
+<ul>
+<li>先把各个记录和⻚按照c2列进行排序；</li>
+<li>在记录的c2列相同的情况下，采用c3列进行排序；</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>为c2和c3列建立的联合索引的示意图如下：<br><img src="/images/MySQL/6.5/1.jpg"></p>
+<p>如图所示，我们需要注意以下几点:</p>
+<ul>
+<li>每条<code>目录项记录</code>都由 <code>c2、c3、⻚号</code> 这三个部分组成，各条记录先按照c2列的值进行排序，如果记录的c2列相同，则按照c3列的值进行排序。<br>  B+树叶子节点处的用户记录由 <code>c2、c3、主键c1列</code>组成。</li>
+<li>千万要注意一点，以c2和c3列的大小为排序规则建立的B+树称为<code>联合索引</code>，本质上也是一个二级索引。它的意思与分别为c2和c3列分别建立索引的表述是不同的，建立联合索引只会建立如上图一样的1棵B+树。而为c2和c3列分别建立索引会分别以c2和c3列的大小为排序规则建立2棵B+树</li>
+</ul>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          6.4 InnoDB 的 二级索引及其回表操作
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          6.6 InnoDB B+树索引 注意事项
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>5.2 回顾 行格式 之 记录头信息 的秘密 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/5.2 回顾: 行格式 之 记录头信息 的秘密" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      5.2 回顾 行格式 之 记录头信息 的秘密
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-24T05:31:16.000Z" itemprop="datePublished">2021年09月24日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>为了故事的顺利发展，我们先创建一个表:<br><code>mysql&gt; CREATE TABLE page_demo(</code><br>  <code>-&gt; c1 INT,</code><br>  <code>-&gt; c2 INT,</code><br>  <code>-&gt; c3 VARCHAR(10000),</code><br>  <code>-&gt; PRIMARY KEY (c1)</code><br>  <code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact; </code><br><code>Query OK, 0 rows affected (0.03 sec)</code></p>
+<p>这个新创建的page_demo表有3个列，其中c1和c2列是用来存储整数的，c3列是用来存储字符串的。<br>需要注意的是，我们把 c1 列指定为主键，所以在具体的行格式中InnoDB就没必要为我们去创建那个所谓的 row_id 隐藏列了。<br>而且我们为这个表指定了ascii字符集以及Compact的行格式。<br>所以这个表中记录的行格式示意图就是这样的:<br><img src="/images/MySQL/5.2/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>我们再次先把这些记录头信息中各个属性的大体意思浏览一下(这里仍然使用Compact行格式进行演示):<br><img src="/images/MySQL/5.2/2.jpg"><br><img src="/images/MySQL/5.2/3.jpg"></p>
+</blockquote>
+<blockquote>
+<p>为了进一步方便大家分析这些记录在⻚的User Records部分中是怎么表示的，我把记录中头信息和实际的列数据都用十进制表示出来了(其实是一堆二进制位)，这些记录的示意图如下:<br><img src="/images/MySQL/5.2/4.jpg"><br>我们对照着这个图来看看记录头信息中的各个属性是啥意思。</p>
+</blockquote>
+<h1 id="delete-mask"><a href="#delete-mask" class="headerlink" title="delete_mask"></a>delete_mask</h1><blockquote>
+<p>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0的时候代表记录并没有被删除，为1的时候代表记录被删除掉了。</p>
+</blockquote>
+<blockquote>
+<p>这些被删除的记录之所以不立即从磁盘上移除，是因为<code>移除它们之后把其他的记录在磁盘上重新排列需要性能消耗</code>，所以只是打一个删除标记，所有被删除的记录会组成一个所谓的垃圾链表，在这个链表中的记录占用的空间称之为<code>可重用空间</code>，之后如果有新记录插入到表中的话，可能把这些被删除的记录占用的存储空间覆盖掉。</p>
+<p>Tips：<br>将这个delete_mask位设置为1 和 将被删除的记录加入到垃圾 链表中 其实是两个阶段，我们后边在介绍事务的时候会详细唠叨删除操作的详细过程，稍安勿躁。</p>
+</blockquote>
+<h1 id="min-rec-mask"><a href="#min-rec-mask" class="headerlink" title="min_rec_mask"></a>min_rec_mask</h1><blockquote>
+<p><code>B+树</code>的每层<code>非叶子节点</code>中的<code>最小记录</code>都会添加该标记。</p>
+<p>什么是个B+树? 什么是个非叶子节点?<br>好吧，别着急，等会儿再聊这个问题。</p>
+<p>反正我们自己插入的四条记录的min_rec_mask值都是0，意味着它们都不是B+树的非叶子节点中的最小记录。</p>
+</blockquote>
+<h1 id="n-owned"><a href="#n-owned" class="headerlink" title="n_owned"></a>n_owned</h1><p>这个暂时保密，稍后它是主⻆~</p>
+<h1 id="heap-no"><a href="#heap-no" class="headerlink" title="heap_no"></a>heap_no</h1><blockquote>
+<p>这个属性表示当前记录在本⻚中的位置。</p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出来， 我们插入的4条记录在本⻚中的位置分别是: 2、3、4、5。可怎么不⻅heap_no值为0和1的记录呢?<br>这其实是设计InnoDB的大叔们玩的一个小把戏，<code>他们自动给每个⻚里加了两个记录</code>，由于这两个记录并不是我们自己插入的，所以有时候也称为<code>伪记录</code>或者<code>虚拟记录</code>。这两个伪记录一个代表<code>最小记录</code>，一个代表<code>最大记录</code>。</p>
+</blockquote>
+<blockquote>
+<p>等一下哈~，记录可以比大小么?<br>是的，记录也可以比大小，对于<code>一条完整的记录</code>来说，<code>比较记录的大小就是比较主键的大小</code>。比方说我们插入的4行记录的主键值分别是:1、2、3、4，这也就意味着这4条记录是从小到大依次递增。</p>
+</blockquote>
+<blockquote>
+<p>但是不管我们向⻚中插入了多少自己的记录，设计InnoDB的大叔们都规定他们定义的两条伪记录分别为最小记录与最大记录。<br>这两条记录的构造十分简单，都是由5字节大小的记录头信息和8字节大小的一个固定的部分组成的，如图所示：<br><img src="/images/MySQL/5.2/5.jpg"></p>
+</blockquote>
+<blockquote>
+<p>由于这两条记录不是我们自己定义的记录，所以<code>它们并不存放在⻚的User Records部分</code>，<code>他们被单独放在一个称为 Infimum + Supremum的部分</code>，如下图所示:<br><img src="/images/MySQL/5.2/6.jpg"></p>
+</blockquote>
+<h1 id="record-type"><a href="#record-type" class="headerlink" title="record_type"></a>record_type</h1><blockquote>
+<p>这个属性表示当前记录的类型，一共有4种类型的记录：<br>0表示：普通记录<br><strong><code>1表示：B+树非叶节点记录</code></strong><br>2表示：最小记录<br>3表示：最大记录</p>
+</blockquote>
+<blockquote>
+<p>从图中我们也可以看出来，我们自己插入的记录就是<code>普通记录</code>，它们的record_type值都是0，而最小记录和最大记录的record_type值分别为2和3。<br>至于record_type为1的情况，我们之后在说索引的时候会重点强调的。</p>
+</blockquote>
+<h1 id="next-record"><a href="#next-record" class="headerlink" title="next_record"></a>next_record</h1><blockquote>
+<p>这玩意儿非常重要，它表示从当前记录的真实数据到下一条记录的真实数据的地址偏移量。<br>比方说第一条记录的 <code>next_record</code> 值为32，意味着从第一条记录的真实数据的地址处向后找32个字节便是下一条记录的真实数据。<br><code>如果你熟悉数据结构的话，就立即明白了，这其实是个链表，可以通过一条记录找到它的下一条记录</code>。</p>
+</blockquote>
+<blockquote>
+<p>但是需要注意注意再注意的一点是，下一条记录指得并不是按照我们插入顺序的下一条记录，而是按照主键值由小到大的顺序的下一条记录。而且规定Infimum记录(也就是最小记录) 的下一条记录就是本⻚中主键值最小的用户记录，而本⻚中主键值最大的用户记录的下一条记录就是 Supremum记录(也就是最大记录) 。<br>为了更形象的表示一下这个next_record起到的作用，我们用箭头来替代一下next_record中的地址偏移量:</p>
+<blockquote>
+<p><img src="/images/MySQL/5.2/7.jpg"><br>从图中可以看出来，我们的记录按照主键从小到大的顺序形成了一个<code>单链表</code>。最大记录的next_record的值为0，这也就是说最大记录是没有下一条记录了，它是这个单链表中的最后一个节点。</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>如果从中删除掉一条记录，这个链表也是会跟着变化的，比如我们把第2条记录删掉后的示意图就是:<br><img src="/images/MySQL/5.2/8.jpg"><br>从图中可以看出来，删除第2条记录前后主要发生了这些变化:</p>
+<ul>
+<li>第2条记录并没有从存储空间中移除，而是把该条记录的delete_mask值设置为1。</li>
+<li>第2条记录的next_record值变为了0，意味着该记录没有下一条记录了。</li>
+<li>第1条记录的next_record指向了第3条记录。</li>
+<li>还有一点你可能忽略了，就是<code>最大记录的n_owned值从5变成了4</code>，关于这一点的变化我们稍后会详细说明的。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>再来看一个有意思的事儿，因为主键值为2的记录被我们删掉了，但是存储空间却没有回收，如果我们再次把这条记录插入到表中，会发生什么事呢?</p>
+<blockquote>
+<p><img src="/images/MySQL/5.2/9.jpg"><br>InnoDB并没有因为新记录的插入而为它申请新的存储空间，而是<code>直接复用了原来被删除记录的存储空间</code>。</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>所以，不论我们怎么对⻚中的记录做增删改操作，InnoDB始终会维护一条 <code>由记录组成的单链表</code>，<code>链表中的各个节点是按照主键值由小到大的顺序连接起来的</code>。</strong></p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#delete-mask"><span class="toc-text">delete_mask</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#min-rec-mask"><span class="toc-text">min_rec_mask</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#n-owned"><span class="toc-text">n_owned</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#heap-no"><span class="toc-text">heap_no</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#record-type"><span class="toc-text">record_type</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#next-record"><span class="toc-text">next_record</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          5.1 `数据页` 结构 之 User Records、Free Space 部分
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/25/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          5.3 `数据页`结构 之 Page Directory(⻚目录) 部分
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

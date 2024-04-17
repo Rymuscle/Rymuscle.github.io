@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>1. 重新认识MySQL | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/1. 重新认识MySQL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      1. 重新认识MySQL
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-12T05:01:09.000Z" itemprop="datePublished">2021年09月12日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/1.%20%E9%87%8D%E6%96%B0%E8%AE%A4%E8%AF%86MySQL/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="MySQL的-客户端-服务器架构"><a href="#MySQL的-客户端-服务器架构" class="headerlink" title="MySQL的 客户端&#x2F;服务器架构"></a>MySQL的 客户端&#x2F;服务器架构</h1><p>我们日常使用MySQL的情景一般是:</p>
+<ul>
+<li>启动 <code>MySQL服务器程序</code>；</li>
+<li>启动 <code>MySQL客户端程序</code> 并连接到 <code>MySQL服务器程序</code>；</li>
+<li>在 <code>MySQL客户端程序</code> 中输入一些 <code>命令语句</code> 作为请求发送到 <code>MySQL服务器程序</code>；</li>
+<li><code>MySQL服务器程序</code> 收到这些请求后，会根据请求的内容来操作具体的数据并向 <code>MySQL客户端程序</code> 返回操作结果。</li>
+</ul>
+<hr>
+<p><code>MySQL服务器程序</code> 和 <code>MySQL客户端程序</code> 本质上都算是计算机上的一个<code>进程</code>，代表 <code>MySQL服务器程序</code> 的进程也被称为 <code>MySQL数据库实例</code>(简称<code>数据库实例</code>)；</p>
+<ul>
+<li><p>每个进程都有一个唯一的编号，称为 <code>进程ID</code>，英文名叫<code>PID</code>， <em><strong>这个编号是在我们启动程序的时候由操作系统 <code>随机分配</code>的，操作系统会保证在某一时刻同一台机器上的进程号不重复</strong></em>。</p>
+<blockquote>
+<p>比如你打开了计算机中的QQ程序，那么操作系统会为它分配一个唯一的进程号；如果你把这个程序关掉了，那操作系统就会把这个进程号回收，之后可能会重新分配给别的进程。当我们下一次再启动QQ程序的时候分配的就可能是另一个编号。</p>
+</blockquote>
+</li>
+<li><p>每个进程都有一个名称，这个名称是编写程序的人自己定义的，比如我们启动的 <code>MySQL服务器进程</code> 的<strong>默认</strong>名称是  <code>mysqld</code>，而我们常用的<code>MySQL客户端进程</code>的<strong>默认</strong>名称为 <code>mysql</code>。</p>
+</li>
+</ul>
+<h1 id="MySQL安装-小须知"><a href="#MySQL安装-小须知" class="headerlink" title="MySQL安装 小须知"></a>MySQL安装 小须知</h1><p>首先你要知道：无论我们通过 <code>下载源代码自行编译安装的方式</code> 还是 <code>直接使用官方提供的安装包进行安装的方式</code>。之后，<code>MySQL的服务器程序</code>和<code>MySQL的客户端程序</code> 都会被安装到我们的机器上。</p>
+<blockquote>
+<p>Tips:<br>MySQL的大部分安装包都包含了服务器程序和客户端程序，不过在Linux下使用 RPM包 安装时会有单独的 服务器RPM包 和 客户端RPM包，需要分别安装。</p>
+</blockquote>
+<p>不论使用上述两者的哪种安装方式，一定要记住你的 <strong><code>MySQL的安装目录</code></strong> 。</p>
+<p>在 <code>MySQL的安装目录</code> 下有一个特别特别重要的目录 <strong><code>bin目录</code></strong> ，这个目录下存放着许多可执行文件。</p>
+<h1 id="启动MySQL服务器程序"><a href="#启动MySQL服务器程序" class="headerlink" title="启动MySQL服务器程序"></a>启动MySQL服务器程序</h1><p>在 <code>类UNIX系统</code> 中，用来 启动MySQL服务器程序 的<code>可执行文件</code>有很多，大多都在 <code>MySQL安装目录</code> 的 <code>bin目录</code> 下。</p>
+<h2 id="mysqld"><a href="#mysqld" class="headerlink" title="mysqld"></a><del><code>mysqld</code></del></h2><p><del><code>mysqld</code> 这个可执行文件就代表着 <code>MySQL服务器程序</code>，运行这个可执行文件就可以直接启动一个服务器进程。 但这个命令不常用，我们继续往下看更牛逼的启动命令。</del></p>
+<h2 id="mysqld-safe"><a href="#mysqld-safe" class="headerlink" title="mysqld_safe"></a><code>mysqld_safe</code></h2><p><code>mysqld_safe</code> 是一个启动脚本:</p>
+<ul>
+<li>它会间接的调用 <code>mysqld</code> ;</li>
+<li>而且还顺便启动了另外一个 <code>监控进程</code>；这个 <code>监控进程</code> 在服务器进程挂了的时候，可以帮助重启它;</li>
+<li>另外，它会将服务器程序的出错信息和其他诊断信息重定向到某个文件中，产生<code>错误日志</code>，方便我们找出发生错误的原因。</li>
+</ul>
+<h2 id="mysql-server"><a href="#mysql-server" class="headerlink" title="mysql.server"></a><code>mysql.server</code></h2><p><code>mysql.server</code> 也是一个启动脚本，它会间接的调用 <code>mysqld_safe</code>；</p>
+<p>命令用法如下：</p>
+<ul>
+<li>启动服务器程序 ：<code>mysq.server start</code></li>
+<li>停止服务器程序：<code>mysq.server stop</code></li>
+</ul>
+<blockquote>
+<p>需要注意的是，这个 <code>mysql.server</code> 文件其实是一个链接文件，它的实际文件是 <code>../support-files/mysql.server</code> 。</p>
+<p>我使用的macOS操作系统会帮我在bin目录下自动创建一个指向实际文件的链接文件，如果你的操作系统没有帮你自动创建这个链接文件，那就自己创建一个呗~</p>
+</blockquote>
+<h2 id="mysqld-multi"><a href="#mysqld-multi" class="headerlink" title="mysqld_multi"></a><del><code>mysqld_multi</code></del></h2><blockquote>
+<p><del>其实我们一台计算机上也可以运行多个MYSQL数据库实例。<code>mysql_multi可执行文件</code> 可以对每一个服务器进程的启动或停止进行监控。</del><br><del>这个命令的使用比较复杂，本书主要是为了讲清楚MySQL服务器和客户端运行的过程，不会对启动多个服务器程序进行过多唠叨。</del></p>
+</blockquote>
+<h1 id="启动MySQL客户端程序"><a href="#启动MySQL客户端程序" class="headerlink" title="启动MySQL客户端程序"></a>启动MySQL客户端程序</h1><blockquote>
+<p>在成功启动<code>MySQL服务器程序</code>后，就可以接着启动<code>MySQL客户端程序</code>来连接到这个服务器。</p>
+<p><code>bin目录</code>下有许多客户端程序，比方说 <code>mysqladmin</code>、<code>mysqldump</code>、<code>mysqlcheck</code> 等等 (好多呢，就不一一列举了)。</p>
+</blockquote>
+<hr>
+<p>这里我们重点要关注的是 <code>可执行文件 mysql</code>：</p>
+<blockquote>
+<p><strong>通过这个可执行文件可以让我们和服务器程序进程交互</strong>(也就是发送请求，接受服务器的处理结果)。</p>
+<p>命令用法：<br>&#x2F;&#x2F; 启动这个可执行文件时一般需要一些参数，格式如下:<br><code>mysql -h主机名 -u用户名 -p密码</code></p>
+<p>&#x2F;&#x2F; 如果我们想断开客户端与服务器的连接并且关闭客户端的话，&gt; 可以在 <code>mysql&gt; 提示符</code>后输入下边任意一个命令:</p>
+<ol>
+<li><code>quit</code></li>
+<li><code>exit</code></li>
+<li><code>\q</code></li>
+</ol>
+<p>Tips:<br>像 h、u、p 这样只有一个英文字母的参数称为 <code>短形式的参数</code>，使用时前边需要加单短划线;<br>而像 host、user、password 这样大于一个英文字母的参数称为<code>⻓形式的参数</code>，使用时前边需要加 <code>双短划线</code>。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>如果你愿意，你可以多打开几个终端窗口(每个黑框框都使用 <code>mysql -hlocalhost -uroot -p123456</code>)来运行多个 <code>客户端程序</code>，每个<code>客户端程序</code> 其实都是互不影响的。<br>如果你有多个电脑，也可以试试把它们用局域网连起来，在一个电脑上启动 <code>MySQL服务器程序</code>，在另一个电脑上执行 <code>mysql命令</code> 使用IP地址作为主机名来连接到服务器。</p>
+</blockquote>
+<h1 id="客户端与服务器连接的过程"><a href="#客户端与服务器连接的过程" class="headerlink" title="客户端与服务器连接的过程"></a>客户端与服务器连接的过程</h1><p>我们现在已经知道如何启动 <code>MySQL的服务器程序</code>，以及如何启动 <code>MySQL的客户端程序</code>来连接到这个服务器程序。</p>
+<p>运行着的服务器程序和客户端程序本质上都是计算机上的一个<code>进程</code>，所以客户端进程向服务器进程发送请求并得到回复的过程本质上是一个<code>进程间通信的过程</code>!</p>
+<p><strong><code>MySQL支持下边三种客户端进程和服务器进程的通信方式</code></strong>:</p>
+<h2 id="TCP-IP"><a href="#TCP-IP" class="headerlink" title="TCP&#x2F;IP"></a>TCP&#x2F;IP</h2><p><strong>真实环境中，<code>数据库服务器进程</code> 和 <code>客户端进程</code> 可能运行在不同的主机中，它们之间必须通过网络来进行通讯</strong>。</p>
+<p>MySQL采用 <code>TCP</code> 作为<code>服务器</code>和<code>客户端</code> 之间的网络通信协议:</p>
+<blockquote>
+<p>在网络环境下，每台计算机都有一个唯一的IP地址，如果某个进程有需要采用TCP协议进行网络通信方面的需求，可以向操作系统申请一个端口号，这是一个整数值，它的取值范围是0~65535。这样在网络中的其他进程就可以通过 <code>IP地址 + 端口号</code>的方式来与这个进程连接，这样进程之间就可以通过网络进行通信了。</p>
+<p> <code>MySQL服务器</code>启动时会默认申请3306端口号(即，MySQL服务器会默认监听3306端口)，之后就在这个端口号上等待客户端进程进行连接。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>&#x2F;&#x2F; 如果3306端口号已经被别的进程占用了或者我们单纯的想自定义该 数据库实例监听的端口号，那我们可以在启动服务器程序的命令行里添加 <code>-P参数</code> 来明确指定一下端口号，比如这样: <code>mysqld -P3307</code><br>&#x2F;&#x2F; 这样MySQL服务器在启动时就会去监听我们指定的端口号3307。</p>
+</blockquote>
+<h2 id="命名管道和共享内存"><a href="#命名管道和共享内存" class="headerlink" title="命名管道和共享内存"></a><del>命名管道和共享内存</del></h2><p><del>如果你是一个Windows用户，那么客户端进程和服务器进程之间可以考虑使用命名管道或共享内存进行通信。</del></p>
+<h2 id="Unix域套接字文件"><a href="#Unix域套接字文件" class="headerlink" title="Unix域套接字文件"></a>Unix域套接字文件</h2><p>如果我们的<code>服务器进程</code>和<code>客户端进程</code>都运行在 <strong><code>同一台</code></strong> 操作系统为 类Unix的机器上的话，我们可以使用<code>Unix域套接字文件</code>来进行进程间通信。</p>
+<p>如果我们在<code>启动客户端程序时</code>指定的主机名为<code>localhost</code>，或者指定了<code>--protocal=socket</code>的启动参数，那服务器程序和客户端程序之间就可以通过<code>Unix域套接字文件</code>来进行通信了。</p>
+<hr>
+<p>MySQL服务器程序默认监听的Unix域套接字文件路径为<code>/tmp/mysql.sock</code>，客户端程序也默认连接到这个Unix域套接字文件。</p>
+<ul>
+<li>如果我们想改变这个默认路径，可以在启动服务器程序时指定<code>socket参数</code>，就像这样: <code>mysqld --socket=/tmp/a.txt</code>，这样服务器启动后便会监听<code>/tmp/a.txt</code>。</li>
+<li>在服务器改变了默认的UNIX域套接字文件后，如果客户端程序想通过UNIX域套接字文件进行通信的话，也需要显式的指定连接到的UNIX域套接字文件路径，就像这样:<code>mysql -hlocalhost -uroot --socket=/tmp/a.txt -p</code></li>
+</ul>
+<p>这样该客户端进程和服务器进程就可以通过路径为<code>/tmp/a.txt</code>的Unix域套接字文件进行通信了。</p>
+<h1 id="服务器处理客户端请求"><a href="#服务器处理客户端请求" class="headerlink" title="服务器处理客户端请求"></a>服务器处理客户端请求</h1><blockquote>
+<p>其实不论<code>客户端进程</code>和<code>服务器进程</code>是采用哪种方式进行通信，最后实现的效果都是:客户端进程向服务器进程发送一段文本(MySQL语句)，服务器进程处理后再向客户端进程返回一段文本(处理结果)。</p>
+<p>那服务器进程对客户端进程发送的请求做了什么处理，才能产生最后的处理结果呢?</p>
+</blockquote>
+<blockquote>
+<p>客户端可以向服务器发送增删改查各类请求，我们这里以比较复杂的查询请求为例来画个图展示一下大致的过程:<br><img src="/images/MySQL/1/fsfasfsff23e2e.jpg"></p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出，服务器程序处理来自客户端的查询请求大致需要经过三个部分，分别是 <code>连接管理</code>、<code>解析与优化</code>、 <strong><code>存储引擎</code></strong> 。下边我们来详细看一下这三个部分都干了什么。</p>
+</blockquote>
+<h2 id="📌连接管理"><a href="#📌连接管理" class="headerlink" title="📌连接管理"></a>📌连接管理</h2><blockquote>
+<p><code>客户端进程</code> 可以采用我们上边介绍的 <code>TCP/IP</code>、<code>命名管道或共享内存</code>、<code>Unix域套接字</code> 这几种方式之一来与 <code>服务器进</code> 程建立连接。</p>
+<p><strong><code>每当有一个客户端进程连接到服务器进程时，服务器进程都会创建一个线程来专⻔处理与这个客户端的交互； 当该客户端退出时会与服务器断开连接，服务器并不会立即把与该客户端交互的线程销毁掉，而是把它缓存起来； 在另一个新的客户端再进行连接时，服务器会把这个缓存的线程重新分配给该新客户端。 这样就起到了不频繁创建和销毁线程的效果，从而节省开销</code></strong> 。</p>
+<p>从这一点大家也能看出， <strong><code>MySQL服务器会为每一个连接进来的客户端分配一个线程，但是线程分配的太多了会严重影响系统性能，所以我们也需要限制一下可以同时连接到服务器的客户端数量</code></strong> ，至于怎么限制我们后边再说哈~</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>在客户端程序发起连接的时候，需要携带 主机信息、用户名、密码，服务器程序会对客户端程序提供的这些信息进行认证，如果认证失败，服务器程序会拒绝连接。<br>另外，如果客户端程序和服务器程序不运行在一台计算机上，我们还可以采用使用了SSL(安全套接字)的网络连接进行通信，来保证数据传输的安全性。</p>
+<p>当连接建立后，<code>与该客户端关联的服务器线程</code>会一直等待客户端发送过来的请求，MySQL服务器接收到的请求只是一个文本消息，该文本消息还要经过各种处理，预知后事如何，继续往下看哈~</p>
+</blockquote>
+<h2 id="解析与优化"><a href="#解析与优化" class="headerlink" title="解析与优化"></a>解析与优化</h2><p>到现在为止，MySQL服务器已经获得了文本形式的请求，接着还要经过九九八十一难的处理，其中的几个比较重要的部分分别是 <code>查询缓存</code>、<code>语法解析</code> 和 <code>查询优化</code>，下边我们详细来看。</p>
+<h3 id="查询缓存"><a href="#查询缓存" class="headerlink" title="查询缓存"></a><del>查询缓存</del></h3><blockquote>
+<p>如果我问你 9+8×16-3×2×17 的值是多少，你可能会用计算器去算一下，或者牛逼一点用心算，最终得到了结果35，如果我再问你一遍 9+8×16-3×2×17 的值是多少，你还用再傻呵呵的算一遍么?我们 刚刚已经算过了，直接说答案就好了。</p>
+<p>MySQL服务器程序处理查询请求的过程也是这样，会把刚刚处理过的查询请求和结果缓存起来，如果下一次有一模一样的请求过来，直接从缓存中查找结果就好了，就 不用再傻呵呵的去底层的表中查找了。</p>
+<p>并且 <strong><code>这个查询缓存可以在不同客户端之间共享</code></strong> ，也就是说如果客户端A刚刚查询了一个语句，而客户端B之后发送了同样的查询请求，那么客户端B的这次查询就可以直接使用查询缓存中的数据。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>当然，MySQL服务器并没有人聪明:</p>
+<ul>
+<li><p>如果两个查询请求在任何字符上的不同(例如:空格、注释、大小写)，都会导致缓存不会命中。</p>
+</li>
+<li><p>另外，如果查询请求中包含某些<code>系统函数</code>、<code>用户自定义变量</code>和<code>函数</code>、一些<code>系统表</code>，如 mysql 、information_schema、 performance_schema 数据库中的表，那这个请求就不会被缓存。</p>
+<blockquote>
+<p>以某些系统函数举例，可能同样的函数的两次调用会产生不一样的结果，<strong>比如 <code>函数NOW</code>，每次调用都会产生最新的当前时间，如果在一个查询请求中调用了这个函数，那即使查询请求的文本信息都一样，那不同时间的两次查询也应该得到不同的结果，如果在第一次查询时就缓存了，那第二次查询的时候直接使用第一次查询的结果就是错误的!</strong></p>
+</blockquote>
+</li>
+<li><p>而且，既然是缓存，那就有它缓存失效的时候。MySQL的缓存系统会监测涉及到的每张表，只要该表的结构或者数据被修改，如对该表使用了INSERT、 UPDATE、DELETE、TRUNCATE TABLE、ALTER TABLE、DROP TABLE或 DROP DATABASE 语句，那使用该表的所有高速缓存查询都将变为无效并从高速缓存中删除!</p>
+</li>
+</ul>
+</blockquote>
+<hr>
+<p>所以，虽然查询缓存有时可以提升系统性能，但也不得不因维护这块缓存而造成一些开销，比如<code>每次都要去查询缓存中检索</code>，<code>查询请求处理完需要更新查询缓存</code>，<code>维护该查询缓存对应的内存区域</code>。从MySQL 5.7.20开始，不推荐使用查询缓存，并在MySQL 8.0中删除。</p>
+<h2 id="语法解析"><a href="#语法解析" class="headerlink" title="语法解析"></a>语法解析</h2><blockquote>
+<p>如果 <code>查询缓存</code> 没有命中，接下来就需要进入正式的 <code>查询阶段</code> 了。</p>
+<p>但由于<code>客户端程序</code> 发送过来的请求只是一段文本而已，所<code>以MySQL服务器程序</code>首先要对这段文本做分析，判断请求的语法是否正确，然后从文本中将 <code>要查询的表</code>、<code>各种查询条件</code> … 等信息都提取出来放到MySQL服务器内部使用的一些数据结构上来。<br>⚠️ Tips:<br>这个从指定的文本中提取出我们需要的信息本质上算是一个<code>编译过程</code>，涉及 <code>词法解析</code>、<code>语法分析</code>、<code>语义分析</code> 等阶段，这些问题不属于我们讨论的范畴，大家只要了解在处理请求的过程中需要这个步骤就好了。</p>
+</blockquote>
+<h2 id="📌-查询优化"><a href="#📌-查询优化" class="headerlink" title="📌 查询优化"></a>📌 查询优化</h2><blockquote>
+<p><code>语法解析</code>之后，服务器程序获得到了需要的信息，比如 <code>要查询的列是哪些</code>，<code>表是哪个</code>，<code>搜索条件是什么</code> 等等…，但光有这些是不够的，因为我们写的MySQL语句执行起来效率可能并不是很高，MySQL的优化程序会对我们的语句做一些优化，如外连接转换为内连接、表达式简化、子查询转为连接吧啦吧啦的一堆东⻄。</p>
+</blockquote>
+<blockquote>
+<p>优化的结果会 <strong>生成一个<code>执行计划</code></strong> ，这个执行计划表明了应该使用哪些索引进行查询，表之间的连接顺序是啥样的。<br><strong>我们可以使用<code>EXPLAIN语句</code>来查看某个语句的执行计划</strong>，关于查询优化这部分的详细内容我们后边会仔细唠叨，现在你只需要知道在MySQL服务器程序处理请求的过程中有这么一个步骤就好了。</p>
+</blockquote>
+<h2 id="📌-存储引擎"><a href="#📌-存储引擎" class="headerlink" title="📌 存储引擎"></a>📌 存储引擎</h2><p>截止到<code>服务器程序</code>完成了<code>查询优化</code>为止，还没有真正的去访问真实的数据表。 <strong><code>MySQL服务器把数据的存储和提取操作都封装到了一个叫 存储引擎 的模块里</code></strong> 。</p>
+<p>我们知道表是由一行一行的<code>记录</code>组成的， <strong><code>但这只是一个逻辑上的概念，物理上如何表示 记录，怎么从表中读取数据，怎么把数据写入具体的物理存储器上? </code></strong> 这都是 <code>存储引擎</code> 负责的事情。 <strong>为了实现不同的功能，MySQL提供了<code>各式各样</code>的存储引擎，<code>不同存储引擎管理的表具体的存储结构可能不同，采用的存取算法也可能不同</code></strong> 。</p>
+<hr>
+<p>为了管理方便，人们把 <code>连接管理</code>、<code>查询缓存</code>、<code>语法解析</code>、<code>查询优化</code> 这些并<strong>不涉及真实数据存储的功能</strong>划分为<code>MySQL server</code>的功能。 而把<strong>真实存取数据的功能</strong>划分为<code>存储引擎</code>的功能。（各种不同的 <code>存储引擎</code> 向上边的 <code>MySQL server层</code> 提供统一的调用接口(也就是存储引擎 API)，包含了几十个底层函数，像”读取索引第一条内容”、”读取索引下一条内容”、”插入记录”等等。<br>所以在<code>MySQL server</code>完成了<code>查询优化</code>后，只需按照生成的<code>执行计划</code> 调用 <code>底层存储引擎</code> 提供的API，获取到数据后返回给客户端就好了。</p>
+<h1 id="常用存储引擎"><a href="#常用存储引擎" class="headerlink" title="常用存储引擎"></a>常用存储引擎</h1><p>MySQL支持非常多种存储引擎，我这先列举一些:</p>
+<table>
+<thead>
+<tr>
+<th>存储引擎</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ARCHIVE</td>
+<td>用于数据存档(行被插入后不能再修改)</td>
+</tr>
+<tr>
+<td>BLACKHOLE</td>
+<td>丢弃写操作，读操作会返回空内容</td>
+</tr>
+<tr>
+<td>CSV</td>
+<td>在存储数据时，以逗号分隔各个数据项</td>
+</tr>
+<tr>
+<td>FEDERATED</td>
+<td>用来访问远程表</td>
+</tr>
+<tr>
+<td><strong><code>InnoDB</code></strong></td>
+<td><strong><code>具备外键支持功能的事务存储引擎</code></strong></td>
+</tr>
+<tr>
+<td>MEMORY</td>
+<td>置于内存的表</td>
+</tr>
+<tr>
+<td>MERGE</td>
+<td>用来管理多个MyISAM表构成的表集合</td>
+</tr>
+<tr>
+<td><strong><code>MyISAM</code></strong></td>
+<td><strong><code>主要的非事务处理存储引擎</code></strong></td>
+</tr>
+<tr>
+<td>NDB</td>
+<td>MySQL集群专用存储引</td>
+</tr>
+</tbody></table>
+<p>这么多我们怎么挑啊，哈哈，你多虑了，其实我们最常用的就是<code>InnoDB</code> 和 <code>MyISAM</code>，有时会提一下 <code>Memory</code>。其中<code>InnoDB是MySQL默认的存储引擎</code>，我们之后会详细唠叨这个存储引擎的各种功能。现在先看一下一些存储引擎对于某些功能的支持情况:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>MyISAM</th>
+<th>Memory</th>
+<th>InnoDB</th>
+<th>Archive</th>
+<th>NDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>B-tree</code></strong> indexes</td>
+<td><strong><code>yes</code></strong></td>
+<td><strong><code>yes</code></strong></td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><strong><code>Clustered indexes</code></strong></td>
+<td>no</td>
+<td>no</td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Full-text search indexes</td>
+<td>yes</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><strong><code>MVCC</code></strong></td>
+<td>no</td>
+<td>no</td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>Hash indexes</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+<td>no</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>密密麻麻列了这么多，看的头皮都发麻了，达到的效果就是告诉你: 这玩意儿很复杂。其实这些东⻄大家没必要立即就给记住，列出来的目的就是想让大家明白不同的存储引擎支持不同的功能，有些重要的功能我们会在后边的唠叨中慢慢让大家理解的~</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="关于存储引擎的一些操作"><a href="#关于存储引擎的一些操作" class="headerlink" title="关于存储引擎的一些操作"></a>关于存储引擎的一些操作</h1><blockquote>
+<p>我们可以用<code>SHOW ENGINES;</code>命令来查看当前服务器程序支持的存储引擎:<br><img src="/images/MySQL/1/1713156308289.jpg"></p>
+<ul>
+<li><code>Support列</code> 表示该存储引擎是否可用;</li>
+<li><code>DEFAULT值</code> 代表是当前服务器程序的默认存储引擎;</li>
+<li><code>Comment列</code> 是对存储引擎的一个描述;</li>
+<li><code>Transactions列</code> 代表该存储引擎是否支持事务处理;</li>
+<li><strong><code>XA列</code> 代表着该存储引擎是否支持分布式事务</strong>;<br>  (也许你并不知道什么是个事务、更别提分布式事务了，这些内容在后边的章节会详细唠叨，现在看个新鲜就得了)</li>
+<li><code>Savepoints列</code> 代表着该列是否支持部分事务回滚。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>设置表的存储引擎<br>前边说过，  <strong><code>存储引擎是负责对表中的数据进行提取和写入工作的</code></strong>  ，我们可以为不同的表设置不同的存储引擎，也就是说 <strong><code>不同的表可以有不同的物理存储结构，不同的提取和写入方式</code></strong> 。</p>
+<ul>
+<li><p>创建表时指定存储引擎<br>  我们之前创建表的语句都没有指定表的存储引擎，那就会使用默认的存储引擎InnoDB。(查看表结构可以使用:<code>show create tables 表名\G</code>)<br>如果我们想显式的指定一下表的存储引擎，那可以这么写:<br><code>CREATE TABLE 表名( 建表语句;</code><br><code>) ENGINE = 存储引擎名称;</code></p>
+</li>
+<li><p>如果表已经建好了，我们也可以使用 <code>ALTER TABLE 表名 ENGINE = 存储引擎名称;</code> 这个语句来修改表的存储引擎。</p>
+</li>
+</ul>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E7%9A%84-%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84"><span class="toc-text">MySQL的 客户端&#x2F;服务器架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E5%AE%89%E8%A3%85-%E5%B0%8F%E9%A1%BB%E7%9F%A5"><span class="toc-text">MySQL安装 小须知</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL服务器程序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld"><span class="toc-text">mysqld</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-safe"><span class="toc-text">mysqld_safe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysql-server"><span class="toc-text">mysql.server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-multi"><span class="toc-text">mysqld_multi</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL客户端程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">客户端与服务器连接的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-IP"><span class="toc-text">TCP&#x2F;IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-text">命名管道和共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%87%E4%BB%B6"><span class="toc-text">Unix域套接字文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A4%84%E7%90%86%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82"><span class="toc-text">服务器处理客户端请求</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86"><span class="toc-text">📌连接管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="toc-text">解析与优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">查询缓存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%A3%E6%9E%90"><span class="toc-text">语法解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="toc-text">📌 查询优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">📌 存储引擎</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">常用存储引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C"><span class="toc-text">关于存储引擎的一些操作</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          0. 初阶需要重点关注 InnoDB存储引擎 存储结构 的相关知识
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/2.%20MySQL%E7%9A%84%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E3%80%81%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F%E3%80%81%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          2. MySQL的启动选项和配置文件、系统变量、状态变量
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

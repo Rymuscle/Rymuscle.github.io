@@ -6,7 +6,7 @@
   <link href="http://rymuscle.github.io/atom.xml" rel="self"/>
   
   <link href="http://rymuscle.github.io/"/>
-  <updated>2023-11-16T08:05:43.744Z</updated>
+  <updated>2024-04-15T07:12:06.401Z</updated>
   <id>http://rymuscle.github.io/</id>
   
   <author>
@@ -17,511 +17,501 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>redis基本数据结构浅析 之 BitMap(位图)</title>
-    <link href="http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/"/>
-    <id>http://rymuscle.github.io/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/</id>
-    <published>2021-04-18T10:36:56.000Z</published>
-    <updated>2023-11-16T08:05:43.744Z</updated>
+    <title>6.6 InnoDB B+树索引 注意事项</title>
+    <link href="http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/"/>
+    <id>http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</id>
+    <published>2021-10-13T14:21:36.000Z</published>
+    <updated>2024-04-15T07:12:06.401Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    <content type="html"><![CDATA[<h1 id="根⻚面万年不动窝"><a href="#根⻚面万年不动窝" class="headerlink" title="根⻚面万年不动窝"></a>根⻚面万年不动窝</h1><p>我们前边介绍B+树索引时，为了大家理解上的方便，先把 <code>存储用户记录</code>的<code>叶子节点</code>都画出来，然后接着画 <code>存储目录项记录</code> 的<code>内节点</code>，实际上B+树的形成过程是这样的:</p><blockquote><p>每当为某个表创建一个B+树索引(<code>聚簇索引不是人为创建的， 默认就有</code>)时，<code>都会为这个索引创建一个根节点⻚面</code>。</p><p>最开始表中没有数据时，每个B+树索引对应的根节点中既没有用户记录，也没有目录项记录。</p><p>随后向表中插入用户记录时，先把用户记录存储到这个 根节点 中。</p></blockquote><blockquote><p>当 根节点 中的可用空间用完时继续插入记录，此时会将根节点中的所有记录复制到一个新分配的⻚，比如⻚a中，然后对这个新⻚进行<code>⻚分裂</code>(lant:这个算是正常的页分裂)的操作，得到另一个新⻚，比如⻚b。这时新插入的记录根据键值(也就是聚簇索引中的主键值，二级索引中对应的索引列的值)的大小就会被分配到⻚a或者⻚b中，<strong>而根节点便升级为<code>存储目录项记录</code>的⻚</strong>。</p></blockquote><p>这个过程需要大家特别注意的是: <strong><code>一个B+树索引的根节点自诞生之日起，便不会再移动</code>。</strong> 这样只要我们对某个表建立一个索引，那么 **<code>它的根节点的⻚号便会被记录到某个地方，然后凡是InnoDB存储引擎需要用到这个索引的时候，都会从那个固定的地方取出根节点的⻚号，从而来访问这个索引</code>**。</p><h1 id="内节点中目录项记录的唯一性"><a href="#内节点中目录项记录的唯一性" class="headerlink" title="内节点中目录项记录的唯一性"></a>内节点中目录项记录的唯一性</h1><p>我们知道B+树索引的 <code>内节点</code> 中 <code>目录项记录</code>的内容是 <code>索引列+⻚号</code> 的搭配，但是这个搭配对于二级索引来说有点儿不严谨。</p><blockquote><p>还拿index_demo表为例，假设这个表中的数据是这样的:<br>c1  c2  c3<br>1   1   ‘u’<br>3   1   ‘d’<br>5   1   ‘y’<br>7   1   ‘a’<br>如果二级索引中<code>目录项记录</code>的内容只是 <code>索引列 + ⻚号</code> 的搭配的话， 那么为c2列建立索引后的B+树应该⻓这样:<br><img src="/images/MySQL/6.6/1.jpg"></p><p>如果我们想新插入一行记录(其中c1、c2、c3的值分别是:9、1、’c’)，那么在修改这个为c2列建立的二级索引对应的B+树时便碰到了个大问题: 由于⻚3中存储的目录项记录是由 <code>c2列+⻚号的值</code> 构成的，⻚3中的两条目录项记录对应的c2列的值都是1，而我们新插入的这条记录的c2列的值也是1，那我们这条新插入的记录到底应该放到⻚4中，还是⻚5中啊? 答案是: <code>对不起，懵逼了</code>。</p><p>为了让新插入记录能找到自己在哪个⻚里，我们需要保证 <strong><code>在B+树的同一层 内节点 的 目录项记录 除⻚号这个字段外，其他字段(作为一个整体)应该是唯一的</code></strong> 。所以其实二级索引的<code>内节点</code>(<code>目录项记录页</code>)中的<code>目录项记录</code>的内容实际上是由三个部分构成的:</p><ul><li><code>索引列的值</code></li><li><code>主键值</code></li><li><code>⻚号</code><br>也就是我们把<code>主键值</code>也添加到<code>二级索引</code>的<code>内节点</code>中的<code>目录项记录</code>了，这样就能保证 **<code>在B+树的同一层 内节点 的 目录项记录 除⻚号这个字段外，其他字段(作为一个整体)应该是唯一的</code>**，所以我们为c2列建立二级索引后的示意图实际上应该是:</li></ul></blockquote>]]></content>
     
     
       
       
-    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+    <summary type="html">&lt;h1 id=&quot;根⻚面万年不动窝&quot;&gt;&lt;a href=&quot;#根⻚面万年不动窝&quot; class=&quot;headerlink&quot; title=&quot;根⻚面万年不动窝&quot;&gt;&lt;/a&gt;根⻚面万年不动窝&lt;/h1&gt;&lt;p&gt;我们前边介绍B+树索引时，为了大家理解上的方便，先把 &lt;code&gt;存储用户记录&lt;/code&gt;</summary>
       
     
     
     
-    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
     
   </entry>
   
   <entry>
-    <title>redis基本数据结构浅析 之 Sorted set(有序集合)</title>
-    <link href="http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/"/>
-    <id>http://rymuscle.github.io/2021/04/17/redis/04.%20basic-data-structure-sorted-set/</id>
-    <published>2021-04-17T06:09:51.000Z</published>
-    <updated>2023-11-16T08:05:43.756Z</updated>
+    <title>6.5 InnoDB 的联合索引</title>
+    <link href="http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/"/>
+    <id>http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/</id>
+    <published>2021-10-13T13:19:37.000Z</published>
+    <updated>2024-04-15T07:09:52.814Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引。<br>比方说我们想让B+树按照c2和c3列的大小进行排序,这个包含两层含义:</p><ul><li>先把各个记录和⻚按照c2列进行排序；</li><li>在记录的c2列相同的情况下，采用c3列进行排序；</li></ul></blockquote><blockquote><p>为c2和c3列建立的联合索引的示意图如下：<br><img src="/images/MySQL/6.5/1.jpg"></p><p>如图所示，我们需要注意以下几点:</p><ul><li>每条<code>目录项记录</code>都由 <code>c2、c3、⻚号</code> 这三个部分组成，各条记录先按照c2列的值进行排序，如果记录的c2列相同，则按照c3列的值进行排序。<br>  B+树叶子节点处的用户记录由 <code>c2、c3、主键c1列</code>组成。</li><li>千万要注意一点，以c2和c3列的大小为排序规则建立的B+树称为<code>联合索引</code>，本质上也是一个二级索引。它的意思与分别为c2和c3列分别建立索引的表述是不同的，建立联合索引只会建立如上图一样的1棵B+树。而为c2和c3列分别建立索引会分别以c2和c3列的大小为排序规则建立2棵B+树</li></ul></blockquote>]]></content>
     
     
       
       
-    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引。&lt;br&gt;比方说我们想让B+树按照c2和c3列的大小进行排序,这个包含两层含义:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;先把各个记录和⻚按照c2列进行排序；&lt;/li&gt;
+&lt;li&gt;在记录的c2列相</summary>
       
     
     
     
-    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
     
   </entry>
   
   <entry>
-    <title>redis基本数据结构浅析 之 set(集合)</title>
-    <link href="http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/"/>
-    <id>http://rymuscle.github.io/2021/04/15/redis/03.%20basic-data-structure-set/</id>
-    <published>2021-04-15T14:12:04.000Z</published>
-    <updated>2023-11-16T08:05:43.753Z</updated>
+    <title>6.4 InnoDB 的 二级索引及其回表操作</title>
+    <link href="http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/"/>
+    <id>http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/</id>
+    <published>2021-10-06T14:04:19.000Z</published>
+    <updated>2024-04-15T07:07:26.359Z</updated>
     
-    <content type="html"><![CDATA[<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;场景&quot;&gt;&lt;a href=&quot;#场景&quot; class=&quot;headerlink&quot; title=&quot;场景&quot;&gt;&lt;/a&gt;场景&lt;/h3&gt;&lt;h3 id=&quot;参考&quot;&gt;&lt;a href=&quot;#参考&quot; class=&quot;headerlink&quot; title=&quot;参考&quot;&gt;&lt;/a&gt;参考&lt;/h3&gt;</summary>
-      
-    
-    
-    
-    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>redis基本数据结构浅析 之 List(列表)</title>
-    <link href="http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/"/>
-    <id>http://rymuscle.github.io/2021/04/14/redis/02.%20basic-data-structure-list/</id>
-    <published>2021-04-14T12:43:20.000Z</published>
-    <updated>2023-11-21T02:34:46.002Z</updated>
-    
-    <content type="html"><![CDATA[<p>Redis的<code>list</code>底层采用的数据结构是<code>双向链表</code>(每个子元素都是String类型)，可以通过push和pop操作从列表的头部或者尾部添加或者删除元素，这样List即可以作为栈，也可以作为队列。 获取越接近两端的元素速度越快，但通过索引访问时会比较慢。</p><blockquote><p><code>LPUSH key element [element ...]</code>： 将一个或多个值插入到列表头部<br>时间复杂度：每添加一个元素是<code>O(1)</code>，当添加 N 个元素时是 <code>O(N)</code>。</p></blockquote><blockquote><p>Lpop key [count] : 移出并获取列表的第一个元素<br>默认情况下，该命令从列表的开头弹出一个元素。当提供可选count参数时，将返回count个元素。<br>tip：count参数是从 Redis 版本 6.2.0 开始新增的。<br>时间复杂度：O(N) 其中 N 是返回的元素数，所以只返回一个元素的话，时间复杂度自然就是 O(1)。<br>#</p></blockquote><h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><ol><li>Redis list的应用场景非常多，也是Redis最重要的数据结构之一，比如twitter的关注列表，粉丝列表等都可以用Redis的list结构来实现。</li><li>List的另一个应用就是消息队列， 可以利用List的PUSH操作，将任务存在List中，然后工作线程再用POP操作将任务取出进行执行。</li></ol><p>比如微博： 在Redis中我们的最新微博ID使用了常驻缓存，这是一直更新的。但是我们做了限制不能超过5000个ID，因此我们的获取ID函数会一直询问Redis。只有在start&#x2F;count参数超出了这个范围的时候，才需要去访问数据库。我们的系统不会像传统方式那样“刷新”缓存，Redis实例中的信息永远是一致的。SQL数据库（或是硬盘上的其他类型数据库）只是在用户需要获取“很远”的数据时才会被触发，而主页或第一个评论页是不会麻烦到硬盘上的数据库了。</p><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>之前介绍的 <code>聚簇索引</code> <strong>只能在搜索条件是主键值时才能发挥作用</strong> 😓，因为B+树中的记录都是<code>按照主键进行排序</code>的。</p></blockquote><h1 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h1><blockquote><p>如果我们想以别的列作为搜索条件该咋办呢? 难道只能从头到尾沿着链表依次遍历记录么? 🤔</p><p>不，我们可以多建几棵B+树，<code>不同的B+树中的数据采用不同的排序规则</code> ✅。</p></blockquote><blockquote><p>比方说我们用c2列的大小作为数据⻚、⻚中记录的排序规则，再建一棵B+树，效果如下图所示:<br><img src="/images/MySQL/6.4/1.jpg"><br>这个B+树与上边介绍的<code>聚簇索引</code>有几处不同:</p><ul><li><p>使用记录c2列的大小进行 <code>记录</code> 和 <code>⻚</code> 的排序，这包括三个方面的含义:</p></li><li><ol><li><code>⻚内的记录</code>是按照c2列的大小顺序排成一个<code>单向链表</code>；</li></ol></li><li><ol start="2"><li>存放用户记录的<code>⻚</code>之间也是根据⻚中记录的c2列大小顺序排成一个<code>双向链表</code>；</li></ol></li><li><ol start="3"><li>存放<code>目录项记录</code>的<code>⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的c2列大小顺序排成一个<code>双向链表</code>。</li></ol></li><li><p>B+树的叶子节点存储的并不是完整的用户记录，而只是 c2列 +主键 这两个列的值；</p></li><li><p><code>目录项记录</code>中不再是主键+⻚号的搭配，而变成了 c2列+⻚号的 搭配；</p></li></ul></blockquote><blockquote><p>所以如果我们现在想通过c2列的值查找某些记录的话就可以使用我们刚刚建好的这个B+树了。</p><p>以查找c2列的值为4的记录为例，查找过程如下:</p><ul><li>确定目录项记录⻚<br>根据根⻚面，也就是⻚44，可以快速定位到目录项记录所在的⻚为⻚42(因为2 &lt; 4 &lt; 9)。</li><li>通过目录项记录⻚确定用户记录真实所在的⻚。<br>在⻚42中可以快速定位到实际存储用户记录的⻚，但是由于c2列并没有唯一性约束，所以c2列值为4的记录可能分布在多个数据⻚中，又因为2 &lt; 4 ≤ 4，所以确定实际存储用户记录的⻚在⻚34和⻚35中。<br>在真实存储用户记录的⻚中定位到具体的记录。<br>  到⻚34和⻚35中定位到具体的记录。<br>  但是这个B+树的叶子节点中的记录只存储了c2和c1(也就是主键)两个列，所以我们<code>必须再根据主键值去聚簇索引中再查找一遍完整的用户记录</code>。</li></ul></blockquote><h1 id="二级索引需要回表哦"><a href="#二级索引需要回表哦" class="headerlink" title="二级索引需要回表哦"></a>二级索引需要回表哦</h1><blockquote><p>各位看到上面步骤4的操作了么?<br>我们根据这个以c2列大小排序的B+树只能确定我们要查找记录的主键值，所以如果我们想根据c2列的值查找到完整的用户记录的话，仍然需要到<code>聚簇索引</code>中再查一遍， 这个过程也被称为<code>回表</code>。</p></blockquote><blockquote><p><strong><code>也就是根据c2列的值查询一条完整的用户记录需要使用到2棵B+树!!!</code></strong></p></blockquote><blockquote><p>为什么我们还需要一次回表操作呢?直接把完整的用户记录放到叶子节点不就好了么?</p><p>你说的对，如果把完整的用户记录放到叶子节点是可以不用回表，但是太占地方了呀~<br>相当于每建立一棵B+树都需要把所有的用户记录再都拷⻉一遍，这就有点太浪费存储空间了。</p><p>因为 这种按照非主键列建立的B+树需要一次回表操作才可以定位到完整的用户记录，所以这种B+树也被称为二级索引(英文名secondary index)，或者辅助索引。由于我们使用的是c2列的大小作为B+树 的排序规则，所以我们也称这个B+树为为c2列建立的索引。</p></blockquote>]]></content>
     
     
       
       
-    <summary type="html">&lt;p&gt;Redis的&lt;code&gt;list&lt;/code&gt;底层采用的数据结构是&lt;code&gt;双向链表&lt;/code&gt;(每个子元素都是String类型)，可以通过push和pop操作从列表的头部或者尾部添加或者删除元素，这样List即可以作为栈，也可以作为队列。 获取越接近两端的元素速度越快</summary>
-      
-    
-    
-    
-    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>redis基本数据结构浅析 之 Hash表</title>
-    <link href="http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/"/>
-    <id>http://rymuscle.github.io/2021/04/11/redis/01.%20basic-data-structure-hash/</id>
-    <published>2021-04-11T11:43:20.000Z</published>
-    <updated>2023-11-17T05:13:20.611Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="O-1-时间复杂度的操作"><a href="#O-1-时间复杂度的操作" class="headerlink" title="O(1)时间复杂度的操作"></a>O(1)时间复杂度的操作</h3><ol><li>了解数据结构的都知道，<code>Hash表</code>这种数据结构最基本的 增<code>HSET</code>、删<code>HDEL</code>、改<code>HSET``HSETNX</code>、查<code>HGET</code>、<code>HEXISTS</code> 操作时间复杂度都是<code>O(1)</code>；</li><li><code>HLEN</code> 获取哈希中的字段数  (todo: redis估计也是在散列表发生变化时，对长度额外做了记录)</li><li>留意：<code>HSET</code>已经具备了<code>HMSET</code>同时为指定的一个hash key设置多个field&#x2F;value的功能，所以从 Redis 版本 4.0.0 开始，此命令被视为已弃用。(参考<a href="https://www.tkcnn.com/redis/commands/Hmset.html">redis手册</a>)</li></ol><h3 id="O-n-时间复杂度的操作"><a href="#O-n-时间复杂度的操作" class="headerlink" title="O(n)时间复杂度的操作"></a>O(n)时间复杂度的操作</h3><ol><li>不过，redis中 <code>HSET</code>、<code>HDEL</code> 都支持同时设置或者删除多个field, 此时的时间复杂度就是 <code>O(n)</code> 了。</li><li><code>HGETALL key</code> 获取哈希表中指定key 中的所有字段和值</li><li><code>HVALS key</code> 获取哈希表中指定key 中的所有值</li><li><code>HKEYS key</code> 获取哈希表中指定key 中的所有字段</li></ol><span style="color:#6A9113;font-weight:600">lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些操作在操作Hash表时，都是针对指定 key 进行操作的。<br/>你的每个key中的 field/value 对儿会很多么?<br/>所以，效率下降应该不是特别严重，感觉也还算是常量级的时间复杂度吧!</span><h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>特别适合存储对象信息</p><blockquote><p><strong>比如存储 用户信息 这种map信息:</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset jm:user:1 name austin age 25 address guangzhou </span><br><span class="line">&gt;hset jm:user:2 name austin age 25 address guangzhou</span><br></pre></td></tr></table></figure><p><span style="color:red">如果用普通的 key&#x2F;value 结构来存储，主要有下面两种存储方式:</span><br>用户信息对象有多少成员就存成多少个key-value对儿，用用户ID+对应属性的名称作为唯一标识来取得对应属性的值，key部分的用户ID为重复存储，如果存在大量这样的数据，内存浪费还是非常可观的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1:name austin</span><br><span class="line">&gt;set user:1:age 25</span><br><span class="line">&gt;set user:1:address guangzhou</span><br></pre></td></tr></table></figure><p>将用户ID作为查找key,把其他信息封装成一个对象以序列化的方式存储，这种方式的缺点是，增加了序列化&#x2F;反序列化的开销，并且在需要修改其中一项信息时，需要把整个对象取回，并且修改操作需要对并发进行保护，引入CAS等复杂问题。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125; </span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br></pre></td></tr></table></figure></blockquote><br/><blockquote><p><strong>再比如存储 帖子 点赞数,评论数,点击数 信息</strong>：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset article:1 star 9 comment 3 click 21</span><br><span class="line">&gt;hset article:2 star 2 comment 0 click 7</span><br><span class="line">&gt;hset article:3 star 6 comment 4 click 19</span><br></pre></td></tr></table></figure></blockquote><br/><blockquote><p><strong>甚至存储 订单信息：</strong></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset order:692343390123213 amount 218.5 orderTime 2021-04-11 19:20:20 productId 1232 productName 黑人牙膏 ...</span><br><span class="line">&gt;hset order:128043390155801 amount 18.9 orderTime 2021-04-11 13:11:09 productId 345 productName 黑人牙刷 ...</span><br><span class="line">&gt;hset order:752344450123149 amount 21.35 orderTime 2021-04-11 21:29:56 productId 124 productName 短袖 ...</span><br></pre></td></tr></table></figure></blockquote><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.tkcnn.com/redis/commands/Hset.html">Redis手册</a></p>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;O-1-时间复杂度的操作&quot;&gt;&lt;a href=&quot;#O-1-时间复杂度的操作&quot; class=&quot;headerlink&quot; title=&quot;O(1)时间复杂度的操作&quot;&gt;&lt;/a&gt;O(1)时间复杂度的操作&lt;/h3&gt;&lt;ol&gt;
-&lt;li&gt;了解数据结构的都知道，&lt;code&gt;Hash表&lt;/</summary>
-      
-    
-    
-    
-    <category term="redis" scheme="http://rymuscle.github.io/categories/redis/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」图的遍历 (TODO)</title>
-    <link href="http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/"/>
-    <id>http://rymuscle.github.io/2020/11/11/data-structure-algorithm/12-4.map/</id>
-    <published>2020-11-11T07:21:16.000Z</published>
-    <updated>2023-11-21T05:22:08.563Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>树代表的是“一对多”的关系，而图则具有更高的自由度，可以表示任意的“多对多”关系。<br>因此，我们可以把树看作是图的一种特例。显然，树的遍历操作也是图的遍历操作的一种特例。</p></blockquote><br/><blockquote><p>图和树都需要应用搜索算法来实现遍历操作。<br>图的遍历方式可分为两种：「广度优先遍历 breadth-first traversal」和「深度优先遍历 depth-first traversal」。<br>它们也常被称为「广度优先搜索 breadth-first search」和「深度优先搜索 depth-first search」，简称 BFS 和 DFS 。</p></blockquote><h3 id="广度优先遍历"><a href="#广度优先遍历" class="headerlink" title="广度优先遍历"></a>广度优先遍历</h3><p><code>广度优先遍历</code>是一种由近及远的遍历方式，从某个节点出发，始终优先访问距离最近的顶点，并一层层向外扩张。<br>如下图所示，从左上角顶点出发，先遍历该顶点的所有邻接顶点，然后遍历下一个顶点的所有邻接顶点，以此类推，直至所有顶点访问完毕。</p><blockquote><img src="/images/data-structure-algorithm/graph_bfs.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote><h4 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote><p>BFS 通常借助<code>队列</code>来实现。队列具有“先入先出”的性质，这与 BFS 的“由近及远”的思想异曲同工:</p><ol><li>将遍历起始顶点 startVet 加入队列，并开启循环。</li><li>在循环的每轮迭代中，弹出队首顶点并记录访问，然后将该顶点的所有邻接顶点加入到队列尾部。 </li><li>循环步骤 2. ，直到所有顶点被访问完成后结束。</li></ol><p>为了防止重复遍历顶点，我们需要借助一个哈希表 visited 来记录哪些节点已被访问。</p></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_bfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_bfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><br/><blockquote><p>广度优先遍历的序列是否唯一？<br>不唯一。广度优先遍历只要求按“由近及远”的顺序遍历，而多个相同距离的顶点的遍历顺序是允许被任意打乱的。以图 9-10 为例，顶点 (1)、(3) 的访问顺序可以交换、顶点 (2)、(4)、(6) 的访问顺序也可以任意交换。</p></blockquote><p>TODO 代码</p><h4 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会入队并出队一次，使用 (O(|V|)) 时间；在遍历邻接顶点的过程中，由于是无向图，因此所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。</p><p>空间复杂度： 列表 res ，哈希表 visited ，队列 que 中的顶点数量最多为 (|V|) ，使用 (O(|V|)) 空间。</p><h3 id="深度优先遍历"><a href="#深度优先遍历" class="headerlink" title="深度优先遍历"></a>深度优先遍历</h3><blockquote><p>深度优先遍历是一种优先走到底、无路可走再回头的遍历方式。<br>如下图所示，从左上角顶点出发，访问当前顶点的某个邻接顶点，直到走到尽头时返回，再继续走到尽头并返回，以此类推，直至所有顶点遍历完成。<br><img src="/images/data-structure-algorithm/graph_dfs.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="算法实现-1"><a href="#算法实现-1" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote><p>这种“走到尽头再返回”的算法范式通常基于递归来实现。与广度优先遍历类似，在深度优先遍历中我们也需要借助一个哈希表 visited 来记录已被访问的顶点，以避免重复访问顶点。<br>深度优先遍历的算法流程如下图</p><ul><li>直虚线代表向下递推，表示开启了一个新的递归方法来访问新顶点。</li><li>曲虚线代表向上回溯，表示此递归方法已经返回，回溯到了开启此递归方法的位置。<br>为了加深理解，建议将图示与代码结合起来，在脑中（或者用笔画下来）模拟整个 DFS 过程，包括每个递归方法何时开启、何时返回。</li></ul></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/graph_dfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/graph_dfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><blockquote><p>深度优先遍历的序列是否唯一？<br>与广度优先遍历类似，深度优先遍历序列的顺序也不是唯一的。给定某顶点，先往哪个方向探索都可以，即邻接顶点的顺序可以任意打乱，都是深度优先遍历。<br>以树的遍历为例，“根 (\rightarrow) 左 (\rightarrow) 右”、“左 (\rightarrow) 根 (\rightarrow) 右”、“左 (\rightarrow) 右 (\rightarrow) 根”分别对应前序、中序、后序遍历，它们展示了三种不同的遍历优先级，然而这三者都属于深度优先遍历。</p></blockquote><h4 id="复杂度分析-1"><a href="#复杂度分析-1" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会被访问 (1) 次，使用 (O(|V|)) 时间；所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。<br>空间复杂度： 列表 res ，哈希表 visited 顶点数量最多为 (|V|) ，递归深度最大为 (|V|) ，因此使用 (O(|V|)) 空间。</p><p>TODO 代码</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="hhttps://www.hello-algo.com/chapter_graph/graph_traversal/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
-&lt;p&gt;树代表的是“一对多”的关系，而图则具有更高的自由度，可以表示任意的“多对多”关系。&lt;br&gt;因此，我们可以把树看作是</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」图的基础操作 (TODO)</title>
-    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-3.map/"/>
-    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-3.map/</id>
-    <published>2020-11-09T15:53:07.000Z</published>
-    <updated>2023-11-21T03:11:35.742Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>图的基础操作可分为对<code>边</code>的操作和对<code>顶点</code>的操作。在“邻接矩阵”和“邻接表”两种表示方法下，实现方式有所不同。</p><h3 id="基于邻接矩阵存储"><a href="#基于邻接矩阵存储" class="headerlink" title="基于邻接矩阵存储"></a>基于邻接矩阵存储</h3><blockquote><p>给定一个顶点数量为 n 的<code>无向图</code>，其各种操作如下：</p><ul><li>初始化：传入 n 个顶点，初始化长度为 n 的顶点列表 vertices ，使用 O(n)时间；初始化 n*n 大小的邻接矩阵 adjMat ，使用 $O(n^2)$ 时间。</li><li>添加或删除边：直接在邻接矩阵中修改指定的边即可，使用 O(1) 时间。而由于是无向图，因此需要同时更新两个方向的边。</li><li>添加顶点：在邻接矩阵的尾部<strong>添加一行一列</strong>，并全部填 0 即可，使用 O(n) 时间。</li><li>删除顶点：在邻接矩阵中删除一行一列。当删除首行首列时达到最差情况，需要将 $(n-1)^2$ 个元素“向左上移动”，从而使用 $O(n^2)$ 时间。</li></ul></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_matrix_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_matrix_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_matrix_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><p>代码实现可去参考本节末尾的文献</p><h3 id="基于邻接表存储"><a href="#基于邻接表存储" class="headerlink" title="基于邻接表存储"></a>基于邻接表存储</h3><blockquote><p>设无向图的顶点总数为n、边总数为m，则可根据下图所示的方法实现各种操作<br>初始化：在邻接表中创建 n 个顶点和 2m 条边，使用 O(n+m) 时间。<br>添加边：在顶点对应链表的末尾添加边即可，使用 O(1) 时间。因为是无向图，所以需要同时添加两个方向的边。<br>删除边：在顶点对应链表中查找并删除指定边，使用 O(m) 时间。在无向图中，需要同时删除两个方向的边。<br>添加顶点：在邻接表中添加一个链表，并将新增顶点作为链表头节点，使用 O(1) 时间。<br>删除顶点：需遍历整个邻接表，删除包含指定顶点的所有边，使用 O(n+m) 时间。</p></blockquote><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_list_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/adjacency_list_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/adjacency_list_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;图的基础操作可分为对&lt;code&gt;边&lt;/code&gt;的操作和对&lt;code&gt;顶点&lt;/code&gt;的操作。在“邻接矩阵”和“邻接表”两种表示方法下，实</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」图 的存储</title>
-    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-2.map/"/>
-    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-2.map/</id>
-    <published>2020-11-09T14:49:32.000Z</published>
-    <updated>2023-11-21T01:57:39.669Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>在前面掌握了图的概念之后，我们今天聚焦在 <code>图存储</code> 这一方面，看下如何在<strong>内存中</strong>存储图这种数据结构。<br>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。 后面会分好几章节来依次讲解图相关的算法。</p></blockquote><h3 id="邻接矩阵存储方法"><a href="#邻接矩阵存储方法" class="headerlink" title="邻接矩阵存储方法"></a>邻接矩阵存储方法</h3><blockquote><p>图最直观的一种存储方法就是 <code>邻接矩阵</code>（Adjacency Matrix）。<code>邻接矩阵</code>的底层依赖一个<code>二维数组</code>。</p><ul><li>对于<code>无向图</code>来说，如果顶点 i 与顶点 j 之间有边，我们就将 <code>A[i][j]</code> 和 <code>A[j][i]</code> 标记为 1；</li><li>对于<code>有向图</code>来说，如果顶点 i 到顶点 j 之间，有一条箭头从顶点 i 指向顶点 j 的边，那我们就将 <code>A[i][j]</code> 标记为 1。同理，如果有一条箭头从顶点 j 指向顶点 i 的边，我们就将 <code>A[j][i]</code> 标记为 1。</li><li>对于<code>带权图</code>，数组中就存储相应的权重。<img src="/images/data-structure-algorithm/WX20231121-092751@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li></ul></blockquote><br/><blockquote><p>用邻接矩阵来表示一个图，虽然简单、直观，但是比较浪费存储空间。为什么这么说呢？</p><ul><li>对于<code>无向图</code>来说，如果 A[i][j] 等于 1，那 A[j][i] 也肯定等于 1。实际上，我们只需要存储一个就可以了。<span style="color:Red;font-weight:600;">也就是说，无向图的二维数组中，如果我们将其用对角线划分为上下两部分，那我们只需要利用上面或者下面这样一半的空间就足够了，另外一半白白浪费掉了</span>。</li><li>还有，如果我们存储的是 <code>稀疏图</code>（Sparse Matrix），也就是说，<span style="color:Red;font-weight:600;">顶点很多，但每个顶点的边并不多</span>，那邻接矩阵的存储方法就更加浪费空间了。<br>比如微信有好几亿的用户，对应到图上就是好几亿的顶点。但是每个用户的好友并不会很多，一般也就三五百个而已。<br>如果我们用邻接矩阵来存储，那绝大部分的存储空间都被浪费了。</li></ul></blockquote><br/><blockquote><ul><li>但这也并不是说，邻接矩阵的存储方法就完全没有优点。<br>首先，邻接矩阵的存储方式简单、直接，因为基于数组，所以在获取两个顶点的关系时，就非常高效。<br>其次，用邻接矩阵存储图的另外一个好处是方便计算。这是因为，用邻接矩阵的方式存储图，可以将很多图的运算转换成矩阵之间的运算。比如求解最短路径问题时会提到一个Floyd-Warshall 算法，就是利用矩阵循环相乘若干次得到结果。</li></ul></blockquote><h3 id="邻接表存储方法"><a href="#邻接表存储方法" class="headerlink" title="邻接表存储方法"></a>邻接表存储方法</h3><blockquote><p>针对上面<code>邻接矩阵</code>比较浪费内存空间的问题，我们来看另外一种图的存储方法，<code>邻接表</code>（Adjacency List）。 下面是一张邻接表的图，你可以先看下<br><img src="/images/data-structure-algorithm/WX20231121-093652@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><blockquote><p>乍一看，邻接表是不是有点像散列表？<br>每个顶点对应一条链表，链表中存储的是与这个顶点相连接的其他顶点。<br>另外需要说明的是，图中画的是一个<code>有向图</code>的邻接表存储方式，每个顶点对应的链表里面，存储的是指向的顶点。<br>对于<code>无向图</code>来说，也是类似的，不过，每个顶点的链表中存储的，是跟这个顶点有边相连的顶点，你可以自己画下。</p></blockquote><br/><blockquote><p>还记得我们之前讲过的时间、空间复杂度互换的设计思想吗？<br><code>邻接矩阵</code>存储起来比较浪费空间，但是使用起来比较节省时间。<br>相反，<code>邻接表</code>存储起来比较节省空间，但是使用起来就比较耗时间。<br>就像图中的例子，如果我们要确定，是否存在一条从顶点 2 到顶点 4 的边，那我们就要遍历顶点 2 对应的那条链表，看链表中是否存在顶点 4。<br>而且，我们前面也讲过，链表的存储方式对缓存不友好。所以，比起<code>邻接矩阵</code>的存储方式，在<code>邻接表</code>中查询两个顶点之间的关系就没那么高效了。<br>在<code>散列表</code>那几节里，我讲到，在基于链表法解决冲突的散列表中，如果链过长，为了提高查找效率，我们可以将链表换成其他更加高效的数据结构，比如<code>平衡二叉查找树</code>等。<br>我们刚刚也讲到，邻接表长得很像散列。所以，我们也可以将<code>邻接表</code>同<code>散列表</code>一样进行“改进升级”。 比如将<code>邻接表</code>中的<code>链表</code>改成<code>平衡二叉查找树</code>。 实际开发中，我们可以选择用<code>红黑树</code>。 这样，我们就可以更加快速地查找两个顶点之间是否存在边了。<br>当然，这里的二叉查找树可以换成其他动态数据结构，比如<code>跳表</code>、<code>散列表</code>等。<br>除此之外，我们还可以将链表改成<code>有序动态数组</code>，可以通过二分查找的方法来快速定位两个顶点之间否是存在边。</p></blockquote><h3 id="精选留言"><a href="#精选留言" class="headerlink" title="精选留言"></a>精选留言</h3><img src="/images/data-structure-algorithm/WX20231121-094703@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/WX20231121-094454@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
-&lt;p&gt;在前面掌握了图的概念之后，我们今天聚焦在 &lt;code&gt;图存储&lt;/code&gt; 这一方面，看下如何在&lt;strong&gt;内</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」图</title>
-    <link href="http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-1.map/"/>
-    <id>http://rymuscle.github.io/2020/11/09/data-structure-algorithm/12-1.map/</id>
-    <published>2020-11-09T14:01:12.000Z</published>
-    <updated>2023-11-21T02:04:28.467Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote><p>微博、微信、QQ 这些社交软件你肯定都玩过。 在微博中，两个人可以互相关注；在微信中，两个人可以互加好友。<br>那你知道，如何存储微博、微信等这些社交网络的好友关系吗？ 这就要用到我们今天要讲的这种数据结构：<code>图</code>。</p><p>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。<br>我们今天聚焦在 <code>图存储</code> 这一方面，后面会分好几节来依次讲解图相关的算法。</p></blockquote><h3 id="认识-图-无向"><a href="#认识-图-无向" class="headerlink" title="认识 图(无向)"></a>认识 图(无向)</h3><blockquote><p>前面已经学过了<code>树</code>这种<code>非线性数据结构</code>，今天我们要讲另一种<code>非线性数据结构</code> <code>图(Graph)</code>。 和<code>树</code>比起来，这是一种更加复杂的结构。</p></blockquote><h4 id="顶点"><a href="#顶点" class="headerlink" title="顶点"></a>顶点</h4><blockquote><p>我们知道，<code>树</code>中的元素我们称为<code>节点</code>，<code>图</code>中的元素我们就叫作<code>顶点</code>（vertex）。</p></blockquote><h4 id="边"><a href="#边" class="headerlink" title="边"></a>边</h4><blockquote><p>从下图可以看出，图中的一个<code>顶点</code>可以与任意其他顶点建立连接关系。我们把这种建立的关系叫作<code>边</code>（edge）。<br><img src="/images/data-structure-algorithm/WX20231121-085828@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="度"><a href="#度" class="headerlink" title="度"></a>度</h4><blockquote><p>我们生活中就有很多符合图这种结构的例子。比如，开篇问题中讲到的社交网络，就是一个非常典型的图结构。<br>我们就拿微信举例子吧。我们可以把每个用户看作一个顶点。如果两个用户之间互加好友，那就在两者之间建立一条边。所以，整个微信的好友关系就可以用一张图来表示。其中，每个用户有多少个好友，对应到图中，就叫作顶点的<code>度（degree）</code>，就是跟顶点相连接的边的条数。</p></blockquote><h3 id="有向图"><a href="#有向图" class="headerlink" title="有向图"></a>有向图</h3><blockquote><p>实际上，微博的社交关系跟微信还有点不一样，或者说更加复杂一点。<br>微博允许单向关注，也就是说，用户 A 关注了用户 B，但用户 B 可以不关注用户 A。那我们如何用图来表示这种单向的社交关系呢？</p></blockquote><blockquote><p>我们可以把刚刚讲的图结构稍微改造一下，引入边的“方向”的概念。<br>如果用户 A 关注了用户 B，我们就在图中画一条从 A 到 B 的带箭头的边，来表示边的方向。如果用户 A 和用户 B 互相关注了，那我们就画一条从 A 指向 B 的边，再画一条从 B指向 A 的边。我们把这种边有方向的图叫作“有向图”。以此类推，我们把边没有方向的图就叫作“无向图”。<br><img src="/images/data-structure-algorithm/WX20231121-090405@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h4 id="出度、入度"><a href="#出度、入度" class="headerlink" title="出度、入度"></a>出度、入度</h4><blockquote><p>我们刚刚讲过，无向图中有“度”这个概念，表示一个顶点有多少条边。在有向图中，我们把度分为<code>入度</code>（In-degree）和 <code>出度</code>（Out-degree）。<br>顶点的入度，表示有多少条边指向这个顶点；<br>顶点的出度，表示有多少条边是以这个顶点为起点指向其他顶点。<br>对应到微博的例子，入度就表示有多少粉丝，出度就表示关注了多少人。</p></blockquote><h3 id="加权图"><a href="#加权图" class="headerlink" title="加权图"></a>加权图</h3><blockquote><p>前面讲到了微信、微博、无向图、有向图，现在我们再来看另一种社交软件：QQ。 QQ 中的社交关系要更复杂的一点。不知道你有没有留意过 QQ 亲密度这样一个功能。<br>QQ不仅记录了用户之间的好友关系，还记录了两个用户之间的亲密度，如果两个用户经常往来，那亲密度就比较高；如果不经常往来，亲密度就比较低。 如何在图中记录这种好友关系的亲密度呢？<br>这里就要用到另一种图，<code>带权图</code>（weighted graph）。在带权图中，每条边都有一个权重 （weight），我们可以通过这个权重来表示 QQ 好友间的亲密度。<br><img src="/images/data-structure-algorithm/WX20231121-091103@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>关于图的概念比较多，今天也只是介绍了几个常用的，理解起来都不复杂。掌握了图的概念之后，我们再来看下，如何在内存中存储图这种数据结构呢？</p><h3 id="图常见应用"><a href="#图常见应用" class="headerlink" title="图常见应用"></a>图常见应用</h3><p>如下表所示，许多现实系统都可以用图来建模，相应的问题也可以约化为图计算问题。</p><table><thead><tr><th align="center"></th><th align="center">顶点</th><th align="center">边</th><th align="center">图计算问题</th></tr></thead><tbody><tr><td align="center">社交网络</td><td align="center">用户</td><td align="center">好友关系</td><td align="center">潜在好友推荐</td></tr><tr><td align="center">地铁线路</td><td align="center">站点</td><td align="center">站点间的连通性</td><td align="center">最短路线推荐</td></tr><tr><td align="center">太阳系</td><td align="center">星体</td><td align="center">星体间的万有引力作用</td><td align="center">行星轨迹计算</td></tr></tbody></table><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;blockquote&gt;
-&lt;p&gt;微博、微信、QQ 这些社交软件你肯定都玩过。 在微博中，两个人可以互相关注；在微信中，两个人可以互加好友。&lt;br&gt;</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」堆 的应用 -- TopK问题 (TODO)</title>
-    <link href="http://rymuscle.github.io/2020/11/04/data-structure-algorithm/11-4.heap-TopK/"/>
-    <id>http://rymuscle.github.io/2020/11/04/data-structure-algorithm/11-4.heap-TopK/</id>
-    <published>2020-11-04T12:11:32.000Z</published>
-    <updated>2023-11-20T03:12:43.419Z</updated>
-    
-    <content type="html"><![CDATA[<p>给定一个长度为 n 的无序数组 nums ，请返回数组中前 k 大的元素。</p><p>对于该问题，我们先介绍两种思路比较直接的解法，再介绍效率更高的堆解法</p><h3 id="方法一：遍历"><a href="#方法一：遍历" class="headerlink" title="方法一：遍历"></a>方法一：遍历</h3><blockquote><p>如下图所示，进行k轮遍历，分别在每轮中提取第 1、2、……、k大的元素，时间复杂度为 O(kn)。<br><img src="/images/data-structure-algorithm/top_k_traversal.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><span style="color:red">此方法只适用于 k远小于n 的情况，因为当 k 与 n 比较接近时，其时间复杂度趋向于 O(n^2)，非常耗时。（因为 当 k&#x3D;n 时，我们可以得到完整的有序序列，此时等价于“选择排序”算法。）</span><br><br/></p></blockquote><h3 id="方法二：排序"><a href="#方法二：排序" class="headerlink" title="方法二：排序"></a>方法二：排序</h3><blockquote><p>如下图所示，我们可以先对数组 nums 进行排序，再返回最右边的 k 个元素，时间复杂度为 O(n logn)。<br>显然，该方法“超额”完成任务了，因为我们只需要找出最大的 k 个元素即可，而不需要排序其他元素。<br><img src="/images/data-structure-algorithm/top_k_sorting.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><h3 id="高效解决Top-K问题-堆"><a href="#高效解决Top-K问题-堆" class="headerlink" title="高效解决Top-K问题 - - 堆"></a>高效解决Top-K问题 - - 堆</h3><p>我们可以基于堆更加高效地解决 Top-K 问题，流程如下：<br>*初始化一个小顶堆，其堆顶元素最小。<br>*先将数组的前 k 个元素依次入堆。<br>*从第 k+1 个元素开始，若当前元素大于堆顶元素，则将堆顶元素出堆，并将当前元素入堆。<br>*遍历完成后，堆中保存的就是最大的 k 个元素。</p><blockquote><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/top_k_heap_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/top_k_heap_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></blockquote><p>总共执行了 n 轮入堆和出堆，堆的最大长度为 k，因此时间复杂度为 <code>O(nlogk)</code>。该方法的效率很高，当 k 较小时，时间复杂度趋向 <code>O(n)</code>；当<br>较大时，时间复杂度不会超过 <code>O(nlogn)</code>。</p><p>另外，该方法适用于<strong>动态数据流</strong>的使用场景。在不断加入数据时，我们可以持续维护堆内的元素，从而实现最大 k 个元素的动态更新。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/top_k/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;给定一个长度为 n 的无序数组 nums ，请返回数组中前 k 大的元素。&lt;/p&gt;
-&lt;p&gt;对于该问题，我们先介绍两种思路比较直接的解法，再介绍效率更高的堆解法&lt;/p&gt;
-&lt;h3 id=&quot;方法一：遍历&quot;&gt;&lt;a href=&quot;#方法一：遍历&quot; class=&quot;headerlink&quot; </summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」建堆 从 O(nlogn) 到 O(n) 🐂🐂🐂</title>
-    <link href="http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/"/>
-    <id>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-3.heap/</id>
-    <published>2020-11-03T14:07:39.000Z</published>
-    <updated>2023-11-17T08:56:00.272Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="方式一-逐个元素执行-入堆-操作"><a href="#方式一-逐个元素执行-入堆-操作" class="headerlink" title="方式一: 逐个元素执行 入堆 操作"></a>方式一: 逐个元素执行 <code>入堆</code> 操作</h3><ul><li>首先创建一个空堆，然后遍历数组，依次对每个元素执行“入堆操作”，即先将元素添加至堆的尾部，再对该元素执行<span style="color:orange;font-weight:600;">“从底至顶”堆化。</span></li><li>每当一个元素入堆，堆的长度就加一。由于节点是从顶到底依次被添加进<code>二叉树</code>的，因此<code>堆</code>是 <code>自上而下</code> 地构建的。</li><li>设元素数量为 n ，每个元素的入堆操作使用 <code>O(log n)</code> 时间，因此该建堆方法的时间复杂度为 <code>O(log n)</code>。</li></ul><h3 id="方式二-通过遍历堆化实现"><a href="#方式二-通过遍历堆化实现" class="headerlink" title="方式二: 通过遍历堆化实现"></a>方式二: 通过遍历堆化实现</h3><p>第一种建堆思路的处理过程是从前往后遍历数组数据，并且每个数据插入堆中时，都是<code>从下往上堆化</code>。<br>实际上，我们可以用一种更为高效的建堆方法(从后往前遍历数组，并且每个数据都是<code>从上往下堆化</code>)：</p><blockquote><img src="/images/data-structure-algorithm/WX20231117-161901@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>因为叶子节点往下堆化只能自己跟自己比较，不需要堆化，所以我们直接从第一个非叶子节点开始，依次堆化就行了。<span style="color:#6A9113;font-weight:600;">因此在开始倒序遍历数组时，要从下标为 n/2 开始往前遍历，因为只有 下标从 n/2 到 1 的数据才需要进行堆化，而下标从 n/2 + 1 到 n 的节点是叶子节点，不需要堆化</span>。<span style="color:orange;font-weight:600;">实际上，对于完全二叉树来说，下标从 n/2 到 n 的节点都是叶子节点。</span></blockquote><span id="more"></span><br/><h3 id="时间复杂度分析"><a href="#时间复杂度分析" class="headerlink" title="时间复杂度分析"></a>时间复杂度分析</h3><p>这里主要是针对第二种建堆方法进行分析。</p><p>假设完全二叉树的节点数量为 n，则叶节点数量为 (n+1)&#x2F;2，其中 为向下整除。因此需要堆化的节点数量为 (n-1)&#x2F;2。<br>在从顶至底堆化的过程中，每个节点最多堆化到叶节点，因此最大迭代次数为二叉树高度 logn。<br>将上述两者相乘，可得到建堆过程的时间复杂度为 O(logn)。</p><p><strong>但这个估算结果并不准确，因为我们没有考虑到二叉树底层节点数量远多于顶层节点的性质（lant：越往下，节点越多，一棵完美的二叉树其叶节点就能占一半数量）。</strong></p><blockquote><p>为了减小计算难度，假设给定一个节点数量为 n，高度为 h 的“完美二叉树”，该假设不会影响计算结果的正确性。<br><img src="/images/data-structure-algorithm/heapify_operations_count.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><img src="/images/data-structure-algorithm/WX20231117-165116@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><p><span style="color:#6A9113;font-weight:600;">其时间复杂度最终为 O(n), 非常高效。</span>   🐂！</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;方式一-逐个元素执行-入堆-操作&quot;&gt;&lt;a href=&quot;#方式一-逐个元素执行-入堆-操作&quot; class=&quot;headerlink&quot; title=&quot;方式一: 逐个元素执行 入堆 操作&quot;&gt;&lt;/a&gt;方式一: 逐个元素执行 &lt;code&gt;入堆&lt;/code&gt; 操作&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;首先创建一个空堆，然后遍历数组，依次对每个元素执行“入堆操作”，即先将元素添加至堆的尾部，再对该元素执行&lt;span style=&quot;color:orange;font-weight:600;&quot;&gt;“从底至顶”堆化。&lt;/span&gt;&lt;/li&gt;
-&lt;li&gt;每当一个元素入堆，堆的长度就加一。由于节点是从顶到底依次被添加进&lt;code&gt;二叉树&lt;/code&gt;的，因此&lt;code&gt;堆&lt;/code&gt;是 &lt;code&gt;自上而下&lt;/code&gt; 地构建的。&lt;/li&gt;
-&lt;li&gt;设元素数量为 n ，每个元素的入堆操作使用 &lt;code&gt;O(log n)&lt;/code&gt; 时间，因此该建堆方法的时间复杂度为 &lt;code&gt;O(log n)&lt;/code&gt;。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&quot;方式二-通过遍历堆化实现&quot;&gt;&lt;a href=&quot;#方式二-通过遍历堆化实现&quot; class=&quot;headerlink&quot; title=&quot;方式二: 通过遍历堆化实现&quot;&gt;&lt;/a&gt;方式二: 通过遍历堆化实现&lt;/h3&gt;&lt;p&gt;第一种建堆思路的处理过程是从前往后遍历数组数据，并且每个数据插入堆中时，都是&lt;code&gt;从下往上堆化&lt;/code&gt;。&lt;br&gt;实际上，我们可以用一种更为高效的建堆方法(从后往前遍历数组，并且每个数据都是&lt;code&gt;从上往下堆化&lt;/code&gt;)：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/WX20231117-161901@2x.png&quot; width=&quot;350px&quot; style=&quot;margin-left:0px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;
-因为叶子节点往下堆化只能自己跟自己比较，不需要堆化，所以我们直接从第一个非叶子节点开始，依次堆化就行了。
-&lt;span style=&quot;color:#6A9113;font-weight:600;&quot;&gt;因此在开始倒序遍历数组时，要从下标为 n/2 开始往前遍历，因为只有 下标从 n/2 到 1 的数据才需要进行堆化，而下标从 n/2 + 1 到 n 的节点是叶子节点，不需要堆化&lt;/span&gt;。
-&lt;span style=&quot;color:orange;font-weight:600;&quot;&gt;实际上，对于完全二叉树来说，下标从 n/2 到 n 的节点都是叶子节点。&lt;/span&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」堆 基本操作</title>
-    <link href="http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/"/>
-    <id>http://rymuscle.github.io/2020/11/03/data-structure-algorithm/11-2.heap/</id>
-    <published>2020-11-03T11:43:20.000Z</published>
-    <updated>2023-11-17T08:54:28.805Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="建堆-暂无基础-后面再说"><a href="#建堆-暂无基础-后面再说" class="headerlink" title="建堆 - 暂无基础 后面再说"></a>建堆 - 暂无基础 后面再说</h3><p>之前已经了解 <code>堆</code> 这种数据结构的底层采用是 <code>数组</code> 这种最基本数据结构进行存储的(即 物理上是<code>顺序存储</code>)。<br>现在的问题是，假如给了我们一组数据，我们如何使用这些元素在<strong>逻辑上</strong>构建出一个 <code>堆</code> 呢？<br>毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝</p><p>不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。</p><h3 id="访问堆顶元素"><a href="#访问堆顶元素" class="headerlink" title="访问堆顶元素"></a>访问堆顶元素</h3><p>堆顶元素即为二叉树的根节点，也就是数组的首个元素</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/* 访问堆顶元素 */</span><br><span class="line">int peek() &#123;</span><br><span class="line">    return maxHeap.get(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><span id="more"></span><br/><h3 id="元素入堆-heapify-堆化操作"><a href="#元素入堆-heapify-堆化操作" class="headerlink" title="元素入堆 - -  heapify 堆化操作"></a>元素入堆 - -  <span style="color:orange">heapify 堆化操作</span></h3><p>我们首先将元素添加到堆底。 之后，<span style="color:red;">由于元素值可能大于堆中其他元素，堆的成立条件可能会被破坏</span>。因此，需要修复从插入节点到根节点的路径上的各个节点，这个操作被称为<span style="color:orange;font-weight:600;">「堆化 heapify」</span>。</p><p>考虑从入堆节点开始，从底至顶执行堆化。如下图所示，我们比较插入节点与其父节点的值，如果插入节点更大，则将它们交换。然后继续执行此操作，从底至顶修复堆中的各个节点，直至越过根节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_push_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_push_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><p><strong>设节点总数为n，则树的高度为<code>log(n)</code>。由此可知，堆化操作的循环轮数最多为<code>O(logn)</code>，元素入堆操作的时间复杂度为<code>O(logn)</code>。</strong><br>代码参考<a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></p><h3 id="堆顶元素出堆"><a href="#堆顶元素出堆" class="headerlink" title="堆顶元素出堆"></a>堆顶元素出堆</h3><p>堆顶元素是二叉树的根节点，即数组首元素。 如果我们直接从数组中删除首元素，那<span style="color:red;">最后堆化出来的堆可能并不满足完全二叉树的特性</span>。如下图案例：<br><img src="/images/data-structure-algorithm/WX20231116-151752@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p><span style="color:#6A9113;font-weight:600">因此我们需要改变一下思路，比如以下这个巧妙的步骤:</span></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">交换堆顶元素与堆底元素（即交换根节点与最右叶节点）。</span><br><span class="line">交换完成后，将堆底从列表中删除（由于已经交换，实际上删除的是原来的堆顶元素）。</span><br><span class="line">从根节点开始，从顶至底执行堆化。</span><br></pre></td></tr></table></figure><p><span style="color:#6A9113;font-weight:600">因为我们移除的是数组中的最后一个元素，而在堆化的过程中，都是交换操作，不会出现数组中的“空洞”，所以这种方法堆化之后的结果，肯定满足完全二叉树的特性。</span></p><blockquote><p>如下图，“从顶至底堆化”的操作方向与“从底至顶堆化”相反，我们将根节点的值与其两个子节点的值进行比较，将最大的子节点与根节点交换。然后循环执行此操作，直到越过叶节点或遇到无须交换的节点时结束。</p><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><div style="display:flex;"><img src="/images/data-structure-algorithm/heap_pop_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/heap_pop_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div><img src="/images/data-structure-algorithm/heap_pop_step10.png" width="262px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote><p>与元素入堆操作相似，堆顶元素出堆操作的时间复杂度也为 <code>O(logn)</code>。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/build_heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;建堆-暂无基础-后面再说&quot;&gt;&lt;a href=&quot;#建堆-暂无基础-后面再说&quot; class=&quot;headerlink&quot; title=&quot;建堆 - 暂无基础 后面再说&quot;&gt;&lt;/a&gt;建堆 - 暂无基础 后面再说&lt;/h3&gt;&lt;p&gt;之前已经了解 &lt;code&gt;堆&lt;/code&gt; 这种数据结构的底层采用是 &lt;code&gt;数组&lt;/code&gt; 这种最基本数据结构进行存储的(即 物理上是&lt;code&gt;顺序存储&lt;/code&gt;)。&lt;br&gt;现在的问题是，假如给了我们一组数据，我们如何使用这些元素在&lt;strong&gt;逻辑上&lt;/strong&gt;构建出一个 &lt;code&gt;堆&lt;/code&gt; 呢？&lt;br&gt;毕竟要讲对某个数据结构的操作效率，就得写代码去操作这个数据结构，所以我们得先构造出这个数据结构才行啊 😝&lt;/p&gt;
-&lt;p&gt;不过，建堆操作比较特殊，堆的建造过程需要我们先了解它的一些基本的核心操作，所以，我们先假设有了一个堆，然后先看它的一些基本操作，之后再来看如何建堆。&lt;/p&gt;
-&lt;h3 id=&quot;访问堆顶元素&quot;&gt;&lt;a href=&quot;#访问堆顶元素&quot; class=&quot;headerlink&quot; title=&quot;访问堆顶元素&quot;&gt;&lt;/a&gt;访问堆顶元素&lt;/h3&gt;&lt;p&gt;堆顶元素即为二叉树的根节点，也就是数组的首个元素&lt;/p&gt;
-&lt;figure class=&quot;highlight plaintext&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;/* 访问堆顶元素 */&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;int peek() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    return maxHeap.get(0);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」堆</title>
-    <link href="http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/"/>
-    <id>http://rymuscle.github.io/2020/11/02/data-structure-algorithm/11-1.heap/</id>
-    <published>2020-11-02T13:16:14.000Z</published>
-    <updated>2023-11-17T08:11:10.667Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="认识堆"><a href="#认识堆" class="headerlink" title="认识堆"></a>认识堆</h3><blockquote><p>lant:<br><span style="color:#363795"><br><strong>之所以<code>树</code>这种数据结构学完紧接着就是<code>堆</code>，是因为其实<code>堆</code>也是<code>树</code>，不过是一种<code>特殊的树</code>，怎么个特殊法呢?<br>首先它得是一棵<code>完全二叉树</code>；<br>其次，堆中的每个节点的值都必须 大于等于&#x2F;小于等于 其子树中每个节点的值；(前者叫<code>大顶堆</code>，后者叫<code>小顶堆</code>)</strong><br></span><br><img src="/images/data-structure-algorithm/min_heap_and_max_heap.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。</p></blockquote><span id="more"></span><br/><blockquote><p>根据堆的特性区判断下面这几个<code>二叉树</code>是不是<code>堆</code><br><img src="/images/data-structure-algorithm/4c452a1ad3b2d152daa2727d06097099.webp" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其中第 1 个和第 2 个是大顶堆，第 3 个是小顶堆，第 4 个不是堆。<br/><br><span style="color:darkorange;font-weight: bold;">除此之外，从图中还可以看出来，对于同一组数据，我们可以构建多种不同形态的堆。</span></p></blockquote><h3 id="堆的存储与表示"><a href="#堆的存储与表示" class="headerlink" title="堆的存储与表示"></a>堆的存储与表示</h3><p>之前在学<code>二叉树</code>时，已经了解到<code>完全二叉树</code>非常适合用<code>数组</code>来存储。而<code>堆</code>正是一种<code>完全二叉树</code>，所以我们也将采用<code>数组</code>来存储<code>堆</code>。</p><p>当使用<code>数组</code>表示<code>二叉树</code>时，元素代表节点值，索引代表节点在二叉树中的位置。节点指针通过<code>索引映射公式</code>来实现。<br>如下图，给定索引 i，其左子节点索引为 2<em>i，右子节点索引为 2</em>i+1，父节点索引为 i&#x2F;2（向下取整）。当索引越界时，表示空节点或节点不存在。<br><img src="/images/data-structure-algorithm/representation_of_heap.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><p>我们可以将索引映射公式封装成函数，方便后续使用</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">/* 获取左子节点索引 */</span><br><span class="line">int left(int i) &#123;</span><br><span class="line">    return 2 * i + 1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取右子节点索引 */</span><br><span class="line">int right(int i) &#123;</span><br><span class="line">    return 2 * i + 2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 获取父节点索引 */</span><br><span class="line">int parent(int i) &#123;</span><br><span class="line">    return (i - 1) / 2; // 向下整除</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><p>其实我们从<code>堆的存储</code>原理中看出，将<code>堆</code>中元素放入数组的顺序，其实是个 <code>“层序遍历”(即 广度优先遍历)</code> 的顺序来的。</p><h3 id="堆的应用"><a href="#堆的应用" class="headerlink" title="堆的应用"></a>堆的应用</h3><p>在熟悉<code>堆</code>这种数据结构的常用操作前，我们还是先了解下<code>堆</code>一般被用到哪些场景吧。</p><ol><li><p>首先就是 <code>优先队列</code>：<code>堆</code>通常作为实现<code>优先队列</code>的首选数据结构</p><blockquote><p>lant:<br>因为我们如果对一个<code>堆</code>结构不断地做<code>堆顶元素出堆</code>操作(下一篇会讲到这个操作)，你会发现元素会根据大顶堆&#x2F;小顶堆的不同，按照从大到小&#x2F;从小到大的顺序依次排列出来，且元素入堆和出堆的时间复杂度均为<code>O(logn)</code>。<br>如果是个大顶堆的话，我们就可以将其看做一个<code>优先队列</code>(元素进入后，可以按值从大到小被取出)，其入队和出队操作的时间复杂度均为 <code>O(logn)</code>，而建堆操作为 <code>O(n)</code>，这些操作都非常高效。</p></blockquote></li><li><p>堆排序：<br>给定一组数据，我们可以用它们建立一个堆，然后不断地执行元素出堆操作，从而得到有序数据。然而，我们通常会使用一种更优雅的方式实现堆排序，详见后续的堆排序章节。</p></li><li><p>求解 <code>Top K</code> (即获取最大的K个元素)：<br>这是一个经典的算法问题，同时也是一种典型应用，例如选择热度前 10 的新闻作为微博热搜，选取销量前 10 的商品等。</p></li></ol><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_heap/heap/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;认识堆&quot;&gt;&lt;a href=&quot;#认识堆&quot; class=&quot;headerlink&quot; title=&quot;认识堆&quot;&gt;&lt;/a&gt;认识堆&lt;/h3&gt;&lt;blockquote&gt;
-&lt;p&gt;lant:&lt;br&gt;&lt;span style=&quot;color:#363795&quot;&gt;&lt;br&gt;&lt;strong&gt;之所以&lt;code&gt;树&lt;/code&gt;这种数据结构学完紧接着就是&lt;code&gt;堆&lt;/code&gt;，是因为其实&lt;code&gt;堆&lt;/code&gt;也是&lt;code&gt;树&lt;/code&gt;，不过是一种&lt;code&gt;特殊的树&lt;/code&gt;，怎么个特殊法呢?&lt;br&gt;首先它得是一棵&lt;code&gt;完全二叉树&lt;/code&gt;；&lt;br&gt;其次，堆中的每个节点的值都必须 大于等于&amp;#x2F;小于等于 其子树中每个节点的值；(前者叫&lt;code&gt;大顶堆&lt;/code&gt;，后者叫&lt;code&gt;小顶堆&lt;/code&gt;)&lt;/strong&gt;&lt;br&gt;&lt;/span&gt;&lt;br&gt;&lt;img src=&quot;/images/data-structure-algorithm/min_heap_and_max_heap.png&quot; width=&quot;450px&quot; style=&quot;margin-left:0px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;&lt;br&gt;对于大顶堆（小顶堆），堆顶元素（即根节点）的值分别是最大（最小）的。&lt;/p&gt;
-&lt;/blockquote&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」红黑树 Red-Black Tree</title>
-    <link href="http://rymuscle.github.io/2020/10/31/data-structure-algorithm/10-9.red-blackTree/"/>
-    <id>http://rymuscle.github.io/2020/10/31/data-structure-algorithm/10-9.red-blackTree/</id>
-    <published>2020-10-31T06:06:23.000Z</published>
-    <updated>2023-11-16T02:38:15.282Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://blog.csdn.net/yang_yulei/article/details/26066409">https://blog.csdn.net/yang_yulei/article/details/26066409</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;参考文献&quot;&gt;&lt;a href=&quot;#参考文献&quot; class=&quot;headerlink&quot; title=&quot;参考文献&quot;&gt;&lt;/a&gt;参考文献&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;《数据结构与算法之美》王争&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/ya</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」2-3树</title>
-    <link href="http://rymuscle.github.io/2020/10/30/data-structure-algorithm/10-8.2-3Tree/"/>
-    <id>http://rymuscle.github.io/2020/10/30/data-structure-algorithm/10-8.2-3Tree/</id>
-    <published>2020-10-30T15:13:09.000Z</published>
-    <updated>2023-11-16T02:38:15.271Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>《数据结构与算法之美》王争</li><li><a href="https://blog.csdn.net/yang_yulei/article/details/26066409">从2-3树到 红黑树</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;参考文献&quot;&gt;&lt;a href=&quot;#参考文献&quot; class=&quot;headerlink&quot; title=&quot;参考文献&quot;&gt;&lt;/a&gt;参考文献&lt;/h3&gt;&lt;ul&gt;
-&lt;li&gt;《数据结构与算法之美》王争&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;https://blog.csdn.net/ya</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」平衡二叉搜索树--AVL树（下）</title>
-    <link href="http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-7.AVL/"/>
-    <id>http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-7.AVL/</id>
-    <published>2020-10-29T15:13:09.000Z</published>
-    <updated>2023-11-16T02:38:15.296Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="AVL-树常用操作"><a href="#AVL-树常用操作" class="headerlink" title="AVL 树常用操作"></a>AVL 树常用操作</h3><h4 id="插入操作"><a href="#插入操作" class="headerlink" title="插入操作"></a>插入操作</h4><p>AVL 树的节点插入操作与二叉搜索树在主体上类似。唯一的区别在于，在 AVL 树中插入节点后，从该节点到根节点的路径上可能会出现一系列失衡节点。因此，我们需要从这个节点开始，自底向上执行旋转操作，使所有失衡节点恢复平衡。</p><h4 id="删除操作"><a href="#删除操作" class="headerlink" title="删除操作"></a>删除操作</h4><p>类似地，在二叉搜索树的删除节点方法的基础上，需要从底至顶地执行旋转操作，使所有失衡节点恢复平衡</p><h4 id="查找节点"><a href="#查找节点" class="headerlink" title="查找节点"></a>查找节点</h4><p>AVL 树的节点查找操作与二叉搜索树一致，在此不再赘述。</p><h3 id="AVL-树典型应用"><a href="#AVL-树典型应用" class="headerlink" title="AVL 树典型应用"></a>AVL 树典型应用</h3><p>组织和存储大型数据，适用于高频查找、低频增删的场景。<br>用于构建数据库中的索引系统。<br>红黑树在许多应用中比 AVL 树更受欢迎。这是因为<strong>红黑树的平衡条件相对宽松</strong>，在红黑树中插入与删除节点所需的旋转操作相对较少，其节点增删操作的平均效率更高。</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/avl_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li><li><a href="https://blog.csdn.net/yang_yulei/article/details/26066409">https://blog.csdn.net/yang_yulei/article/details/26066409</a></li><li><a href="https://zhuanlan.zhihu.com/p/594775323">https://zhuanlan.zhihu.com/p/594775323</a></li><li><a href="https://zhuanlan.zhihu.com/p/604835603?utm_id=0">https://zhuanlan.zhihu.com/p/604835603?utm_id=0</a></li></ul>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h3 id=&quot;AVL-树常用操作&quot;&gt;&lt;a href=&quot;#AVL-树常用操作&quot; class=&quot;headerlink&quot; title=&quot;AVL 树常用操作&quot;&gt;&lt;/a&gt;AVL 树常用操作&lt;/h3&gt;&lt;h4 id=&quot;插入操作&quot;&gt;&lt;a href=&quot;#插入操作&quot; class=&quot;headerli</summary>
-      
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」平衡二叉搜索树--AVL树（上）</title>
-    <link href="http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-6.AVL/"/>
-    <id>http://rymuscle.github.io/2020/10/29/data-structure-algorithm/10-6.AVL/</id>
-    <published>2020-10-29T14:09:21.000Z</published>
-    <updated>2023-11-16T02:42:56.820Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="lant："><a href="#lant：" class="headerlink" title="lant："></a>lant：</h3><p>通过上一篇对 <code>BST</code> 和 <code>hash表</code> 这两种数据结构的对比，我们知道虽然 <code>BST</code>在平衡状态下的 查、插、删 时间复杂度能达到<code>O(logn)</code>，但相比 <code>hash表</code>的 <code>O(1)</code>常量级时间复杂度还是逊色一点，不过它有<code>hash表</code>无法做到的，所以有存在的必要性和合理性。<br>但上面也提到了，BST需要在平衡状态下才能发挥出威力，否则它的操作效率会逐渐降低到<code>O(n)</code>级。<br>为了解决极端情况下，二叉树会退化为链表的情况，我们就需要设计一种<code>平衡二叉查找树</code>，也就是今天要讲的这种数据结构。<br>通俗的讲，<code>平衡二叉查找树</code>就是说，一棵<code>二叉查找树</code>在频繁地增删改查操作后，它依然能不断通过自我修复来维护自身的平衡性，从而始终保持高效的数据操作性能。</p><h3 id="自平衡二叉查找树"><a href="#自平衡二叉查找树" class="headerlink" title="自平衡二叉查找树"></a>自平衡二叉查找树</h3><p>其实<code>平衡二叉查找树</code>有挺多，常见的比如 <code>AVL树</code>，<code>SplayTree(伸展树)</code>、<code>Treap(树堆)</code>、<code>红黑树</code>。<br>不过你可能留意到，每当提到<code>平衡二叉查找树</code>，听到的基本都是<code>红黑树</code>。它的出镜率甚至要高于“平衡二叉查找 树”这几个字，有时候，我们甚至默认<code>平衡二叉查找树</code>就是<code>红黑树</code>，不过本篇暂时不聊这个明星树，后面会专门再聊。<br>下面先看最早的AVL树。</p><span id="more"></span><h3 id="AVL树"><a href="#AVL树" class="headerlink" title="AVL树"></a>AVL树</h3><ol><li>AVL树是最先被发明的自平衡二叉查找树, 它严格符合平衡二叉查找树的定义，即任何节点的左右子树高度相差不超过 1，是一种高度平衡的二叉查找树。</li><li>AVL 树既是<code>二叉搜索树</code>也是<code>平衡二叉树</code>，同时满足这两类二叉树的所有性质，因此也被称为<code>「平衡二叉搜索树 balanced binary search tree」</code>。</li></ol><h3 id="AVL树如何实现自平衡"><a href="#AVL树如何实现自平衡" class="headerlink" title="AVL树如何实现自平衡"></a>AVL树如何实现自平衡</h3><ol><li><p>AVL 树之所以在不断地增删改查操作后，依然能保持自身的平衡，就是因为它的“旋转”操作。<br>它的旋转操做能够在不影响二叉树的中序遍历序列的前提下，使失衡节点重新恢复平衡。换句话说，旋转操作既能保持“二叉搜索树”的性质，也能使树重新变为“平衡二叉树”。</p></li><li><p>在介绍AVL树的旋转操作之前，我们先了解一个概念叫 <code>平衡因子</code>， 它用来标识当前节点是否是<code>失衡节点</code>，如果是，就需要对其做旋转操作来保证二叉树的平衡。</p></li><li><p>当发现<code>失衡因子</code>时，如何对其进行旋转才能保证二叉树的平衡呢？<br>下面根据节点失衡情况的不同，将旋转操作分为四种：<code>右旋</code>、<code>左旋</code>、<code>先右旋后左旋</code>、<code>先左旋后右旋</code>。下面我们将详细介绍这些旋转操作。</p></li></ol><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><blockquote><p>其实我们可以想下，为什么是四种旋转操作呢？<br>其实很简单，平衡的条件是 <code>任意节点**的左子树和右子树的高度之差的绝对值不超过 1 </code>，那就意味着，当你插入一个节点时，只要破坏了这个条件，就得做旋转操作。<br>所以，我们只用看插入节点后，破坏平衡的状况有哪几种，无非就四种：<code>父是左节点，自己是左节点</code>，<code>父左,自己右</code>; <code>父右,自己左</code>，<code>父左,字节右</code><br><img src="/images/data-structure-algorithm/avltree_rotation_cases.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>每种失衡情况有各自对应的旋转操作。</p></blockquote><br/><blockquote><p>另外 ，在学习具体的旋转操作之前，我们切记要做到有的放矢，不要太执迷于一些玄学，比如陷入”为什么这么转就能保持平衡，怎么能论证这个结论?”、“这么神奇的操作是怎么想出来的，为什么我就想不出这个方法?” …..<br>可以你看看技术大咖们对此的看法：</p><div style="display: flex"><img src="/images/data-structure-algorithm/b-s-t-0006.png" width="460px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><div style="display: flex;flex-direction: column;"><img src="/images/data-structure-algorithm/b-s-t-0007.png" width="300px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><img src="/images/data-structure-algorithm/WX20231116-101427@2x.png" width="300px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></div></div></blockquote><h3 id="旋转操作"><a href="#旋转操作" class="headerlink" title="旋转操作"></a>旋转操作</h3><h4 id="右旋"><a href="#右旋" class="headerlink" title="右旋"></a>右旋</h4><p><a href="https://www.hello-algo.com/chapter_tree/avl_tree/#1_1">https://www.hello-algo.com/chapter_tree/avl_tree/#1_1</a></p><h4 id="左旋"><a href="#左旋" class="headerlink" title="左旋"></a>左旋</h4><p><a href="https://www.hello-algo.com/chapter_tree/avl_tree/#2_1">https://www.hello-algo.com/chapter_tree/avl_tree/#2_1</a></p><h4 id="先左旋后右旋"><a href="#先左旋后右旋" class="headerlink" title="先左旋后右旋"></a>先左旋后右旋</h4><p><a href="https://www.hello-algo.com/chapter_tree/avl_tree/#3">https://www.hello-algo.com/chapter_tree/avl_tree/#3</a></p><h4 id="先右旋后左旋"><a href="#先右旋后左旋" class="headerlink" title="先右旋后左旋"></a>先右旋后左旋</h4><p><a href="https://www.hello-algo.com/chapter_tree/avl_tree/#4">https://www.hello-algo.com/chapter_tree/avl_tree/#4</a></p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/avl_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;lant：&quot;&gt;&lt;a href=&quot;#lant：&quot; class=&quot;headerlink&quot; title=&quot;lant：&quot;&gt;&lt;/a&gt;lant：&lt;/h3&gt;&lt;p&gt;通过上一篇对 &lt;code&gt;BST&lt;/code&gt; 和 &lt;code&gt;hash表&lt;/code&gt; 这两种数据结构的对比，我们知道虽然 &lt;code&gt;BST&lt;/code&gt;在平衡状态下的 查、插、删 时间复杂度能达到&lt;code&gt;O(logn)&lt;/code&gt;，但相比 &lt;code&gt;hash表&lt;/code&gt;的 &lt;code&gt;O(1)&lt;/code&gt;常量级时间复杂度还是逊色一点，不过它有&lt;code&gt;hash表&lt;/code&gt;无法做到的，所以有存在的必要性和合理性。&lt;br&gt;但上面也提到了，BST需要在平衡状态下才能发挥出威力，否则它的操作效率会逐渐降低到&lt;code&gt;O(n)&lt;/code&gt;级。&lt;br&gt;为了解决极端情况下，二叉树会退化为链表的情况，我们就需要设计一种&lt;code&gt;平衡二叉查找树&lt;/code&gt;，也就是今天要讲的这种数据结构。&lt;br&gt;通俗的讲，&lt;code&gt;平衡二叉查找树&lt;/code&gt;就是说，一棵&lt;code&gt;二叉查找树&lt;/code&gt;在频繁地增删改查操作后，它依然能不断通过自我修复来维护自身的平衡性，从而始终保持高效的数据操作性能。&lt;/p&gt;
-&lt;h3 id=&quot;自平衡二叉查找树&quot;&gt;&lt;a href=&quot;#自平衡二叉查找树&quot; class=&quot;headerlink&quot; title=&quot;自平衡二叉查找树&quot;&gt;&lt;/a&gt;自平衡二叉查找树&lt;/h3&gt;&lt;p&gt;其实&lt;code&gt;平衡二叉查找树&lt;/code&gt;有挺多，常见的比如 &lt;code&gt;AVL树&lt;/code&gt;，&lt;code&gt;SplayTree(伸展树)&lt;/code&gt;、&lt;code&gt;Treap(树堆)&lt;/code&gt;、&lt;code&gt;红黑树&lt;/code&gt;。&lt;br&gt;不过你可能留意到，每当提到&lt;code&gt;平衡二叉查找树&lt;/code&gt;，听到的基本都是&lt;code&gt;红黑树&lt;/code&gt;。它的出镜率甚至要高于“平衡二叉查找 树”这几个字，有时候，我们甚至默认&lt;code&gt;平衡二叉查找树&lt;/code&gt;就是&lt;code&gt;红黑树&lt;/code&gt;，不过本篇暂时不聊这个明星树，后面会专门再聊。&lt;br&gt;下面先看最早的AVL树。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」二叉搜索树 binary search tree</title>
-    <link href="http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/"/>
-    <id>http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-5.bst/</id>
-    <published>2020-10-28T13:35:43.000Z</published>
-    <updated>2023-11-16T02:42:56.825Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>说到<code>二叉查找树</code>，从名字你也能猜出这种数据结构的估计就是用二叉树来做快速查找的。<br>事实上<code>二叉搜索树</code>最大的特点就是，支持动态数据集合的快速插入、删除、查找操作。<br>而我们之前学过的<code>散列表</code>也是支持这些操作的，并且<code>散列表</code>的这些操作比<code>二叉查找树</code>更高效，时间复杂度是 <code>O(1)</code>。<br>既然有了这么高效的<code>散列表</code>，还要<code>二叉查找树</code>干啥？有没有哪些地方是<code>散列表</code>做不了，必须要用<code>二叉查找树</code>来做的呢？</p><p>带着这些问题，下面来学习今天的内容，<strong>二叉查找树</strong>！</p><h3 id="二叉搜索树-binary-search-tree"><a href="#二叉搜索树-binary-search-tree" class="headerlink" title="二叉搜索树 binary search tree"></a>二叉搜索树 binary search tree</h3><p>首先<code>二叉查找树</code>是建立在<code>二叉树</code>的基础上的，不过，它在<code>二叉树</code>的基础上又新增了自己的特性：<br><strong>二叉查找树要求，在树中的任意一个节点，其左子树中的每个节点的值，都要小于这个节点的值，而右子树节点的值都大于这个节点的值。</strong>下面是几个<code>二叉查找树</code>的例子，估计你一看应该就清楚了<br><img src="/images/data-structure-algorithm/b-s-t-0001.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p><span id="more"></span><h3 id="TODO-初始化一棵平衡的二叉查找树-学到本篇-目前还有难度-😰"><a href="#TODO-初始化一棵平衡的二叉查找树-学到本篇-目前还有难度-😰" class="headerlink" title="TODO 初始化一棵平衡的二叉查找树 学到本篇,目前还有难度 😰"></a>TODO 初始化一棵平衡的二叉查找树 学到本篇,目前还有难度 😰</h3><p><strong>lant:</strong> <a href="/2020/10/27/data-structure-algorithm/10-3.binary-tree/#lant">回忆</a><br>之前我们的<code>二叉树</code>一直都是把一些节点通过指针随意串连起来的，<span style="color:orange;">只不过在串连的时候，我们会尽量让它<strong>更像</strong>一棵树(你要是追求完美的话，还能让它更像一棵 <code>完美二叉树</code>)</span>。<br><strong>而现在的<code>二叉搜索树</code>不一样了，它要求我们在串连节点时，除了尽量更像一棵树，还要遵循它的额外特性。</strong></p><p>所以，如果你使用一组数据来初始化一棵 二叉查找树，你可能要花费点时间了，你除了要保证二叉查找树的特性，又要尽可能让树平衡… 还是要花费点时间的 (可以点击<a href="https://www.cs.usfca.edu/~galles/visualization/Algorithms.html">这个</a>数据结构可视化站点试试)</p><blockquote><p>比如给你一组数 [1~10] 做节点，让你做个二叉搜索树<br>如果你直接挨个拿出节点连接，企图构建一棵二叉树，那效果就尴尬了：<br><img src="/images/data-structure-algorithm/b-s-t-0004.png" width="300px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>而一棵平衡的二叉查找树应该像下面这样：<br><span style="color:red;font-weight:600;">如果让你手动将这些节点连接成一棵平衡的二叉查找树，怕是不告诉你用什么技巧，你可能要连一阵子了 😝<span><br><img src="/images/data-structure-algorithm/b-s-t-0005.png" width="300px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote><p>我们暂时先不考虑如何能初始化一棵平衡的二叉搜索树，这个问题后面再聊…<br>下面先假设我们已经有了一棵平衡的 <code>二叉搜索树</code>，然后看我们能用它做些什么操作，时间复杂度怎么样。</p><h3 id="二叉搜索树的操作"><a href="#二叉搜索树的操作" class="headerlink" title="二叉搜索树的操作"></a>二叉搜索树的操作</h3><h4 id="查找节点"><a href="#查找节点" class="headerlink" title="查找节点"></a>查找节点</h4><ol><li><p><strong>假设我们现在已经有了一棵平衡的二叉查找树</strong>，那如何在二叉查找树中查找一个节点？ </p><blockquote><p>从根节点开始，如果它等于我们要查找的数据，那就返回;<br>如果要查找的数据比根节点的值小，那就在左子树中<strong>递归</strong>查找；<br>如果要查找的数据比根节点的值大，那就在右子树中<strong>递归</strong>查找。<br><img src="/images/data-structure-algorithm/b-s-t-0002.png" width="220px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p></blockquote></li><li><p>二叉搜索树的查找操作与二分查找算法的工作原理一致，都是每轮排除一半情况。循环次数最多为二叉树的高度，<strong>当二叉树平衡时</strong>，使用 <code>O(log n)</code>时间。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">/* 查找节点 */</span><br><span class="line">TreeNode search(int num) &#123;</span><br><span class="line">    TreeNode cur = root;</span><br><span class="line">    // 循环查找，越过叶节点后跳出</span><br><span class="line">    while (cur != null) &#123;</span><br><span class="line">        // 目标节点在 cur 的右子树中</span><br><span class="line">        if (cur.val &lt; num)</span><br><span class="line">            cur = cur.right;</span><br><span class="line">        // 目标节点在 cur 的左子树中</span><br><span class="line">        else if (cur.val &gt; num)</span><br><span class="line">            cur = cur.left;</span><br><span class="line">        // 找到目标节点，跳出循环</span><br><span class="line">        else</span><br><span class="line">            break;</span><br><span class="line">    &#125;</span><br><span class="line">    // 返回目标节点</span><br><span class="line">    return cur;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ol><h4 id="插入节点"><a href="#插入节点" class="headerlink" title="插入节点"></a>插入节点</h4><ol><li><p>如何在<code>二叉查找树</code>中插入节点？</p><blockquote><p>二叉查找树的插入过程有点类似查找操作。 我们只需要从根节点开始，依次比较要插入的数据和节点的大小关系。<br>如果要插入的数据比节点的数据大，并且节点的右子树为空，就将新数据直接插到右子节点的位置； 如果不为空，就再递归遍历右子树，查找插入位置。<br>同理，如果要插入的数据比节点数值小，并且节点的左子树为空，就将新数据插入到左子节点的位置；如果不为空，就再递归遍历左子树，查找插入位置。<br><img src="/images/data-structure-algorithm/b-s-t-0003.png" width="220px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>代码参考 <a href="https://www.hello-algo.com/chapter_tree/binary_search_tree/#2">这里</a></p></blockquote></li><li><p>很显然，即便你最初拥有一棵非常平衡的二叉查找树，随着你不断地插入节点(或者后面的删除节点)，你原本的 <code>平衡二叉查找树</code> 可能就逐渐退化成了<code>链表</code>。这时各种操作的时间复杂度也会退化为 <code>O(n)</code>。</p></li></ol><h4 id="删除节点"><a href="#删除节点" class="headerlink" title="删除节点"></a>删除节点</h4><p>如何在<code>二叉查找树</code>中删除节点？<br>参考 <a href="https://www.hello-algo.com/chapter_tree/binary_search_tree/#3">这里</a></p><h4 id="二叉搜索树-中序遍历-的-福利"><a href="#二叉搜索树-中序遍历-的-福利" class="headerlink" title="二叉搜索树 中序遍历 的 福利"></a>二叉搜索树 中序遍历 的 福利</h4><p>由于 <code>二叉查找树</code> 有 任意节点<code>左子节点 &lt; 根节点 &lt; 右子节点</code>的特性。而二叉树<code>中序遍历</code>的遍历顺序正好又是<code>左-&gt;根-&gt;右</code>。<br>所以，对于<code>二查找叉树</code>来说，它的中序遍历得到的序列就是个升序序列。</p><p><span style="color:orange">利用中序遍历升序的性质，我们在二叉搜索树中获取有序数据仅需<code>O(n)</code>时间，无须进行额外的排序操作，非常高效。</span></p><h3 id="二叉搜索树的效率"><a href="#二叉搜索树的效率" class="headerlink" title="二叉搜索树的效率"></a>二叉搜索树的效率</h3><p>在理想情况下，二叉搜索树是“平衡”的，这样就可以在 <code>O(log n)</code> 的时间复杂度下，查、插、删 节点。</p><h3 id="开头的问题"><a href="#开头的问题" class="headerlink" title="开头的问题"></a>开头的问题</h3><p>之前我们学过，<code>散列表</code> 的插入、删除、查找操作的时间复杂度可以做到常量级的<code>O(1)</code>，非常高效;<br>而<code>二叉查找树</code>在比较平衡的情况下，插入、删除、查找操作时间复杂度才是 <code>O(logn)</code>; 相对<code>散列表</code>，好像并没有什么优势，那我们为什么还要用<code>二叉查找树</code>呢？</p><p>我认为有下面几个原因：</p><ul><li>第一，散列表中的数据是无序存储的，如果要输出有序的数据，需要先进行排序。而对于二叉查找树来说，我们只需要中序遍历，就可以在 O(n) 的时间复杂度内，输出有序的数据序列。<br>  比如，如果做索引的话(如mysql)，用户一般会有排序要求，散列表当然不能满足了。</li><li>第二，散列表扩容耗时很多，而且当遇到散列冲突时，性能不稳定，尽管二叉查找树的性能不稳定，但是在工程中，我们最常用的平衡二叉查找树的性能非常稳定，时间复杂度稳定在O(logn)。</li><li>第三，笼统地来说，尽管散列表的查找等操作的时间复杂度是常量级的，但因为哈希冲突的存在，这个常量不一定比 logn 小，所以实际的查找速度可能不一定比 O(logn) 快。加上哈希函数的耗时，也不一定就比平衡二叉查找树的效率高。</li><li>第四，散列表的构造比二叉查找树要复杂，需要考虑的东西很多。比如散列函数的设计、冲突解决办法、扩容、缩容等。平衡二叉查找树只需要考虑平衡性这一个问题，而且这个问题的解决方案比较成熟、固定。</li><li>最后，为了避免过多的散列冲突，散列表装载因子不能太大，特别是基于开放寻址法解决冲突的散列表，不然会浪费一定的存储空间。<br>综合这几点，平衡二叉查找树在某些方面还是优于散列表的，所以，这两者的存在并不冲突。我们在实际的开发过程中，需要结合具体的需求来选择使用哪一个。</li></ul><h3 id="二叉搜索树常见应用"><a href="#二叉搜索树常见应用" class="headerlink" title="二叉搜索树常见应用"></a>二叉搜索树常见应用</h3><p><strong>用作系统中的多级索引，实现高效的查找、插入、删除操作。</strong><br>作为某些搜索算法的底层数据结构。<br>用于存储数据流，以保持其有序状态。</p><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><p>所以我们现在的问题是</p><ol><li>如果我们有了一棵平衡的二叉搜索树，我们只能对树上现有的静态数据做查询操作，如果频繁地做插入，删除操作，我们目前还没办法保持树继续平衡，极端情况下，树有可能退化为链表。</li><li>即便我们只是想对一组静态数据进行查询操作，我们目前也还没办法先将他们逻辑地组成一棵平衡的 二叉搜索树 😓。</li></ol><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_search_tree/#2">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;h3 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h3&gt;&lt;p&gt;说到&lt;code&gt;二叉查找树&lt;/code&gt;，从名字你也能猜出这种数据结构的估计就是用二叉树来做快速查找的。&lt;br&gt;事实上&lt;code&gt;二叉搜索树&lt;/code&gt;最大的特点就是，支持动态数据集合的快速插入、删除、查找操作。&lt;br&gt;而我们之前学过的&lt;code&gt;散列表&lt;/code&gt;也是支持这些操作的，并且&lt;code&gt;散列表&lt;/code&gt;的这些操作比&lt;code&gt;二叉查找树&lt;/code&gt;更高效，时间复杂度是 &lt;code&gt;O(1)&lt;/code&gt;。&lt;br&gt;既然有了这么高效的&lt;code&gt;散列表&lt;/code&gt;，还要&lt;code&gt;二叉查找树&lt;/code&gt;干啥？有没有哪些地方是&lt;code&gt;散列表&lt;/code&gt;做不了，必须要用&lt;code&gt;二叉查找树&lt;/code&gt;来做的呢？&lt;/p&gt;
-&lt;p&gt;带着这些问题，下面来学习今天的内容，&lt;strong&gt;二叉查找树&lt;/strong&gt;！&lt;/p&gt;
-&lt;h3 id=&quot;二叉搜索树-binary-search-tree&quot;&gt;&lt;a href=&quot;#二叉搜索树-binary-search-tree&quot; class=&quot;headerlink&quot; title=&quot;二叉搜索树 binary search tree&quot;&gt;&lt;/a&gt;二叉搜索树 binary search tree&lt;/h3&gt;&lt;p&gt;首先&lt;code&gt;二叉查找树&lt;/code&gt;是建立在&lt;code&gt;二叉树&lt;/code&gt;的基础上的，不过，它在&lt;code&gt;二叉树&lt;/code&gt;的基础上又新增了自己的特性：&lt;br&gt;&lt;strong&gt;二叉查找树要求，在树中的任意一个节点，其左子树中的每个节点的值，都要小于这个节点的值，而右子树节点的值都大于这个节点的值。&lt;/strong&gt;下面是几个&lt;code&gt;二叉查找树&lt;/code&gt;的例子，估计你一看应该就清楚了&lt;br&gt;&lt;img src=&quot;/images/data-structure-algorithm/b-s-t-0001.png&quot; width=&quot;450px&quot; style=&quot;margin-left:0px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
-    
-    
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>「数据结构与算法」用数组表示(存储)二叉树</title>
-    <link href="http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/"/>
-    <id>http://rymuscle.github.io/2020/10/28/data-structure-algorithm/10-4.binary-tree/</id>
-    <published>2020-10-28T12:57:19.000Z</published>
-    <updated>2023-11-16T02:42:56.815Z</updated>
-    
-    <content type="html"><![CDATA[<ol><li><p>之前我们的<code>二叉树</code>是使用<code>链表</code>这种最基本的数据结构来存储的（<code>链式存储</code>）。 而本篇我们将使用<code>数组</code>这种最基本的结构来存储<code>二叉树</code>（<code>顺序存储</code>）。</p><img src="/images/data-structure-algorithm/WX20231115-113301@2x.png" width="400px" style="margin-left:0px;"/></li><li><p>尝试用数组存储一棵二叉树</p><blockquote><p>如果将根节点A存储在下标 <code>i = 1</code> 的位置，那左子节点B会存储在下标 <code>2 * i = 2</code> 的位置，右子节点C会存储在 <code>2 * i + 1 = 3</code> 的位置。<br>以此类推，B 节点的左子节点D会存储在 <code>2 * i = 2 * 2 = 4</code> 的位置，右子节点E存储在 <code>2 * i + 1 = 2 * 2 + 1 = 5</code> 的位置。<br>……<br>最终的二叉树和数组的对应关系如下图:<br><img src="/images/data-structure-algorithm/WX20231115-114707@2x.png" width="250px" style="margin-left:0px;"/><br>总结一下，就是，<strong>如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&#x2F;2 的位置存储就是它的父节点。</strong><br><strong>通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。</strong></p></blockquote></li><li><p>比较遗憾的是，刚刚我们举的例子是将一棵完全二叉树存储到了数组中，为了方便通过下标计算树中各节点位置，所以“浪费”了一个下标为 0 的存储位置。<span style="color:red">但如果我们往数组中存储的是一棵非完全二叉树，那就会浪费比较多的数组存储空间了</span>。</p><div style="display: flex;align-content: center;"><img src="/images/data-structure-algorithm/WX20231115-115837@2x.png" width="260px" /><img src="/images/data-structure-algorithm/array_representation_with_empty.png" width="350px" style="margin-left: 20px;"/></div></li></ol><p>可以看到，我们为了使  <code>根节点下标为i, 左子节点下标为2 * i, 右子节点下标为 2 * i + 1</code> 这个公式来仍然生效(<strong>方便计算各节点位置从而串起整棵树</strong>)，<span style="color:red">就不得不将一些None节点的位置也在数组中留出来。 这样就会浪费比较多的数组存储空间。</span></p><span id="more"></span><p>以下代码实现了一个基于数组表示的二叉树，包括以下几种操作</p><ul><li>给定某节点，获取它的值、左（右）子节点、父节点。</li><li>获取前序遍历、中序遍历、后序遍历、层序遍历序列。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">/* 数组表示下的二叉树类 */</span><br><span class="line">class ArrayBinaryTree &#123;</span><br><span class="line">    private List&lt;Integer&gt; tree;</span><br><span class="line"></span><br><span class="line">    /* 构造方法 */</span><br><span class="line">    public ArrayBinaryTree(List&lt;Integer&gt; arr) &#123;</span><br><span class="line">        tree = new ArrayList&lt;&gt;(arr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 节点数量 */</span><br><span class="line">    public int size() &#123;</span><br><span class="line">        return tree.size();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 获取索引为 i 节点的值 */</span><br><span class="line">    public Integer val(int i) &#123;</span><br><span class="line">        // 若索引越界，则返回 null ，代表空位</span><br><span class="line">        if (i &lt; 0 || i &gt;= size())</span><br><span class="line">            return null;</span><br><span class="line">        return tree.get(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 获取索引为 i 节点的左子节点的索引 */</span><br><span class="line">    public Integer left(int i) &#123;</span><br><span class="line">        return 2 * i + 1;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 获取索引为 i 节点的右子节点的索引 */</span><br><span class="line">    public Integer right(int i) &#123;</span><br><span class="line">        return 2 * i + 2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 获取索引为 i 节点的父节点的索引 */</span><br><span class="line">    public Integer parent(int i) &#123;</span><br><span class="line">        return (i - 1) / 2;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 层序遍历 */</span><br><span class="line">    public List&lt;Integer&gt; levelOrder() &#123;</span><br><span class="line">        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span><br><span class="line">        // 直接遍历数组</span><br><span class="line">        for (int i = 0; i &lt; size(); i++) &#123;</span><br><span class="line">            if (val(i) != null)</span><br><span class="line">                res.add(val(i));</span><br><span class="line">        &#125;</span><br><span class="line">        return res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 深度优先遍历 */</span><br><span class="line">    private void dfs(Integer i, String order, List&lt;Integer&gt; res) &#123;</span><br><span class="line">        // 若为空位，则返回</span><br><span class="line">        if (val(i) == null)</span><br><span class="line">            return;</span><br><span class="line">        // 前序遍历</span><br><span class="line">        if (order == &quot;pre&quot;)</span><br><span class="line">            res.add(val(i));</span><br><span class="line">        dfs(left(i), order, res);</span><br><span class="line">        // 中序遍历</span><br><span class="line">        if (order == &quot;in&quot;)</span><br><span class="line">            res.add(val(i));</span><br><span class="line">        dfs(right(i), order, res);</span><br><span class="line">        // 后序遍历</span><br><span class="line">        if (order == &quot;post&quot;)</span><br><span class="line">            res.add(val(i));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 前序遍历 */</span><br><span class="line">    public List&lt;Integer&gt; preOrder() &#123;</span><br><span class="line">        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span><br><span class="line">        dfs(0, &quot;pre&quot;, res);</span><br><span class="line">        return res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 中序遍历 */</span><br><span class="line">    public List&lt;Integer&gt; inOrder() &#123;</span><br><span class="line">        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span><br><span class="line">        dfs(0, &quot;in&quot;, res);</span><br><span class="line">        return res;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    /* 后序遍历 */</span><br><span class="line">    public List&lt;Integer&gt; postOrder() &#123;</span><br><span class="line">        List&lt;Integer&gt; res = new ArrayList&lt;&gt;();</span><br><span class="line">        dfs(0, &quot;post&quot;, res);</span><br><span class="line">        return res;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li></ul><ol start="4"><li><p>lant:</p><blockquote><p>所以，其实二叉树中，也就<code>完全二叉树</code>比较适合用 数组来存储。 因为如果一棵二叉树是一棵<code>完全二叉树</code>，那它用数组存储就会非常节省空间，它不需要像链式存储那样要存储额外的左右子节点的指针。<br>这也是为什么<code>完全二叉树</code>要求最后一层的子节点都靠左的原因，因为右边的None节点会一起排在数组的末尾，可以直接省略，也不影响 <code>数组存储二叉树的公式</code> 计算。<br><img src="/images/data-structure-algorithm/WX20231115-120907@2x.png" width="420px" /><br><img src="/images/data-structure-algorithm/WX20231115-120750@2x.png" width="420px" /></p></blockquote></li><li><p>优势与局限性<br>二叉树的数组表示主要有以下优点：</p></li></ol><ul><li>数组存储在连续的内存空间中，对缓存友好，访问与遍历速度较快。</li><li>不需要存储指针，比较节省空间。</li><li>允许随机访问节点。</li></ul><p>然而，数组表示也存在一些局限性：</p><ul><li>数组存储需要连续内存空间，因此不适合存储数据量过大的树。</li><li>增删节点需要通过数组插入与删除操作实现，效率较低。</li><li>当二叉树中存在大量None时，数组中包含的节点数据比重较低，空间利用率较低。</li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/array_representation_of_tree/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;ol&gt;
-&lt;li&gt;&lt;p&gt;之前我们的&lt;code&gt;二叉树&lt;/code&gt;是使用&lt;code&gt;链表&lt;/code&gt;这种最基本的数据结构来存储的（&lt;code&gt;链式存储&lt;/code&gt;）。 而本篇我们将使用&lt;code&gt;数组&lt;/code&gt;这种最基本的结构来存储&lt;code&gt;二叉树&lt;/code&gt;（&lt;code&gt;顺序存储&lt;/code&gt;）。&lt;/p&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/WX20231115-113301@2x.png&quot; width=&quot;400px&quot; style=&quot;margin-left:0px;&quot;/&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;尝试用数组存储一棵二叉树&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;如果将根节点A存储在下标 &lt;code&gt;i = 1&lt;/code&gt; 的位置，那左子节点B会存储在下标 &lt;code&gt;2 * i = 2&lt;/code&gt; 的位置，右子节点C会存储在 &lt;code&gt;2 * i + 1 = 3&lt;/code&gt; 的位置。&lt;br&gt;以此类推，B 节点的左子节点D会存储在 &lt;code&gt;2 * i = 2 * 2 = 4&lt;/code&gt; 的位置，右子节点E存储在 &lt;code&gt;2 * i + 1 = 2 * 2 + 1 = 5&lt;/code&gt; 的位置。&lt;br&gt;……&lt;br&gt;最终的二叉树和数组的对应关系如下图:&lt;br&gt;&lt;img src=&quot;/images/data-structure-algorithm/WX20231115-114707@2x.png&quot; width=&quot;250px&quot; style=&quot;margin-left:0px;&quot;/&gt;&lt;br&gt;总结一下，就是，&lt;strong&gt;如果节点 X 存储在数组中下标为 i 的位置，下标为 2 * i 的位置存储的就是它的左子节点，下标为 2 * i + 1 的位置存储的就是它的右子节点。反过来，下标为 i&amp;#x2F;2 的位置存储就是它的父节点。&lt;/strong&gt;&lt;br&gt;&lt;strong&gt;通过这种方式，我们只要知道根节点存储的位置（一般情况下，为了方便计算子节点，根节点会存储在下标为 1 的位置），这样就可以通过下标计算，把整棵树都串起来。&lt;/strong&gt;&lt;/p&gt;
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;之前介绍的 &lt;code&gt;聚簇索引&lt;/code&gt; &lt;strong&gt;只能在搜索条件是主键值时才能发挥作用&lt;/strong&gt; 😓，因为B+树中的记录都是&lt;code&gt;按照主键进行排序&lt;/code&gt;的。&lt;/p&gt;
 &lt;/blockquote&gt;
-&lt;/li&gt;
-&lt;li&gt;&lt;p&gt;比较遗憾的是，刚刚我们举的例子是将一棵完全二叉树存储到了数组中，为了方便通过下标计算树中各节点位置，所以“浪费”了一个下标为 0 的存储位置。&lt;span style=&quot;color:red&quot;&gt;但如果我们往数组中存储的是一棵非完全二叉树，那就会浪费比较多的数组存储空间了&lt;/span&gt;。&lt;/p&gt;
-&lt;div style=&quot;display: flex;align-content: center;&quot;&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/WX20231115-115837@2x.png&quot; width=&quot;260px&quot; /&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/array_representation_with_empty.png&quot; width=&quot;350px&quot; style=&quot;margin-left: 20px;&quot;/&gt;
-&lt;/div&gt;&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;可以看到，我们为了使  &lt;code&gt;根节点下标为i, 左子节点下标为2 * i, 右子节点下标为 2 * i + 1&lt;/code&gt; 这个公式来仍然生效(&lt;strong&gt;方便计算各节点位置从而串起整棵树&lt;/strong&gt;)，&lt;span style=&quot;color:red&quot;&gt;就不得不将一些None节点的位置也在数组中留出来。 这样就会浪费比较多的数组存储空间。&lt;/span&gt;&lt;/p&gt;</summary>
+&lt;h1 id=&quot;</summary>
+      
     
     
     
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
     
     
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
     
   </entry>
   
   <entry>
-    <title>「数据结构与算法」二叉树遍历</title>
-    <link href="http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/"/>
-    <id>http://rymuscle.github.io/2020/10/27/data-structure-algorithm/10-3.binary-tree/</id>
-    <published>2020-10-27T13:52:36.000Z</published>
-    <updated>2023-11-16T02:42:56.803Z</updated>
+    <title>6.3 InnoDB 的 聚簇索引 - 索引即数据</title>
+    <link href="http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/"/>
+    <id>http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/</id>
+    <published>2021-10-06T10:21:31.000Z</published>
+    <updated>2024-04-15T07:08:18.085Z</updated>
     
-    <content type="html"><![CDATA[<p>到目前为止，我们的<code>二叉树</code>从下层的<code>物理结构</code>角度来看, 仍然是使用<code>链表</code>这种最基本的的数据结构进行的存储，因此其遍历方式仍是通过指针逐个访问节点。 <span style="color:red;">然而</span>，从上层的<code>逻辑角度</code>来看，<code>二叉树</code>是一种<code>非线性数据结构</code>，这就使得二叉树(<span style="color:orange;">在应用层逻辑上</span>)的遍历要比遍历链表更加复杂，需要借助搜索算法来实现。</p><p>二叉树常见的遍历方式包括 <code>层序遍历</code>、<code>前序遍历</code>、<code>中序遍历</code> 和 <code>后序遍历</code> 等。</p><h3 id="广度优先遍历-–-「层序遍历-level-order-traversal」"><a href="#广度优先遍历-–-「层序遍历-level-order-traversal」" class="headerlink" title="广度优先遍历 – 「层序遍历 level-order traversal」"></a>广度优先遍历 – 「层序遍历 level-order traversal」</h3><h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><p>从顶部到底部逐层遍历二叉树，并在每一层按照从左到右的顺序访问节点。<br>层序遍历本质上属于 <code>「广度优先遍历 breadth-first traversal」</code> ，它体现了一种“一圈一圈向外扩展”的逐层遍历方式。</p><div style="display: flex;"><img src="/images/data-structure-algorithm/binary_tree_bfs.png" width="400px" style="margin-left:0px;"/><img src="/images/data-structure-algorithm/WX20231114-210129@2x.png" width="350px" style="margin-left:10px;border: 1px solid #ccc;border-radius: 5px;"/></div><span id="more"></span><h4 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h4><p>仔细看上图的 广度优先遍历 方式，你会发现它遍历节点时，节点出现的方式 和 队列的“先进先出”规则很像，因此广度优先遍历也通常借助“队列”来实现</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">/* 层序遍历 */</span><br><span class="line">List&lt;Integer&gt; levelOrder(TreeNode root) &#123;</span><br><span class="line">    // 初始化队列，加入根节点</span><br><span class="line">    Queue&lt;TreeNode&gt; queue = new LinkedList&lt;&gt;();</span><br><span class="line">    queue.add(root);</span><br><span class="line">    // 初始化一个列表，用于保存遍历序列</span><br><span class="line">    List&lt;Integer&gt; list = new ArrayList&lt;&gt;();</span><br><span class="line">    while (!queue.isEmpty()) &#123;</span><br><span class="line">        TreeNode node = queue.poll(); // 队列出队</span><br><span class="line">        list.add(node.val);           // 保存节点值</span><br><span class="line">        if (node.left != null)</span><br><span class="line">            queue.offer(node.left);   // 左子节点入队</span><br><span class="line">        if (node.right != null)</span><br><span class="line">            queue.offer(node.right);  // 右子节点入队</span><br><span class="line">    &#125;</span><br><span class="line">    return list;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>时间复杂度<code>O(n)</code>：所有节点被访问一次，使用 O(n) 时间，其中 n 为节点数量。<br>空间复杂度<code>O(n)</code>：在最差情况下，即满二叉树时，遍历到最底层之前，队列中最多同时存在 <code>(n+1)/2</code> 个节点，占用 O(n) 空间。<br><code>二叉树的层数越往下，每层的节点越多，所以 只有二叉树是满二叉树时，最底层的节点数会达到最大。此时，当最底层节点(叶子节点)全部放入队列时，也是队列占用空间最大时。此时叶子结点数量为  (n+1)/2</code></p><h3 id="深度优先遍历-前、中、后-序遍历"><a href="#深度优先遍历-前、中、后-序遍历" class="headerlink" title="深度优先遍历 - 前、中、后 序遍历"></a>深度优先遍历 - 前、中、后 序遍历</h3><h4 id="原理-1"><a href="#原理-1" class="headerlink" title="原理"></a>原理</h4><img src="/images/data-structure-algorithm/WX20231115-102257@2x.png" width="450px" style="margin-left:10px;border: 1px solid #ccc;border-radius: 5px;"/><blockquote><p>“前序”、”中序”、”后序” 是基于遍历时 “根节点” 的顺序来说的。前序：根在前；中序：根在中；后序：根在后; </p></blockquote><h4 id="代码-1"><a href="#代码-1" class="headerlink" title="代码"></a>代码</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">/* 前序遍历 */</span><br><span class="line">void preOrder(TreeNode root) &#123;</span><br><span class="line">    if (root == null)</span><br><span class="line">        return;</span><br><span class="line">    // 访问优先级：根节点 -&gt; 左子树 -&gt; 右子树</span><br><span class="line">    list.add(root.val);</span><br><span class="line">    preOrder(root.left);</span><br><span class="line">    preOrder(root.right);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 中序遍历 */</span><br><span class="line">void inOrder(TreeNode root) &#123;</span><br><span class="line">    if (root == null)</span><br><span class="line">        return;</span><br><span class="line">    // 访问优先级：左子树 -&gt; 根节点 -&gt; 右子树</span><br><span class="line">    inOrder(root.left);</span><br><span class="line">    list.add(root.val);</span><br><span class="line">    inOrder(root.right);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">/* 后序遍历 */</span><br><span class="line">void postOrder(TreeNode root) &#123;</span><br><span class="line">    if (root == null)</span><br><span class="line">        return;</span><br><span class="line">    // 访问优先级：左子树 -&gt; 右子树 -&gt; 根节点</span><br><span class="line">    postOrder(root.left);</span><br><span class="line">    postOrder(root.right);</span><br><span class="line">    list.add(root.val);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>时间复杂度 <code>O(n)</code>：所有节点被访问一次，使用 O(n) 时间。<br>空间复杂度 <code>O(n)</code>：在最差情况下，即树退化为链表时，递归深度达到 n，系统占用 O(n) 栈帧空间。</p><h3 id="lant"><a href="#lant" class="headerlink" title="lant:"></a>lant:</h3><p>到目前为止，我们的二叉树都还只是自己手动将一些 数据节点 随意串连起来的，父子节点之间也没什么大小顺序之分，节点们的组合还没什么规律可言。<br>我们也只是在串连时尽量保证它们连起来像一棵二叉树，尽量<code>完全</code> 或 <code>完美</code>。</p><p>但即便我们好手动连出了一棵完美二叉树，由于各节点之间并没有什么规则，这棵树貌似既不能帮我们完成排序，也无法帮我们完成某种快速检索。 貌似还没什么用……</p><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li><a href="https://www.hello-algo.com/chapter_tree/binary_tree_traversal/">hello-algo</a></li><li>《数据结构与算法之美》王争</li></ul>]]></content>
-    
-    
-    <summary type="html">&lt;p&gt;到目前为止，我们的&lt;code&gt;二叉树&lt;/code&gt;从下层的&lt;code&gt;物理结构&lt;/code&gt;角度来看, 仍然是使用&lt;code&gt;链表&lt;/code&gt;这种最基本的的数据结构进行的存储，因此其遍历方式仍是通过指针逐个访问节点。 &lt;span style=&quot;color:red;&quot;&gt;然而&lt;/span&gt;，从上层的&lt;code&gt;逻辑角度&lt;/code&gt;来看，&lt;code&gt;二叉树&lt;/code&gt;是一种&lt;code&gt;非线性数据结构&lt;/code&gt;，这就使得二叉树(&lt;span style=&quot;color:orange;&quot;&gt;在应用层逻辑上&lt;/span&gt;)的遍历要比遍历链表更加复杂，需要借助搜索算法来实现。&lt;/p&gt;
-&lt;p&gt;二叉树常见的遍历方式包括 &lt;code&gt;层序遍历&lt;/code&gt;、&lt;code&gt;前序遍历&lt;/code&gt;、&lt;code&gt;中序遍历&lt;/code&gt; 和 &lt;code&gt;后序遍历&lt;/code&gt; 等。&lt;/p&gt;
-&lt;h3 id=&quot;广度优先遍历-–-「层序遍历-level-order-traversal」&quot;&gt;&lt;a href=&quot;#广度优先遍历-–-「层序遍历-level-order-traversal」&quot; class=&quot;headerlink&quot; title=&quot;广度优先遍历 – 「层序遍历 level-order traversal」&quot;&gt;&lt;/a&gt;广度优先遍历 – 「层序遍历 level-order traversal」&lt;/h3&gt;&lt;h4 id=&quot;原理&quot;&gt;&lt;a href=&quot;#原理&quot; class=&quot;headerlink&quot; title=&quot;原理&quot;&gt;&lt;/a&gt;原理&lt;/h4&gt;&lt;p&gt;从顶部到底部逐层遍历二叉树，并在每一层按照从左到右的顺序访问节点。&lt;br&gt;层序遍历本质上属于 &lt;code&gt;「广度优先遍历 breadth-first traversal」&lt;/code&gt; ，它体现了一种“一圈一圈向外扩展”的逐层遍历方式。&lt;/p&gt;
-&lt;div style=&quot;display: flex;&quot;&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/binary_tree_bfs.png&quot; width=&quot;400px&quot; style=&quot;margin-left:0px;&quot;/&gt;
-&lt;img src=&quot;/images/data-structure-algorithm/WX20231114-210129@2x.png&quot; width=&quot;350px&quot; style=&quot;margin-left:10px;border: 1px solid #ccc;border-radius: 5px;&quot;/&gt;
-&lt;/div&gt;</summary>
+    <content type="html"><![CDATA[<blockquote><p>我们上边介绍的B+树索有两个特点:</p><ol><li>使用记录主键值的大小进行记录和⻚的排序，这包括三个方面 的含义:</li></ol><ul><li><code>⻚内的记录</code>是按照主键的大小顺序排成一个<code>单向链表</code>；</li><li><code>存放用户记录的⻚</code>之间也是根据⻚中用户记录的主键大小顺序排成一个<code>双向链表</code>；</li><li><code>存放目录项记录的⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的主键大小顺序排成一个<code>双向链表</code>。</li></ul><ol start="2"><li><code>B+树的叶子节点存储的是完整的用户记录</code>，所谓完整的用户记录，就是指这个记录中存储了所有列的值 (包括隐藏列)。</li></ol></blockquote><p>我们把具有这两种特性的B+树称为<code>聚簇索引</code>， <strong><code>所有完整的用户记录都存放在这个聚簇索引的叶子节点处</code></strong> 。<br>这种聚簇索引并不需要我们在MySQL语句中显式的使用INDEX语句去创建(后边会介绍索引相关的语句)，<code>InnoDB存储引擎会自动的为我们创建聚簇索引</code>。</p><p>另外有趣的一点是，在InnoDB存储引擎中， <strong><code>聚簇索引就是数据的存储方式</code></strong> (所有的用户记录都存储在了叶子节点)，也就是所谓的 <code>索引即数据</code>，<code>数据即索引</code>。</p>]]></content>
     
     
+      
+      
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;我们上边介绍的B+树索有两个特点:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;使用记录主键值的大小进行记录和⻚的排序，这包括三个方面 的含义:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;⻚内的记录&lt;/code&gt;是按照主键的大小顺序排成一个&lt;code&gt;单向</summary>
+      
     
-    <category term="数据结构与算法" scheme="http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/"/>
     
     
-    <category term="数据结构" scheme="http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/"/>
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</title>
+    <link href="http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/"/>
+    <id>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/</id>
+    <published>2021-10-04T14:09:13.000Z</published>
+    <updated>2024-04-15T07:04:36.891Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="普通用户记录-vs-目录项记录"><a href="#普通用户记录-vs-目录项记录" class="headerlink" title="普通用户记录 vs 目录项记录"></a><code>普通用户记录</code> vs <code>目录项记录</code></h1><blockquote><p>设计InnoDB的大叔们为了灵活管理所有<code>目录项</code>。他们发现这些<code>目录项</code>其实跟我们的<code>用户记录</code>也差不多，只不过<code>目录项</code>中的两个列是主键和⻚号而已。<br>所以大叔们复用了之前存储用户记录的<code>数据⻚</code>来存储<code>目录项</code>，为了和用户记录做一下区分，我们把这些用来表示目录项的记录称为<code>目录项记录</code>。</p><p>为了区分一条记录是<code>普通用户记录</code>还是<code>目录项记录呢</code>，InnoDB 就用到了<code>记录头信息</code>里的<code>record_type</code>属性(<code>0:普通的用户记录</code>、<code>1:目录项记录</code>、2:最小记录、3:最大记录)</p><p>所以我们把前面使用到的目录项放到数据⻚中的样子就是这样:<br><img src="/images/MySQL/6.2/1.jpg"></p><p>从图中可以看出来，我们新分配了一个编号为30的⻚来专⻔存储 <code>目录项记录</code>。</p><p>Tips:<br><code>目录项记录</code>和<code>普通的用户记录</code> 除了 <code>内容不同</code>、<code>记录头信息 里的 record_type 不同</code>，还有个不同点(可参考 <a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/">5.2 回顾: 行格式 之 记录头信息 的秘密</a>) :<br>我们之前在唠叨记录头信息时提到过一个叫 <code>min_rec_mask</code>的，只有在存储目录项记录的⻚中的主键值最小的目录项记录的min_rec_mask值为1，其他别的记录的min_rec_mask值都是0。</p><p>除了上述几点外，这两者就没啥差别了，它们用的是一样的<code>数据⻚</code>。⻚的组成结构也是一样一样的。</p></blockquote><h1 id="只有单个存储目录项记录的数据⻚时的查找"><a href="#只有单个存储目录项记录的数据⻚时的查找" class="headerlink" title="只有单个存储目录项记录的数据⻚时的查找"></a>只有单个<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote><p>现在以查找主键为20的记录为例，查找记录的步骤就可以大致拆分成下边两步:</p><ol><li>先到<code>存储目录项记录的数据⻚</code>(也就是⻚30)中，<code>通过二分法快速定位到对应目录项</code> (因为12 &lt; 20 &lt; 209，所以定位到对应的记录所在的⻚就是⻚9)；</li><li>再到存储用户记录的⻚9中定位到主键值为20的用户记录。(之前多次提到的页内查找方法：O(log n) + O(1))</li></ol></blockquote><h1 id="大量存储目录项记录的数据⻚时的查找"><a href="#大量存储目录项记录的数据⻚时的查找" class="headerlink" title="大量存储目录项记录的数据⻚时的查找"></a>大量<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote><p>虽然说目录项记录中只存储主键值和对应的⻚号，比用户记录需要的存储空间小多了，但是不论怎么说一个⻚只有16KB大小，能存放的目录项记录也是有限的，如果表中的数据太多，以至于一个数据⻚不足以存放所有的目录项记录，该咋办呢?<br>当然是<code>再多整一个存储目录项记录的⻚喽</code>~</p><p>为了大家更好的理解新分配一个<code>目录项记录⻚</code>的过程，我们假设一个存储目录项记录的⻚最多只能存放4条目录项记录，所以如果此时我们再向上图中插入一条主键值为320的用户记录的话，那就需要分配一个新的存储目录项记录的⻚喽:<br><img src="/images/MySQL/6.2/2.jpg"><br>从图中可以看出，我们插入了一条主键值为320的用户记录之后需要两个新的数据⻚:</p><ul><li>为存储该用户记录而新生成了⻚31。</li><li>因为原先<code>存储目录项记录</code>的⻚30的容量已满(我们前边假设只能存储4条目录项记录)，所以不得不需要一个新的⻚32来存放⻚31对应的目录项。</li></ul></blockquote><blockquote><p>现在因为<code>存储目录项记录的⻚不止一个</code>，所以如果我们想根据主键值查找一条用户记录大致需要3个步骤，以查找主键值为20的记录为例:</p><ol><li>确定目录项记录⻚<br>  我们现在的存储目录项记录的⻚有两个，即⻚30和⻚32，又因为⻚30表示的目录项的主键值的范围是[1, 320)，⻚32表示的目录项的主键值不小于320，所以主键值为20的记录对应的目录项记录在⻚30中。</li><li>在一个存储目录项记录的⻚中通过主键值定位一条目录项记录的方式说过了，不赘述了~</li><li>在真实存储用户记录的⻚中定位到具体的记录。 也多次提过了，不赘述了~</li></ol></blockquote><h1 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h1><blockquote><p>那么问题又来了:<br>在这个查询步骤的第1步中我们需要定位 <code>存储目录项记录的⻚</code>，但是这些⻚在存储空间中也可能不挨着，如果我们表中的数据非常多则会产生很多存储目录项记录的⻚，那我们怎么根据主键值快速定位一个存储目录项记录的⻚呢?<br>其实也简单， <strong><code>为这些存储目录项记录的⻚再生成一个更高级的目录</code></strong> ，所以现在各个⻚的 示意图就是这样子:<br><img src="/images/MySQL/6.2/3.jpg"><br>如图，我们生成了一个存储更高级目录项的⻚33，这个⻚中的两条记录分别代表⻚30和⻚32，如果用户记录的主键值在[1, 320)之间，则到⻚30中查找更详细的目录项记录，如果主键值不小于320的话，就到⻚32中查找更详细的目录项记录。</p></blockquote><blockquote><p>不过，随着表中记录的增加，这个目录的层级会继续增加，如果简化一下，<br><img src="/images/MySQL/6.2/4.jpg"><br>这玩意儿就像一个倒过来的树，上头是树根，下头是树叶! 这种组织数据的形式，或者说是一种数据结构，它的名称是<code>B+树</code>。</p><p>不论是<code>存放用户记录的数据⻚</code>，还是<code>存放目录项记录的数据⻚</code>，我们都把它们存放到B+树这个数据结构中了，所以我们也称这些数据⻚为<code>节点</code>。<br>从图中可以看出来，我们的<code>实际用户记录其实都存放在B+树的最底层的节点上</code>，这些节点也被称为<code>叶子节点</code>或叶节点，其余用来<code>存放目录项记录的节点</code>称为<code>非叶子节点</code>或者内节点，其中B+树最上边的那个节点也称为<code>根节点</code>。</p><p>从图中可以看出来，一个B+树的节点其实可以分成好多层，设计InnoDB的大叔们为了讨论方便，规定最下边的那层，也就是存放我们用户记录的那层为第0层，之后依次往上加。</p></blockquote><blockquote><p>之前的讨论我们做了一个非常极端的假设:存放用户记录的⻚最多存放3条记录，存放目录项记录的⻚最多存放4条记录。其实真实环境中一个⻚存放的记录数量是非常大的</p><p>假设，假设，假设所有存放用户记录的叶子节点代表的数据⻚可以存放100条用户记录，所有存放目录项记录的内节点代表的数据⻚可以存放1000条目录项记录，那么:</p><ul><li>如果B+树只有1层，也就是只有1个用于存放用户记录的节点，最多能存放100条记录。</li><li>如果B+树有2层，最多能存放1000×100&#x3D;100000条记录。</li><li>如果B+树有3层，最多能存放1000×1000×100&#x3D;100000000 条记录。</li><li>如果B+树有4层，最多能存放1000×1000×1000×100&#x3D;100000000000条记录。</li></ul><p>你的表里能存放100000000000条记录么?<br>所以<code>一般情况下，我们用到的B+树都不会超过4层</code>，那我们通过主键值去查找某条记录最多只需要做4个⻚面内的查找(查找<code>3个目录项⻚</code>和<code>1个用户记录⻚</code>)，又因为在每个⻚面内有所谓的<code>Page Directory(⻚目录)</code>，所以在⻚面内也可以通过二分法实现快速定位记录，这不是很牛么，哈哈!</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;普通用户记录-vs-目录项记录&quot;&gt;&lt;a href=&quot;#普通用户记录-vs-目录项记录&quot; class=&quot;headerlink&quot; title=&quot;普通用户记录 vs 目录项记录&quot;&gt;&lt;/a&gt;&lt;code&gt;普通用户记录&lt;/code&gt; vs &lt;code&gt;目录项记录&lt;/code&gt;</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)</title>
+    <link href="http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/"/>
+    <id>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/</id>
+    <published>2021-10-04T12:17:57.000Z</published>
+    <updated>2024-04-15T06:58:14.176Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Demo表"><a href="#Demo表" class="headerlink" title="Demo表"></a>Demo表</h1><blockquote><p>为了故事的顺利发展，我们先建一个表:<br><code>mysql&gt; CREATE TABLE index_demo( c1 INT,</code><br><code>-&gt; c2 INT,</code><br><code>-&gt; c3 CHAR(1),</code><br><code>-&gt; PRIMARY KEY(c1)</code><br><code>-&gt; ) ROW_FORMAT = Compact;</code><br><code>-&gt; Query OK, 0 rows affected (0.03 sec)</code></p><p>这个新建的index_demo表中有2个INT类型的列，1个CHAR(1)类型的列，而且我们规定了c1列为主键。</p><p>这个表是使用Compact行格式来实际存储记录的。<br>为了我们理解上的方便，我们简化了一下 index_demo表 的行格式示意图:<br><img src="/images/MySQL/6.1/1.jpg"></p><ul><li><code>record_type</code>: <code>记录头信息</code>的一个属性，表示记录的类型：0 表示普通记录、2表示最小记录、3表示最大记录、1我们还没用过，等会再说~</li><li><code>next_record</code>: <code>记录头信息</code>的一个属性，表示下一条地址相对于本条记录的地址偏移量，为了方便大家理解，我们都会用箭头来表明下一条记录是谁。</li><li>各个列的值: 这里只记录在index_demo表中的三个列，分别是c1、c2和c3。</li><li>其他信息:除了上述3种信息以外的所有信息，包括其他隐藏列的值以及记录的额外信息。</li></ul><p>我们之后的示意图中会把  记录的其他信息 这个部分省略掉，因为它占地方并且不会有什么观赏效果:<br><img src="/images/MySQL/6.1/2.jpg"></p></blockquote><blockquote><p>把一些记录放到⻚里边的示意图就是:<br><img src="/images/MySQL/6.1/3.jpg"></p></blockquote><h1 id="一个简单的索引方案"><a href="#一个简单的索引方案" class="headerlink" title="一个简单的索引方案"></a>一个简单的索引方案</h1><blockquote><p>现在我们已经知道，当我们根据某个搜索条件查找一些记录时，首先<code>需要遍历所有的数据⻚ O(n)</code>，然后再在每个数据页内利用 <code>pagedirectory二分法定位槽 O(logn)</code> + <code>组内遍历单链表 O(1)</code> 进行记录的匹配。</p><p>所以…   效率问题目前是出在第一步，也就是在所有数据页中快速定位我们需要的页。<br>还记得我们 <code>通过主键</code> 在 <code>页内查找</code> 时为了快速定位一条记录在⻚中的位置而设立的 <code>⻚目录</code> 么?<br>我们也可以想办法为快速定位记录所在的 <code>数据⻚</code> 而建立一个别的<code>目录</code>，不过，要建这个目录必须完成下边的事儿；</p></blockquote><h2 id="数据页可以像页内记录那样也按主键顺序排列"><a href="#数据页可以像页内记录那样也按主键顺序排列" class="headerlink" title="数据页可以像页内记录那样也按主键顺序排列"></a><code>数据页</code>可以像<code>页内记录</code>那样也按主键顺序排列</h2><p><strong>下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。</strong></p><blockquote><p><strong><code>页分裂</code>问题：</strong> 😱</p><p>为了故事的顺利发展，我们这里需要做一个假设: 假设我们的每个数据⻚最多能存放3条记录(实际上一个数据⻚非常大，可以存放下好多记录)。</p><p>有了这个假设之后，如果我们向index_demo表插入4条记录，因为⻚10最多只能放3条记录，所以我们不得不再分配一个新⻚:<br><img src="/images/MySQL/6.1/4.jpg"><br>你可以看到，新分配的数据页的页号并不是11，而是28<br><code>这是因为我们使用的这些⻚在存储空间里可能并不挨着</code>。它们只是通过维护着上一个⻚和下一个⻚的编号而建立了<code>链表关系</code>。<br>另外，⻚10中用户记录最大的主键值是5，而⻚28中有一条记录的主键值是4，因为5 &gt; 4，所以<code>不符合下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值的要求</code>，**<code>所以在插入主键值为4的记录时需要伴随着一次记录移动</code>**，也就是把主键值为5的记录移动到⻚28中，然后再把主键值为4的记录插入到⻚10中，这个过程的示意图如下:<br><img src="/images/MySQL/6.1/5.jpg"></p></blockquote><blockquote><p>这个过程表明了在对⻚中的记录进行增删改操作的过程中， <strong><code>我们必须通过一些诸如 记录移动的操作 来始终保证这个状态一直成立</code></strong> : 下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。<br>这个过程我们也可以称为 **<code>⻚分裂</code>**。<br>(lant:所以，所以这也说明了，主键为什么我们一般设置自增的，最好不要乱动主键，因为如果要保证“下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值”的要求，逐渐最好自增，不然就会经常出现页分裂，这显然是个低效的动作。即便要删除记录，我们最好也是给记录标记一个删除状态即可。)</p></blockquote><h2 id="数据页也可以像页内记录那样也有一个-Page-Directory-页目录"><a href="#数据页也可以像页内记录那样也有一个-Page-Directory-页目录" class="headerlink" title="数据页也可以像页内记录那样也有一个 Page Directory 页目录"></a><code>数据页</code>也可以像<code>页内记录</code>那样也有一个 <code>Page Directory 页目录</code></h2><blockquote><p>由于数据⻚的编号可能并不是连续的，所以在向index_demo 表中插入许多条记录后，可能是这样的效果:<br><img src="/images/MySQL/6.1/6.jpg"></p></blockquote><blockquote><p>如果想从更大量的⻚中根据主键值快速定位某些记录所在的⻚，我们也可以<code>给这些页做个目录</code>，每个⻚对应一个目录项，每个<code>目录项</code>包括下边两个部分:</p><ul><li>⻚的用户记录中最小的主键值，我们用key来表示。</li><li>⻚号，我们用page_no表示。<br>所以我们为上边几个⻚做好的目录就像这样子:<br><img src="/images/MySQL/6.1/7.jpg"></li></ul></blockquote><blockquote><p>以⻚28为例，它对应目录项2，这个目录项中包含着该⻚的⻚号28以及该⻚中用户记录的最小主键值5。<br>比方说我们想找主键值为20的记录，具体查找过程分两步:</p><ul><li>先从目录项中根据二分法快速确定出主键值为20的记录在目录项3中，它对应的⻚是 ⻚9。</li><li>再根据前边说的在⻚中查找记录的方式去⻚9中定位具体的记录。</li></ul></blockquote><blockquote><p>由一个个的<code>目录项</code>组成的类似书籍中的<code>简易目录</code>，其实就是索引的雏形</p></blockquote><p>至此，针对数据⻚做的<code>简易目录</code>就搞定了。不过忘了说了，这个目录有一个别名，称为<code>索引</code>。</p><p>所以：<br>上一篇讲的，<code>数据页内，为许多记录设计的目录，叫 页目录</code>；<br>本篇讲的，<code>为许多数据页设计的目录，叫 索引</code>；</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;Demo表&quot;&gt;&lt;a href=&quot;#Demo表&quot; class=&quot;headerlink&quot; title=&quot;Demo表&quot;&gt;&lt;/a&gt;Demo表&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;为了故事的顺利发展，我们先建一个表:&lt;br&gt;&lt;code&gt;mysql&amp;gt; CREATE </summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>6.0 没有索引时，如何查找数据？</title>
+    <link href="http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/"/>
+    <id>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/</id>
+    <published>2021-10-04T11:53:21.000Z</published>
+    <updated>2024-04-15T06:52:15.976Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="没有索引的查找"><a href="#没有索引的查找" class="headerlink" title="没有索引的查找"></a>没有索引的查找</h1><p>本集的主题是<code>索引</code>，在正式介绍<code>索引</code>之前，我们需要了解一下没有索引时是怎么查找记录的。为了方便理解，下边先只唠叨搜索条件为对某个列精确匹配的情况，如：<code>SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;</code></p><h2 id="在单个数据页中的查找"><a href="#在单个数据页中的查找" class="headerlink" title="在单个数据页中的查找"></a>在<code>单个数据页</code>中的查找</h2><blockquote><p>假设目前表中的记录比较少，所有的记录都可以被存放到一个⻚中。在查找记录的时候可以根据搜索条件的不同分为两种情况:</p><ul><li>以<code>主键</code>为搜索条件 (😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)<br>可参考 <a href="https://app.yinxiang.com/shard/s69/nl/50006762/4bed2a5d-ea50-4c85-80fb-f2e9613bb6c6/">5. 7 前情回顾: 数据页、目录页、槽、(页内)分组、记录</a></li><li>以<code>其他列</code>作为搜索条件 (😭 <code>O(n)</code>)<br>对非主键列的查找的过程可就不这么幸运了，因为在<code>数据⻚中并没有对非主键列建立所谓的⻚目录</code>，所以我们<code>无法通过二分法快速定位相应的槽</code>。<br><code>这种情况下只能从最小记录开始依次遍历单链表中的每条记录，然后对比每条记录是不是符合搜索条件</code>。很显然，<code>这种查找的效率是非常低的</code>。</li></ul></blockquote><p><strong>所以结论就是：在单个数据页内</strong></p><ul><li><code>主键查找</code>可以使用 “二分找槽 + 页内遍历”；(😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)</li><li><code>非主键查找</code>还无法做到快速查找；(😭 <code>O(n)</code>)</li></ul><h2 id="在很多⻚中查找"><a href="#在很多⻚中查找" class="headerlink" title="在很多⻚中查找"></a>在很多⻚中查找</h2><blockquote><p>大部分情况下我们表中存放的记录都是非常多的，<code>需要好多的 数据⻚</code> 来存储这些记录。<br>在很多⻚中查找记录的话可以分为两个步骤:</p><ol><li>定位到记录所在的⻚；</li><li><code>⻚内查找</code>； (这个前面已经多次提过了)</li></ol></blockquote><blockquote><p><strong>现在问题就是第1步了，<code>如何定位记录所在的页?</code></strong><br>由于目前我们还没有讲什么方法去快速的定位到记录所在的⻚，<code>所以只能从第一个⻚沿着双向链表一直往下找</code>; 这种遍历所有数据⻚的方式显然是超级耗时的，如果一个表有一亿条记录，使用这种方式去查找记录那要等到猴年⻢月才能等到查找结果。（<code>定位页的操作，时间复杂度此时成了 O(n)</code>，显然很低效 ）<br>所以祖国和人⺠都在期盼一种能高效完成搜索的方法，<code>索引同志</code>就要亮相登台了。</p></blockquote><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>lant: 所以…… 到了这里，我们应该清楚：</p><ul><li><code>索引 这个方案</code> 是为了：当数据量很大时(InnoDB会用到大量的数据页)，在 <code>大量的 数据页</code> 中高效定位到 <code>某个数据页</code>；</li><li><code>Page Directory</code>、<code>槽</code>(对应<code>分组</code>) 是为了：在<code>页内</code>高效定位到某行记录（<code>在页的目录页中通过二分法定位槽(页内分组)</code> + <code>分组内遍历</code>）。</li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;没有索引的查找&quot;&gt;&lt;a href=&quot;#没有索引的查找&quot; class=&quot;headerlink&quot; title=&quot;没有索引的查找&quot;&gt;&lt;/a&gt;没有索引的查找&lt;/h1&gt;&lt;p&gt;本集的主题是&lt;code&gt;索引&lt;/code&gt;，在正式介绍&lt;code&gt;索引&lt;/code&gt;之前，我们需要了</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.7 前情回顾 数据页、目录页、槽、(页内)分组、记录</title>
+    <link href="http://rymuscle.github.io/2021/10/02/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/"/>
+    <id>http://rymuscle.github.io/2021/10/02/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/</id>
+    <published>2021-10-02T02:21:43.000Z</published>
+    <updated>2024-04-15T06:51:10.551Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系"><a href="#前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系" class="headerlink" title="前情回顾: 数据页、目录页、槽、(页内)分组、记录 之间的关系"></a>前情回顾: <code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系</h1><blockquote><p>前边我们详细唠叨了InnoDB数据⻚的7个组成部分，知道了:</p><ul><li>各个<code>数据⻚</code> 可能在物理结构上并不相连，而是通过<code>双向链表</code>相关联；</li><li>而<code>每个数据⻚中的记录会按照主键值从小到大的顺序组成一个单向链表</code>；<br>  <img src="/images/MySQL/5.7/1.jpg"></li></ul></blockquote><p><strong><code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系 回顾:</strong></p><ul><li>每个<code>数据页</code>内的记录，会被分成一个个的<code>(页内)分组</code>；</li><li>每个<code>分组</code>中的记录也都是按照主键值从小到大由单链表串联起来的(页内记录本来就是这样串联的)；</li><li>每个<code>分组</code>中的最大记录的<code>地址偏移量</code>被叫做<code>槽</code> （由于槽就是分组中最大那条记录的地址偏移量，所以<code>槽其实也就指向(代表)了对应分组中的最大那条记录的主键值</code>）；</li><li>每个<code>分组</code>对应的<code>槽</code>都被放到了页内一个叫<code>页目录</code>的地方；</li></ul><blockquote><p><strong><code>在某个页中</code></strong> 通过主键查找某条记录的时候:</p><ul><li>可以先在<code>⻚目录</code>中使用二分法快速定位到对应的<code>槽</code> (<code>O(log n)</code>)</li><li>然后再遍历该<code>槽</code>对应<code>分组</code>中的记录，即可快速找到指定的记录(<code>O(1)</code>)。</li></ul></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系&quot;&gt;&lt;a href=&quot;#前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系&quot; class=&quot;headerlink&quot; title=&quot;前情回顾: 数据页、目录页、槽、(页内)分组、记录 之间的关系&quot;</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.6 `通用页`结构 之 File Trailer(文件尾)部分</title>
+    <link href="http://rymuscle.github.io/2021/09/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/"/>
+    <id>http://rymuscle.github.io/2021/09/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/</id>
+    <published>2021-09-29T13:37:31.000Z</published>
+    <updated>2024-04-15T06:48:50.915Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="通用页结构-之-File-Trailer-文件尾-部分"><a href="#通用页结构-之-File-Trailer-文件尾-部分" class="headerlink" title="通用页结构 之 File Trailer(文件尾)部分"></a><code>通用页</code>结构 之 <code>File Trailer</code>(文件尾)部分</h1><blockquote><p><code>File Trailer(文件尾)</code> 部分和 <code>File Header</code> 部分 一样，都是所有类型的⻚通用的。</p></blockquote><blockquote><p>我们知道InnoDB存储引擎会把数据存储到磁盘上，但是磁盘速度太慢，需要以⻚为单位把数据加载到内存中处理，如果该⻚中的数据在内存中被修改了，那么在修改后的某个时间需要把数据同步到磁盘中。**<code>但是在同步了一半的时候中断电了咋办，这不是莫名尴尬么?</code>**</p></blockquote><blockquote><p>为了检测一个⻚是否完整(也就是<code>在同步的时候有没有发生只同步一半的尴尬情况</code>)，设计InnoDB的大叔们在每个⻚的尾部都加了一个<code>File Trailer</code>部分，这个部分由8个字节组成，可以分成2个小部分:</p><ul><li>**前4个字节代表<code>⻚的校验和</code>**：<br>这个部分是和 <code>File Header</code> 中的校验和相对应的。<br>每当一个⻚在内存中修改了，在同步之前就要把它的校验和算出来，因为File Header在⻚面的前边，所以校验和会被首先同步到磁盘，当完全写完时，校验和也会被写到⻚的尾部，<code>如果完全同步成功，则⻚的首部和尾部的校验和应该是一致的</code>。<code>如果写了一半儿断电了，那么在File Header中的校验和就代表着已经修改过的⻚，而在File Trialer中的校验和代表着原先的⻚，二者不同则意味着同步中间出了错</code>。</li><li>后4个字节代表⻚面被最后修改时对应的日志序列位置(LSN)<br>这个部分也是为了校验⻚的完整性的，只不过我们目前还没说LSN是个什么意思，所以大家可以先不用管这个属性。 这个File Trailer与FILE Header类似，都是所有类型的⻚通用的。</li></ul></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;通用页结构-之-File-Trailer-文件尾-部分&quot;&gt;&lt;a href=&quot;#通用页结构-之-File-Trailer-文件尾-部分&quot; class=&quot;headerlink&quot; title=&quot;通用页结构 之 File Trailer(文件尾)部分&quot;&gt;&lt;/a&gt;&lt;code</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.5 `通用页`结构 之 File Header(文件头)部分</title>
+    <link href="http://rymuscle.github.io/2021/09/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/"/>
+    <id>http://rymuscle.github.io/2021/09/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/</id>
+    <published>2021-09-28T14:07:14.000Z</published>
+    <updated>2024-04-15T06:39:42.212Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="通用页结构-之-File-Header-文件头-部分"><a href="#通用页结构-之-File-Header-文件头-部分" class="headerlink" title="通用页结构 之 File Header(文件头)部分"></a><code>通用页</code>结构 之 <code>File Header</code>(文件头)部分</h1><blockquote><p>上一篇讲的 数据页结构的<code>Page Header</code>部分 是 <code>专⻔针对</code> 页类型为 <code>数据⻚</code> 的这种页。 它的各个属性描述了 <code>数据页</code> 中的<code>记录的各种状态信息</code>，比方说⻚里头有多少个记录了呀，有多少个槽了呀。</p></blockquote><blockquote><p>而我们现在讲到的 页结构的<code>File Header部分</code> 是属于各种类型的⻚都<code>通用</code>的部分，它描述了一些针对各种⻚都通用的一些信息，比方说 <code>这个⻚的编号是多少</code>，<code>它的上一个⻚、下一个⻚是谁</code> ……<br>这个部分占用固定的38个字节，是由下边这些内容组成的:</p><table><thead><tr><th>名称</th><th>占用空间</th><th>描述</th></tr></thead><tbody><tr><td>📌 <strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code></strong></td><td>4字节</td><td><strong><code>页的校验和(checksum值)</code></strong></td></tr><tr><td>✅ FIL_PAGE_OFFSET</td><td>4字节</td><td>页号</td></tr><tr><td>✅ <strong><code>FIL_PAGE_PREV</code></strong></td><td>4字节</td><td><code>上一个页的页号</code></td></tr><tr><td>✅ <strong><code>FIL_PAGE_NEXT</code></strong></td><td>4字节</td><td><code>下一个页的页号</code></td></tr><tr><td>FIL_PAGE_LSN</td><td>8字节</td><td>页面被最后修改时对应的日志序列(LSN)位置(log sequence number)</td></tr><tr><td>✅ <strong><code>FIL_PAGE_TYPE</code></strong></td><td>2字节</td><td><code>该⻚的类型</code></td></tr><tr><td>FIL_PAGE_FILE_FLUSH_LSN</td><td>8字节</td><td>仅在系统表空间的一个⻚中定义，代表文件至少被刷新到了对应的LSN值</td></tr><tr><td>FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID</td><td>4字</td><td>⻚属于哪个表空间</td></tr></tbody></table></blockquote><blockquote><p>对照着这个表格，我们看几个目前比较重要的部分:<br><strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code>:</strong><br>这个属性代表当前⻚面的<code>校验和(checksum)</code>。啥是<code>校验和</code>?<br>就是对于一个很⻓很⻓的字节串来说，我们会通过某种算法计算出一个比较短的值来代表这个很⻓的字节串，这个比较短的值就称为<code>校验和</code>。**<code>这样在比较两个很⻓的字节串之前先比较这两个⻓字节串的校验和，如果校验和都不一样两个⻓字节串肯定是不同的，所以省去了直接比较两个比较⻓的字节串的时间损耗</code>**。</p></blockquote><blockquote><p><strong><code>FIL_PAGE_OFFSET</code>:</strong><br>每一个⻚都有一个单独的⻚号，InnoDB通过⻚号来可以唯一定位一个⻚。</p></blockquote><blockquote><p><strong><code>FIL_PAGE_TYPE</code>:</strong><br>这个代表当前⻚的类型，我们前边说过，InnoDB为了不同的目的而把⻚分为不同的类型，<code>我们上边介绍的其实都是存储记录的数据⻚</code>，其实还有很多别的类型的⻚。<br>(我们存放记录的数据⻚的类型其实是<code>FIL_PAGE_INDEX</code>，也就是所谓的<code>索引⻚</code>。至于啥是个索引，且听下回分解~)</p></blockquote><blockquote><p><strong><code>FIL_PAGE_PREV</code></strong> 和 <strong><code>FIL_PAGE_NEXT</code></strong>:<br>我们前边强调过，<code>InnoDB是以⻚为单位存放数据的</code>，有时候我们存放的数据占用的空间非常大(比如一张表中可以有成千上万条记录)，InnoDB可能不可以一次性为这么多数据分配一个非常大的存储空间，<code>如果分散到多个不连续的⻚中存储的话需要把这些⻚关联起来</code>，FIL_PAGE_PREV和 FIL_PAGE_NEXT就分别代表本⻚的上一个和下一个⻚的⻚号。这样**<code>通过建立一个双向链表把许许多多的⻚就都串联起来 了</code>**，而无需这些⻚在物理上真正连着。(Tips: 也不是所有类型的⻚都有上一个和下一个⻚的属性，不过我们本集中唠叨的数据⻚(也就是类型为FIL_PAGE_INDEX的⻚)是有这两个属性的）。<br>所以所有的数据⻚其实是一个双链表，就像这样:<br><img src="/images/MySQL/5.5/1.jpg"></p></blockquote><p>关于File Header的其他属性我们暂时用不到，等用到的时候再提~</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;通用页结构-之-File-Header-文件头-部分&quot;&gt;&lt;a href=&quot;#通用页结构-之-File-Header-文件头-部分&quot; class=&quot;headerlink&quot; title=&quot;通用页结构 之 File Header(文件头)部分&quot;&gt;&lt;/a&gt;&lt;code&gt;通用</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.4 `数据页`结构 之 Page Header(页面头部)部分</title>
+    <link href="http://rymuscle.github.io/2021/09/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/"/>
+    <id>http://rymuscle.github.io/2021/09/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/</id>
+    <published>2021-09-26T13:46:53.000Z</published>
+    <updated>2024-04-15T06:45:42.340Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="数据页结构-之-Page-Header-页面头部-部分"><a href="#数据页结构-之-Page-Header-页面头部-部分" class="headerlink" title="数据页结构 之 Page Header(页面头部)部分"></a><code>数据页</code>结构 之 <code>Page Header</code>(页面头部)部分</h1><blockquote><p>设计InnoDB的大叔们为了能得到某个<code>数据⻚中存储的记录的状态信息</code>，比如 <code>本⻚中已经存储了多少条记录</code>、<code>第一条记录的地址是什么</code>、<code>⻚目录中存储了多少个槽</code>(通过<code>页目录</code>中的<code>槽</code>的数量，其实也就能知道本页面被分出了多少个分组) 等信息……。大叔们特意在⻚中定义了一个叫 <code>Page Header的部分</code>，页结构的这个部分占用固定的56个字节，通过多个属性专⻔来存储各种状态信息:</p><table><thead><tr><th>名称</th><th>占用空间</th><th>描述</th></tr></thead><tbody><tr><td>✅ <code>PAGE_N_DIR_SLOTS</code></td><td>2字节</td><td><code>页目录</code>中<code>槽</code>的数量</td></tr><tr><td>✅ PAGE_HEAP_TOP</td><td>2字节</td><td>还未使用空间的起始地址，你自然能明白，该地址之后就是 <code>页结构的 Free Space 部分</code>了</td></tr><tr><td>✅ <code>PAGE_N_HEAP</code></td><td>2字节</td><td>本⻚中的记录数量(包括最小和最大记录以及标记为删除的记录)</td></tr><tr><td>✅ PAGE_FREE</td><td>2字节</td><td>第一个已经标记为删除的记录地址(各个已删除的记录通过next_record也会组成一个单链表)</td></tr><tr><td>✅ PAGE_GARBAGE</td><td>2字节</td><td>已删除记录占用的字节数</td></tr><tr><td>✅ PAGE_LAST_INSERT</td><td>2字节</td><td>最后插入记录的位置</td></tr><tr><td>PAGE_DIRECTION</td><td>2字节</td><td>记录插入的方向</td></tr><tr><td>PAGE_N_DIRECTION</td><td>2字节</td><td>一个方向连续插入的记录数量</td></tr><tr><td>✅ <strong><code>PAGE_N_RECS</code></strong></td><td>2字节</td><td><code>本⻚中的记录数量(不包括最小和最大记录以及被标记为删除的记录)</code></td></tr><tr><td><code>PAGE_MAX_TRX_ID</code></td><td>8字节</td><td>修改当前⻚的最大事务ID，该值仅在二级索引中定义</td></tr><tr><td>📌 <strong><code>PAGE_LEVEL</code></strong></td><td>2字节</td><td><strong><code>当前⻚在B+树中所处的层级</code></strong></td></tr><tr><td><code>PAGE_INDEX_ID</code></td><td>8字节</td><td>索引ID，表示当前页属于哪个索引</td></tr><tr><td>PAGE_BTR_SEG_LEAF</td><td>10字节</td><td>B+树叶子节点段的头部信息，尽在B+树的Root页定义</td></tr><tr><td>PAGE_BTR_SEG_TOP</td><td>10字节</td><td>B+树非叶子节点段的头部信息，尽在B+树的Root页定义</td></tr><tr><td>如果大家认真看过前边的文章，从 <code>PAGE_N_DIR_SLOTS</code> 到 <code>PAGE_LAST_INSERT</code> 以及 <code>PAGE_N_RECS</code> 的意思大家一定是清楚的。⚠️ 如果不清楚，对不起，你应该回头再看一遍前边的文章。⚠️</td><td></td><td></td></tr><tr><td>剩下的状态信息看不明白不要着急，饭要一口一口吃，东⻄要一点一点学 (一定要稍安勿躁哦，不要被这些名词吓到)。</td><td></td><td></td></tr></tbody></table></blockquote><blockquote><p>接下来我们先唠叨一下 <code>PAGE_DIRECTION</code> 和 <code>PAGE_N_DIRECTION</code> 的意思:</p><ul><li><code>PAGE_DIRECTION</code>:<br>假如新插入的一条记录的主键值比上一条记录的主键值大，我们说这条记录的插入方向是右边，反之则是左边。用来表示最后一条记录插入方向的状态就<code>PAGE_DIRECTION</code>。</li><li><code>PAGE_N_DIRECTION</code>:<br>假设连续几次插入新记录的方向都是一致的，InnoDB会把沿着同一个方向插入记录的条数记下来，这个条数就用 <code>PAGE_N_DIRECTION</code> 这个状态表示。当然，如果最后一条记录的插入方向改变了的话，这个状态的值会被清零重新统计。(🤔TODO :目前是能读懂意思，至于用途嘛…暂时还不明白)</li></ul></blockquote><p>至于上面还没提到的那些状态属性，现在大家还不需要知道。不要着急，当我们学完了后边的内容，你再回头看，一切都是那么清晰。</p>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;数据页结构-之-Page-Header-页面头部-部分&quot;&gt;&lt;a href=&quot;#数据页结构-之-Page-Header-页面头部-部分&quot; class=&quot;headerlink&quot; title=&quot;数据页结构 之 Page Header(页面头部)部分&quot;&gt;&lt;/a&gt;&lt;code</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.3 `数据页`结构 之 Page Directory(⻚目录) 部分</title>
+    <link href="http://rymuscle.github.io/2021/09/25/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/"/>
+    <id>http://rymuscle.github.io/2021/09/25/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/</id>
+    <published>2021-09-25T06:36:09.000Z</published>
+    <updated>2024-04-15T06:44:21.625Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="数据页结构-之-Page-Directory-⻚目录-部分"><a href="#数据页结构-之-Page-Directory-⻚目录-部分" class="headerlink" title="数据页结构 之 Page Directory&#96;(⻚目录) 部分"></a>数据页<code>结构 之 </code>Page Directory&#96;(⻚目录) 部分</h1><h1 id="单链表存储数据记录的低效问题"><a href="#单链表存储数据记录的低效问题" class="headerlink" title="单链表存储数据记录的低效问题"></a>单链表存储数据记录的低效问题</h1><p>现在我们已经知道， <strong><code>记录在⻚中是按照主键值由小到大顺序串联成一个单链表放在 UserRecords 部分的</code></strong> 。</p><p>那如果我们想根据主键值查找⻚中的某条记录该咋办?</p><blockquote><p>最笨的办法: 从 Infimum记录(最小记录)开始，沿着链表一直往后找，总有一天会找到(或者找不到)，在找的时候还能投机取巧，因为链表中各个记录的值是按照从小到大顺序排列的，所以当链表的某个节点代表的记录的主键值大于你想要查找的主键值时，你就可以停止查找了。</p><p>这个方法在⻚中存储的记录数量比较少的情况用起来也没啥问题，但是如果一个⻚中存储了非常多的记录，这么查找对性能来说还是有损耗的，所以我们说这种遍历查找这是一个笨办法。（ 时间复杂度很显然是 <code>O(n)</code> ）</p></blockquote><h1 id="索引页结构-之-Page-Directory"><a href="#索引页结构-之-Page-Directory" class="headerlink" title="索引页结构 之 Page Directory"></a>索引页结构 之 Page Directory</h1><blockquote><p>设计InnoDB的大叔们自然不会用上面那种笨办法，他们从现实中的书籍目录中找到了灵感。他们为我们的记录也制作了一个类似的目录，他们的制作过程是这样的:</p><ul><li>将所有正常的记录(包括页内的最大和最小记录，不包括标记为已删除的记录) <strong><code>划分为几个组</code></strong> ；</li><li><strong>每个组的最后一条记录(也就是组内最大的那条记录)的头信息中的<code>n_owned属性</code>表示该组内共有几条记录</strong>；</li><li>将每个组内<code>最后一条记录的地址偏移量单独提取出来并且还按主键顺序存储到靠近⻚的尾部的地方</code>，这个地方就是所谓的 <code>Page Directory</code>，也就是<code>⻚目录</code>。⻚目录中的这些地址偏移量被称为<code>槽</code>(英文 名:Slot)，所以这个<code>⻚目录就是由槽组成的</code>。</li></ul></blockquote><blockquote><p>比方说现在的page_demo表中正常的记录共有6条，InnoDB会把它们分成两组，第一组中只有一个最小记录，第二组中是剩余的5条记录，看下边的示意图:<br><img src="/images/MySQL/5.3/1.jpg"><br><code>现在⻚目录部分中有两个槽，也就意味着我们的记录被分成了两个组</code>:<br>槽1中的值是112，代表最大记录(组内最后一条记录)的地址偏移量(就是从⻚面的0字节开始数，数112个字节);<br>槽0中的值是99，代表最小记录(组内最后一条记录)的地址偏移量。</p></blockquote><blockquote><p>注意上面两个分组中最后一条记录的头信息中的 <code>n_owned</code> 属性：<br>在第一个分组中，只有<code>最小记录</code>这一条记录，它的<code>记录头信息</code>的<code>n_owned</code>属性值为1，这就代表着<code>以最小记录结尾的这个分组中只有1条记录</code>；<br>在第二个分组中，最后一条记录(此处是<code>最大记录</code>)的n_owned值为5，这就代表着以最大记录结尾的这个分组中有5条记录。</p></blockquote><blockquote><p>99和112这样的地址偏移量很不直观，我们用箭头指向的方式替代数字，这样更易于我们理解，所以修改后的示意图就是这样:<br><img src="/images/MySQL/5.3/2.jpg"><br>不过上面的图看上去还是怪不好看的，我们就单纯从逻辑上对图做点改动:<br><img src="/images/MySQL/5.3/3.jpg"><br>这样看就顺眼多了。</p></blockquote><hr><blockquote><p>还有个问题，那就是为什么最小记录的n_owned值为1，而最大记录的n_owned值为5呢，这里头有什么猫腻么?<br>这是因为，设计InnoDB的大叔们对每个分组中的记录条数是有规定的:</p><ul><li>对于最小记录所在的分组只能有 1 条记录；</li><li>最大记录所在的分组拥有的记录条数只能在 1~8 条之间；</li><li>其他的分组中记录的条数范围只能在是 4~8 条之间。</li></ul><p>所以分组是按照下边的步骤进行的:</p><ul><li>初始情况下一个数据⻚里只有<code>最小记录</code>和<code>最大记录</code>两条记录，它们分属于两个分组。</li><li>之后每插入一条记录，都会从⻚目录中找到主键值比本记录的主键值大并且差值最小的槽（页目录中哪儿有主键值？页目录中不是 <code>每个分组的最后一条记录的偏移量 即 槽</code> 么？ <strong><code>这是因为从本质上来说，通过槽就可以直接找到某个组内最后一条记录的主键</code></strong> ），然后把该槽对应的记录的n_owned值加1，表示本组内又添加了一条记录，直到该组中的记录数等于8个。</li><li>在一个组中的记录数等于8个后再插入一条记录时，会将组中的记录拆分成两个组，一个组中4条记录，另一个5条记录。这个过程会在⻚目录中新增一个槽来记录这个新增分组中最大的那条记录的偏移量。<br>  <img src="/images/MySQL/5.3/4.jpg"></li></ul></blockquote><blockquote><p>由于现在page_demo表中的记录太少，无法演示添加了<code>⻚目录</code>之后加快查找速度的过程，所以我们一口气又往表中添加了12条记录，现在⻚里边就一共有18 条记录了(包括最小和最大记录)，这些记录被分成了5个组，如图 所示:<br><img src="/images/MySQL/5.3/5.jpg"><br>因为把16条记录的全部信息都画在一张图里太占地方，图中只保留了用户<code>记录头信息</code>中的<code>n_owned</code>和<code>next_record</code>属性，也省略了各个记录之间的箭头!</p></blockquote><hr><blockquote><p><strong>现在看怎么使用<code>⻚目录</code>来查找记录</strong><br>因为各个<code>槽</code>代表的是每个分组中最后一条记录的主键值，也就是说 <code>槽</code> 代表的主键当然也是从小到大排序的(分组内的记录不必多说，肯定是按照主键从小到大排序的)，<strong>所以我们可以在<code>页目录</code>中使用<code>二分法</code>快速定位我们要查找的记录的主键在哪个分组中</strong>。</p><p>4个槽的编号分别是:0、1、2、3、4，所以初始情况下最低的槽就是low&#x3D;0，最高的槽就是high&#x3D;4。<br>比方说我们想找主键值为6的记录，过程是这样的:</p><ul><li>计算中间槽的位置:(0+4)&#x2F;2&#x3D;2，所以查看槽2对应记录的主键值为8，又因为8 &gt; 6，所以设置high&#x3D;2，low保持不变。</li><li>重新计算中间槽的位置:(0+2)&#x2F;2&#x3D;1，所以查看槽1对应的主键值为4，又因为4 &lt; 6，所以设置low&#x3D;1，high保持不变。</li><li>因为high - low的值为1，所以确定主键值为5的记录在槽2对应的组中。</li></ul><p>此刻我们需要找到槽2中主键值最小的那条记录，然后沿着单向链表遍历槽2中的记录。<br>但是我们前边又说过，每个槽对应的记录都是该组中主键值最大的记录，这里槽2对应的记录是主键值为8的记录，怎么定位一个组中最小的记录呢?<br><code>别忘了各个槽都是挨着的，我们可以很轻易的拿到槽1对应的记录(主键值为4)</code>，<code>该条记录的下一条记录就是槽2中主键值最小的记录</code>，该记录的主键值为5。所以我们可以从这条主键值为5的记录出发，遍历槽2中的各条记录，直到找到主键值为6的那条记录即可。<code>由于一个组中包含的记录条数只能是1~8条，所以遍历一个组中的记录的代价是很小的</code>。</p></blockquote><hr><blockquote><p>所以在一个数据⻚中查找指定主键值的记录的过程分为两步:<br>**<code>通过二分法确定该记录所在的槽，并找到该槽中主键值最小的那条记录</code>**。(时间复杂度是 <code>O(log n)</code>)<br><strong><code>通过记录的 记录头信息中的next_record属性遍历该槽所在的组中的各个记录</code></strong> （<code>每个分组中的记录数比较少，属于常量级别，所以时间复杂度是 O(1)</code> ）。</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;数据页结构-之-Page-Directory-⻚目录-部分&quot;&gt;&lt;a href=&quot;#数据页结构-之-Page-Directory-⻚目录-部分&quot; class=&quot;headerlink&quot; title=&quot;数据页结构 之 Page Directory&amp;#96;(⻚目录) 部</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.2 回顾 行格式 之 记录头信息 的秘密</title>
+    <link href="http://rymuscle.github.io/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/"/>
+    <id>http://rymuscle.github.io/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/</id>
+    <published>2021-09-24T05:31:16.000Z</published>
+    <updated>2024-04-15T06:26:08.567Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>为了故事的顺利发展，我们先创建一个表:<br><code>mysql&gt; CREATE TABLE page_demo(</code><br>  <code>-&gt; c1 INT,</code><br>  <code>-&gt; c2 INT,</code><br>  <code>-&gt; c3 VARCHAR(10000),</code><br>  <code>-&gt; PRIMARY KEY (c1)</code><br>  <code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact; </code><br><code>Query OK, 0 rows affected (0.03 sec)</code></p><p>这个新创建的page_demo表有3个列，其中c1和c2列是用来存储整数的，c3列是用来存储字符串的。<br>需要注意的是，我们把 c1 列指定为主键，所以在具体的行格式中InnoDB就没必要为我们去创建那个所谓的 row_id 隐藏列了。<br>而且我们为这个表指定了ascii字符集以及Compact的行格式。<br>所以这个表中记录的行格式示意图就是这样的:<br><img src="/images/MySQL/5.2/1.jpg"></p></blockquote><blockquote><p>我们再次先把这些记录头信息中各个属性的大体意思浏览一下(这里仍然使用Compact行格式进行演示):<br><img src="/images/MySQL/5.2/2.jpg"><br><img src="/images/MySQL/5.2/3.jpg"></p></blockquote><blockquote><p>为了进一步方便大家分析这些记录在⻚的User Records部分中是怎么表示的，我把记录中头信息和实际的列数据都用十进制表示出来了(其实是一堆二进制位)，这些记录的示意图如下:<br><img src="/images/MySQL/5.2/4.jpg"><br>我们对照着这个图来看看记录头信息中的各个属性是啥意思。</p></blockquote><h1 id="delete-mask"><a href="#delete-mask" class="headerlink" title="delete_mask"></a>delete_mask</h1><blockquote><p>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0的时候代表记录并没有被删除，为1的时候代表记录被删除掉了。</p></blockquote><blockquote><p>这些被删除的记录之所以不立即从磁盘上移除，是因为<code>移除它们之后把其他的记录在磁盘上重新排列需要性能消耗</code>，所以只是打一个删除标记，所有被删除的记录会组成一个所谓的垃圾链表，在这个链表中的记录占用的空间称之为<code>可重用空间</code>，之后如果有新记录插入到表中的话，可能把这些被删除的记录占用的存储空间覆盖掉。</p><p>Tips：<br>将这个delete_mask位设置为1 和 将被删除的记录加入到垃圾 链表中 其实是两个阶段，我们后边在介绍事务的时候会详细唠叨删除操作的详细过程，稍安勿躁。</p></blockquote><h1 id="min-rec-mask"><a href="#min-rec-mask" class="headerlink" title="min_rec_mask"></a>min_rec_mask</h1><blockquote><p><code>B+树</code>的每层<code>非叶子节点</code>中的<code>最小记录</code>都会添加该标记。</p><p>什么是个B+树? 什么是个非叶子节点?<br>好吧，别着急，等会儿再聊这个问题。</p><p>反正我们自己插入的四条记录的min_rec_mask值都是0，意味着它们都不是B+树的非叶子节点中的最小记录。</p></blockquote><h1 id="n-owned"><a href="#n-owned" class="headerlink" title="n_owned"></a>n_owned</h1><p>这个暂时保密，稍后它是主⻆~</p><h1 id="heap-no"><a href="#heap-no" class="headerlink" title="heap_no"></a>heap_no</h1><blockquote><p>这个属性表示当前记录在本⻚中的位置。</p></blockquote><blockquote><p>从图中可以看出来， 我们插入的4条记录在本⻚中的位置分别是: 2、3、4、5。可怎么不⻅heap_no值为0和1的记录呢?<br>这其实是设计InnoDB的大叔们玩的一个小把戏，<code>他们自动给每个⻚里加了两个记录</code>，由于这两个记录并不是我们自己插入的，所以有时候也称为<code>伪记录</code>或者<code>虚拟记录</code>。这两个伪记录一个代表<code>最小记录</code>，一个代表<code>最大记录</code>。</p></blockquote><blockquote><p>等一下哈~，记录可以比大小么?<br>是的，记录也可以比大小，对于<code>一条完整的记录</code>来说，<code>比较记录的大小就是比较主键的大小</code>。比方说我们插入的4行记录的主键值分别是:1、2、3、4，这也就意味着这4条记录是从小到大依次递增。</p></blockquote><blockquote><p>但是不管我们向⻚中插入了多少自己的记录，设计InnoDB的大叔们都规定他们定义的两条伪记录分别为最小记录与最大记录。<br>这两条记录的构造十分简单，都是由5字节大小的记录头信息和8字节大小的一个固定的部分组成的，如图所示：<br><img src="/images/MySQL/5.2/5.jpg"></p></blockquote><blockquote><p>由于这两条记录不是我们自己定义的记录，所以<code>它们并不存放在⻚的User Records部分</code>，<code>他们被单独放在一个称为 Infimum + Supremum的部分</code>，如下图所示:<br><img src="/images/MySQL/5.2/6.jpg"></p></blockquote><h1 id="record-type"><a href="#record-type" class="headerlink" title="record_type"></a>record_type</h1><blockquote><p>这个属性表示当前记录的类型，一共有4种类型的记录：<br>0表示：普通记录<br><strong><code>1表示：B+树非叶节点记录</code></strong><br>2表示：最小记录<br>3表示：最大记录</p></blockquote><blockquote><p>从图中我们也可以看出来，我们自己插入的记录就是<code>普通记录</code>，它们的record_type值都是0，而最小记录和最大记录的record_type值分别为2和3。<br>至于record_type为1的情况，我们之后在说索引的时候会重点强调的。</p></blockquote><h1 id="next-record"><a href="#next-record" class="headerlink" title="next_record"></a>next_record</h1><blockquote><p>这玩意儿非常重要，它表示从当前记录的真实数据到下一条记录的真实数据的地址偏移量。<br>比方说第一条记录的 <code>next_record</code> 值为32，意味着从第一条记录的真实数据的地址处向后找32个字节便是下一条记录的真实数据。<br><code>如果你熟悉数据结构的话，就立即明白了，这其实是个链表，可以通过一条记录找到它的下一条记录</code>。</p></blockquote><blockquote><p>但是需要注意注意再注意的一点是，下一条记录指得并不是按照我们插入顺序的下一条记录，而是按照主键值由小到大的顺序的下一条记录。而且规定Infimum记录(也就是最小记录) 的下一条记录就是本⻚中主键值最小的用户记录，而本⻚中主键值最大的用户记录的下一条记录就是 Supremum记录(也就是最大记录) 。<br>为了更形象的表示一下这个next_record起到的作用，我们用箭头来替代一下next_record中的地址偏移量:</p><blockquote><p><img src="/images/MySQL/5.2/7.jpg"><br>从图中可以看出来，我们的记录按照主键从小到大的顺序形成了一个<code>单链表</code>。最大记录的next_record的值为0，这也就是说最大记录是没有下一条记录了，它是这个单链表中的最后一个节点。</p></blockquote></blockquote><blockquote><p>如果从中删除掉一条记录，这个链表也是会跟着变化的，比如我们把第2条记录删掉后的示意图就是:<br><img src="/images/MySQL/5.2/8.jpg"><br>从图中可以看出来，删除第2条记录前后主要发生了这些变化:</p><ul><li>第2条记录并没有从存储空间中移除，而是把该条记录的delete_mask值设置为1。</li><li>第2条记录的next_record值变为了0，意味着该记录没有下一条记录了。</li><li>第1条记录的next_record指向了第3条记录。</li><li>还有一点你可能忽略了，就是<code>最大记录的n_owned值从5变成了4</code>，关于这一点的变化我们稍后会详细说明的。</li></ul></blockquote><blockquote><p>再来看一个有意思的事儿，因为主键值为2的记录被我们删掉了，但是存储空间却没有回收，如果我们再次把这条记录插入到表中，会发生什么事呢?</p><blockquote><p><img src="/images/MySQL/5.2/9.jpg"><br>InnoDB并没有因为新记录的插入而为它申请新的存储空间，而是<code>直接复用了原来被删除记录的存储空间</code>。</p></blockquote></blockquote><blockquote><p><strong>所以，不论我们怎么对⻚中的记录做增删改操作，InnoDB始终会维护一条 <code>由记录组成的单链表</code>，<code>链表中的各个节点是按照主键值由小到大的顺序连接起来的</code>。</strong></p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;blockquote&gt;
+&lt;p&gt;为了故事的顺利发展，我们先创建一个表:&lt;br&gt;&lt;code&gt;mysql&amp;gt; CREATE TABLE page_demo(&lt;/code&gt;&lt;br&gt;  &lt;code&gt;-&amp;gt; c1 INT,&lt;/code&gt;&lt;br&gt;  &lt;code&gt;-&amp;gt; c2 IN</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.1 `数据页` 结构 之 User Records、Free Space 部分</title>
+    <link href="http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/"/>
+    <id>http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/</id>
+    <published>2021-09-23T15:12:10.000Z</published>
+    <updated>2024-04-15T06:19:36.788Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="数据页-结构-之-User-Records、Free-Space-部分"><a href="#数据页-结构-之-User-Records、Free-Space-部分" class="headerlink" title="数据页 结构 之 User Records、Free Space 部分"></a><code>数据页</code> 结构 之 <code>User Records</code>、<code>Free Space</code> 部分</h1><blockquote><p>在<code>索引⻚</code>的7个组成部分中，我们自己存储的记录会按照我们指定的<code>行格式</code>存储到 <code>User Records 部分</code>。</p></blockquote><blockquote><p>但是在一开始生成⻚的时候，其实并没有 User Records 这个部分，每当我们插入一条记录，都会从 <code>Free Space 部分</code>(也就是尚未使用的存储空间中)申请一个记录大小的空间划分到 <code>User Records 部分</code>，当 <code>Free Space 部分</code>的空间全部被 <code>User Records 部分</code>替代掉之后，也就意味着这个⻚使用完了，如果还有新的记录插入的话，就需要去申请新的⻚了，这个过程的图示如下:<br><img src="/images/MySQL/5.1/1.jpg"></p></blockquote><blockquote><p>为了更好的管理 User Records中的这些记录，InnoDB可费了一番力气呢，在哪费力气了呢? 不就是把记录按照指定的行格式一条一条摆在User Records部分么?</p><p>其实这话还得从<code>记录行格式</code>的<code>记录头信息</code>中说起。(回顾：<a href="/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/">4.1 compact 行格式</a>，当时在提到 记录头信息 时，只是简单地了解了 记录头信息 的基本构成)，下面就着重看下之前学的行格式的知识中的<code>记录头信息</code>部分的秘密吧。</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;数据页-结构-之-User-Records、Free-Space-部分&quot;&gt;&lt;a href=&quot;#数据页-结构-之-User-Records、Free-Space-部分&quot; class=&quot;headerlink&quot; title=&quot;数据页 结构 之 User Records、</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>5.0 盛放记录的大盒子 - InnoDB的数据页结构</title>
+    <link href="http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/"/>
+    <id>http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/</id>
+    <published>2021-09-23T13:25:09.000Z</published>
+    <updated>2024-04-15T06:12:32.542Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="不同类型的页简介"><a href="#不同类型的页简介" class="headerlink" title="不同类型的页简介"></a>不同类型的页简介</h1><blockquote><p>前边已经简单提到过 <code>⻚</code> 的概念了， <strong><code>它是InnoDB管理存储空间的基本单位</code></strong> ，一个⻚的大小一般是16KB。</p></blockquote><blockquote><p>InnoDB为了不同的目的而设计了许多种不同类型的⻚，比如 <code>存放 表空间头部信息 的⻚</code>、<code>存放 Insert Buffer信息 的⻚</code>、<code>存放 INODE信息 的⻚</code>、<code>存放 undo日志信息 的⻚</code> 等等……</p></blockquote><blockquote><p>当然，如果这些名词你一个都没有听过也无所谓~~~目前暂时还不准备说这些类型的⻚。<br><code>我们聚焦的是那些存放我们表中记录的那种类型的⻚</code>，官方称这种存放记录的⻚为<code>索引(INDEX)⻚</code>，鉴于我们还没有了解过索引是个什么东⻄，而这些表中的记录就是我们日常口中所称的数据，所以目前还是叫这种存放记录的⻚为<code>数据⻚</code>吧。</p></blockquote><h1 id="索引-INDEX-⻚的结构概括"><a href="#索引-INDEX-⻚的结构概括" class="headerlink" title="索引(INDEX)⻚的结构概括"></a>索引(INDEX)⻚的结构概括</h1><blockquote><p><code>数据⻚</code>的16KB存储空间可以被划分为多个部分，不同部分有不同的功能:<br><img src="/images/MySQL/5.0/1.jpg"></p></blockquote><blockquote><p>可以看出，一个InnoDB数据⻚的存储空间大致被划分成了7个部分，有的部分占用的字节数是确定的，有的部分占用的字节数是不确定的。</p><p>下边我们用表格的方式来大致描述一下这7个部分都存储一些啥内容(快速的瞅一眼就行了，后边会详细唠叨的):</p><table><thead><tr><th>名称</th><th>中文名</th><th>占用空间大小</th><th>简单描述</th></tr></thead><tbody><tr><td>👌 File Header</td><td>文件头部</td><td>38字节</td><td>⻚的一些通用信息(所有类型的页都有这个不分)</td></tr><tr><td>✅ <code>Page Header</code></td><td>⻚面头部</td><td>56字节</td><td><code>数据⻚</code>这种页类型<strong>专有</strong>的一些信息</td></tr><tr><td>✅ Infimum + Supremum</td><td>最小记录和最大记录</td><td>26字节</td><td>两个虚拟的行记录</td></tr><tr><td>✅ *<em>User Records</em></td><td>用户记录</td><td>不确定</td><td>实际存储的行记录内容</td></tr><tr><td>✅ Free Space</td><td>空闲空间</td><td>不确定</td><td>⻚中尚未使用的空间</td></tr><tr><td>✅ <strong><code>Page Directory</code></strong></td><td><strong><code>⻚面目录</code></strong></td><td>不确定</td><td>⻚中的某些记录的相对位置</td></tr><tr><td>👌 File Trailer</td><td>文件尾部</td><td>8字节</td><td>校验⻚是否完整</td></tr><tr><td>不过，我们接下来并不打算按照⻚中各个部分的出现顺序来依次介绍它们，因为各个部分中会出现很多大家目前不理解的概念，这会打击 各位读文章的信心与兴趣，希望各位能接受这种拍摄手法~</td><td></td><td></td><td></td></tr></tbody></table></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;不同类型的页简介&quot;&gt;&lt;a href=&quot;#不同类型的页简介&quot; class=&quot;headerlink&quot; title=&quot;不同类型的页简介&quot;&gt;&lt;/a&gt;不同类型的页简介&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;前边已经简单提到过 &lt;code&gt;⻚&lt;/code&gt; 的概念了， &lt;s</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>4.4 CHAR(M)中的M值过大的情况</title>
+    <link href="http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/"/>
+    <id>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/</id>
+    <published>2021-09-21T11:51:16.000Z</published>
+    <updated>2024-04-15T06:10:00.738Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="CHAR-M-中的M值过大的情况"><a href="#CHAR-M-中的M值过大的情况" class="headerlink" title="CHAR(M)中的M值过大的情况"></a>CHAR(M)中的M值过大的情况</h1><blockquote><p>CHAR(M)类型的列所占用的最大字节⻓度等于 <code>该列使用的字符集表示一个字符需要的最大字节数</code>和<code>M</code>的乘积。</p></blockquote><blockquote><p>如果某个列使用的是CHAR(M)类型，并且它<code>存储的最大字节⻓度超过768字节</code>，那么不论我们使用的是之前讲过的4种行格式中的哪种，<code>InnoDB都会把该列当成变⻓字段看待</code>。<br>比方说采用utf8mb4的CHAR(255)类型的列将会被当作变⻓字段看待，因为 <code>4×255 &gt; 768</code>。</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;CHAR-M-中的M值过大的情况&quot;&gt;&lt;a href=&quot;#CHAR-M-中的M值过大的情况&quot; class=&quot;headerlink&quot; title=&quot;CHAR(M)中的M值过大的情况&quot;&gt;&lt;/a&gt;CHAR(M)中的M值过大的情况&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;C</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>4.3 Dynamic 和 Compressed 行格式</title>
+    <link href="http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/"/>
+    <id>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</id>
+    <published>2021-09-21T11:11:27.000Z</published>
+    <updated>2024-04-15T06:07:39.838Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Dynamic-和-Compressed-行格式"><a href="#Dynamic-和-Compressed-行格式" class="headerlink" title="Dynamic 和 Compressed 行格式"></a>Dynamic 和 Compressed 行格式</h1><blockquote><p>我现在使用的MySQL版本是5.7，它的默认行格式就是Dynamic，这俩行格式和Compact行格式挺像，只不过在处理行溢出数据时有点儿分歧，它们不会在记录的真实数据处存储字段真实数据的前768个字节，而是把所有的字节都存储到其他⻚面中，只在记录的真实数据处存储其他⻚面的地址，就像这样:<br><img src="/images/MySQL/4.3/1.jpg"></p></blockquote><blockquote><p>Compressed行格式和Dynamic不同的一点是，Compressed行格式会采用压缩算法对⻚面进行压缩，以节省空间。</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;Dynamic-和-Compressed-行格式&quot;&gt;&lt;a href=&quot;#Dynamic-和-Compressed-行格式&quot; class=&quot;headerlink&quot; title=&quot;Dynamic 和 Compressed 行格式&quot;&gt;&lt;/a&gt;Dynamic 和 Comp</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>4.2 行溢出数据 与 溢出页</title>
+    <link href="http://rymuscle.github.io/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/"/>
+    <id>http://rymuscle.github.io/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/</id>
+    <published>2021-09-19T14:01:52.000Z</published>
+    <updated>2024-04-15T06:05:59.723Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h1><blockquote><p>我们知道，对于VARCHAR(M)类型的列最多可以占用65535个字节。(lant: 因为在变长字段长度列表中，每个变长字段实际存储的数据的长度值最多占2个字节，而2个字节最大能表示的数就是65535了)。<br>而之前我们也说过，VARCHAR(M)的<code>M</code>代表该类型最多存储的<code>字符数量</code></p></blockquote><h2 id="使用ascii定长字符集"><a href="#使用ascii定长字符集" class="headerlink" title="使用ascii定长字符集"></a>使用ascii定长字符集</h2><blockquote><p>如果我们使用ascii字符集的话，一个字符就代表一个字节，我们看看VARCHAR(65535)是否可用:</p><p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65535)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code></p><p><code>ERROR 1118 (42000): Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535. This includes storage overhead, check the manual. You have to change some columns to TEXT or BLOBs</code></p><p><code>mysql&gt;</code></p><p>从报错信息里可以看出，MySQL对一条记录占用的最大存储空间是有限制的，除了BLOB或者TEXT类型的列之外， <strong><code>其他所有的列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> 。所以上面可以看到MySQL服务器建议我们把存储类型改为TEXT或者BLOB的类型。</p><p>这65535个字节除了列本身的数据外，还包括一些其他数据，比如说为了存储一个VARCHAR(M)类型的列，其实需要占用3部分存储空间: <code>真实数据</code>、<code>真实数据的⻓度占用的字节</code>、<code>NULL值标识</code>(如果该列有NOT NULL属性则可以没有这部分存 储空间)…<br>如果该VARCHAR类型的列没有NOT NULL属性，那最多只能存储65532个字节的数据，<code>因为真实数据的⻓度在变长字段列表中会占2个字节，NULL 值标识需要占用1个字节</code>，再次尝试，果然成功了<br><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code><br><code>Query OK, 0 rows affected (0.02 sec)</code></p></blockquote><h2 id="使用变长字符集"><a href="#使用变长字符集" class="headerlink" title="使用变长字符集"></a>使用变长字符集</h2><p>如果VARCHAR(M)类型的列使用的不是ascii字符集，那会怎么样呢?</p><blockquote><p><code>mysql&gt; CREATE TABLE varchar_size_demo( </code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=gbk ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 32767); use BLOB or TEXT instead</code></p><p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt;  c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=utf8 ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 21845); use BLOB or TEXT instead</code></p></blockquote><blockquote><p>从执行结果中可以看出，如果VARCHAR(M)类型的列使用的不是ascii字符集，那<code>M的最大取值取决于该字符集表示一个字符最多需要的字节数</code>。<br>gbk字符集表示一个字符最多需要2个字符，在列的值允许为NULL的情况下，M的最大取值就是32766(也就是: 65535-2(变长字段列表占2字节)-1(null列表占1字节) &#x3D; 65532)，也就是说最多能存储32766(65532&#x2F;2)个字符;<br>utf8字符集表示一个字符最多需要3个字符，那在该字符集下，M的最大取值就是21844，就是说最多能存储21844(也就是: (65535-2-1)&#x2F;3)个字符。</p></blockquote><blockquote><p>Tips:<br>上述所言在列的值允许为NULL的情况下，gbk字符集下M的最大取值就是32766，utf8字符集下M的最大取值就是21844， <strong><code>这都是在表中只有一个字段的情况下说的</code></strong> ， <strong><code>一定要记住一个行中的所有列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> !</p></blockquote><h1 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h1><blockquote><p>前边说过， <strong><code>MySQL中磁盘和内存交互的基本单位是⻚</code>，也就是说<code>MySQL是以⻚为基本单位来管理存储空间的</code>，<code>我们的记录都会被分配到某个⻚中存储</code></strong> 。</p><p>而一个⻚的大小一般是16KB，也就是16384字节，而一个VARCHAR(M)类型的列就最多可以存储65532个字节，<code>这样就可能造成一个⻚存放不了一条记录的尴尬情况</code>。</p><p>在Compact和Reduntant行格式中，对于占用存储空间非常大的列，<code>在记录的真实数据处只会存储该列的一部分数据，而剩余的数据则会被分散存储在几个其他的⻚中，然后记录的真实数据处用20个字节存储指向这些⻚的地址</code>(当然这20个字节中还包括这些分散在其他⻚面中的数据的占用的字节数)，从而可以找到剩余数据所在的⻚。<br><img src="/images/MySQL/4.2/1.jpg"></p></blockquote><blockquote><p>从图中可以看出来，对于Compact和Reduntant行格式来说，如果 某一列中的数据非常多的话，在本记录的真实数据处只会存储该列的 前768个字节的数据和一个指向其他⻚的地址，然后把剩下的数据存 放到其他⻚中，这个过程也叫做行溢出，存储超出768字节的那些⻚面也被称为<code>溢出⻚</code>。简图如下：<br><img src="/images/MySQL/4.2/2.jpg"><br>最后需要注意的是，不只是 VARCHAR(M) 类型的列，其他的 TEXT、BLOB 类型的列在存储数据非常多的时候也会发生行溢出。</p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;VARCHAR-M-最多能存储的数据&quot;&gt;&lt;a href=&quot;#VARCHAR-M-最多能存储的数据&quot; class=&quot;headerlink&quot; title=&quot;VARCHAR(M)最多能存储的数据&quot;&gt;&lt;/a&gt;VARCHAR(M)最多能存储的数据&lt;/h1&gt;&lt;blockquo</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>4.1 compact 行格式</title>
+    <link href="http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/"/>
+    <id>http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</id>
+    <published>2021-09-18T12:41:09.000Z</published>
+    <updated>2024-04-15T06:03:42.095Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h1><blockquote><p>直接看图:<br><img src="/images/MySQL/4.1/1.jpg"><br>从图中可以看出来，一条完整的记录其实可以被分为 <code>记录的额外信息</code> 和 <code>记录的真实数据</code> 两大部分，下边我们详细看一下这两部分的组成。</p></blockquote><h1 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h1><p>这部分信息是 <strong><code>服务器为了描述这条记录而不得不额外添加的一些信息</code></strong> 。这些额外信息分为3部分，分别是 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 和 <code>记录头信息</code>，我们分别看一下</p><h2 id="记录的额外信息-之-变⻓字段⻓度列表"><a href="#记录的额外信息-之-变⻓字段⻓度列表" class="headerlink" title="记录的额外信息 之 变⻓字段⻓度列表"></a>记录的额外信息 之 <code>变⻓字段⻓度列表</code></h2><blockquote><p>我们知道MySQL支持一些变⻓的数据类型，比如 VARCHAR(M)、VARBINARY(M)、各种TEXT类型，各种BLOB类型，我们可以把被设置为这些数据类型的列称为<code>变⻓字段</code>；<br>变⻓字段中存储多少字节的数据是不固定的，所以我们在存储真实数据时，InnoDB引擎会顺便把这些数据实际占用的字节数也存起来，这样才不至于把MySQL服务器搞懵，所以这些变⻓字段占用的存储空间分为两部分: <code>真正的数据内容</code>、<code>数据内容占用的字节数</code>。</p><p>在Compact行格式中，把<code>所有变⻓字段的真实数据所占用的字节数</code>都存放在记录的开头部位，从而形成一个<code>变⻓字段⻓度列表</code>。各变⻓字段的真实数据所占用的字节数，按照列的顺序<code>逆序存放</code>。</p></blockquote><blockquote><p>示例:<br><img src="/images/MySQL/4.1/2.jpg"><br>拿 record_format_demo 示例表中的 第一条记录 来举例:</p><p>因为record_format_demo表的c1、c2、c4字段都是 VARCHAR(10)类型(<code>变⻓数据类型</code>)， <strong>所以这三个列的所存储的真实数据的⻓度值都需要保存在当前记录的 <code>变⻓字段⻓度列表中</code></strong> ；</p><p>又因为record_format_demo表中的各个列都使用的是ascii字符集(每个字符只需要1个字节来进行编码);来看一下第一条记录各变⻓字段的 实际内容 的⻓度:<br><img src="/images/MySQL/4.1/4.jpg"></p><p>又因为这些⻓度值需要按照列的逆序存放，所以最后<code>这条记录的变⻓字段⻓度列表</code> 的字节串用十六进制表示的效果就是：<br><img src="/images/MySQL/4.1/5.jpg"></p><p> <strong><code>第一行记录中，c1、c2、c4 每列中的真实数据所占的字节长度的数值比较小(4，3，1这些小数字)，用1个字节就可以表示；但是如果变⻓列的数据占用的字节数比较多，可能就需要用2个字节来表示</code></strong> 。(如果某行记录的c1变长字段的真实数据长度是300字节，300这个数值用一个字节就无法表示了，因为一个字节是8位，最大只能表示的数字是255)<br>每个变长字段在 <code>变长字段列表中</code> 具体用1个还是2个字节来表示真实数据所占用的字节数，InnoDB有它的一套规则，我们首先声明一下<code>W</code>、<code>M</code>和<code>L</code>的意思。</p></blockquote><hr><blockquote><p><strong><code>W</code></strong>:<br>假设一个<code>字符集</code>中表示一个字符最多需要使用的字节数为<code>W</code>，也就是使用 <code>SHOW CHARSET</code> 语句的结果中的<code>Maxlen</code>列。(比方说utf8字符集中的W就是3，utf8mb4字符集中的W就是4)。</p><p><strong><code>M</code></strong>:<br>对于变⻓类型<code>VARCHAR(M)</code>来说， <strong><code>这种类型表示能存储最多M个字符</code></strong> (注意是字符不是字节)，所以这个类型能表示的字符串最多占用的字节数就是 <code>M×W</code>。</p><p> <strong><code>L</code></strong>:<br>假设该变长实际存储的字符串占用的字节数是 <code>L</code>;</p><p>所以确定使用1个字节还是2个字节表示真正字符串占用的字节数的规则就是:</p><ol><li><p>如果 <code>M×W &lt;= 255</code>，那么使用1个字节来表示真正字符串占用的字节数； (一个字节能表示的最大数值就是255)</p></li><li><p>如果<code>M×W &gt; 255</code>，则分为两种情况:</p></li></ol><ul><li>如果 <code>L &lt;= 127</code>，则用1个字节来表示真正字符串占用的字节数。</li><li>如果 <code>L &gt; 127</code>，则用2个字节来表示真正字符串占用的字节数。</li></ul><p>对于一些占用字节数非常多的字段，比方说某个字段⻓度大于了16KB，即 该记录在单个⻚面中都存储不下时，InnoDB 会把一部分数据存放到所谓的<code>溢出⻚</code>中(我们后边会唠叨)，在变⻓字段⻓度列表处只存储留在本⻚面中的⻓度，所以使用两个字节也可以存放下来。</p><p>总结一下就是说: 如果该变长字段允许存储的最大字节数(M×W)超过255字节并且真实存储的字节数(L)超过127字节，则使用2个字节，否则使用1个字节。</p></blockquote><hr><blockquote><p>另外需要注意的一点是，<code>变⻓字段⻓度列表中只存储实际内容为非NULL的列数据占用的字节数，值为NULL的列的⻓度是不储存的</code><br>也就是 说对于第二条记录来说，<code>因为c4列的值为NULL，所以第二条记录的变⻓字段⻓度列表只需要存储c1和c2列的⻓度即可</code>（其中c1列存储的值为’eeee’，占用的实际字节数为4，c2列存储的值为’fff’，占用的实际字节数为3。数字4可以用1个字节表示，3也可以用1个字节表示， 所以整个变⻓字段⻓度列表共需2个字节）。<br>填充完变⻓字段⻓度列表 的两条记录的对比图如下:<br><img src="/images/MySQL/4.1/6.jpg"></p></blockquote><blockquote><p>Tips:<br>并不是所有<code>记录</code>都有这个 <code>变⻓字段⻓度列表</code> 部分，比方说表中所有的列都不是变⻓的数据类型的话，这一部分就不需要有。</p></blockquote><h2 id="记录的额外信息-之-NULL值列表"><a href="#记录的额外信息-之-NULL值列表" class="headerlink" title="记录的额外信息 之 NULL值列表"></a>记录的额外信息 之 <code>NULL值列表</code></h2><p>我们知道表中的某些列可能存储NULL值，<code>如果把这些NULL值都放到记录的真实数据中存储，那就会很占地方</code>，所以<code>Compact行格式</code>把这些值为NULL的列统一管理起来，存储到了 <code>记录的额外信息</code> 中的 <code>NULL值列表</code> 中，它的处理过程是这样的:</p><blockquote><ol><li>首先统计表中允许存储NULL的列有哪些<br>像 <code>主键列</code>、<code>被NOT NULL修饰的列</code> 都是不可以存储NULL值的，所以在统计时不会把这些列算进去。</li><li>如果表中没有允许存储 NULL 的列，则NULL值列表也不存在。否则 <strong><code>将每个允许存储NULL的列对应一个二进制位</code></strong> ，二进制位按照列的顺序逆序排列，二进制位的值为1时，代表该列的值为NULL。二进制位的值为0时，代表该列的值不为NULL。</li></ol></blockquote><blockquote><p>MySQL规定NULL值列表必须用整数个字节的位表示，如果可以为NULL的字段数 达不到整数个字节，则在字节的高位补0。<br>表record_format_demo只有3个值允许为NULL的列，对应3个二进制位，不足一个字节，所以在字节的高位补0，效果就是这样:<br><img src="/images/MySQL/4.1/7.jpg"></p></blockquote><blockquote><p>对于第一条记录来说，c1、c3、c4 这3个列的值都不为NULL，所以它们对应的二进制位都是0:<br><img src="/images/MySQL/4.1/8.jpg"></p></blockquote><blockquote><p>对于第二条记录来说，c1、c3、c4 这3个列中c3和c4的值都为NULL，所以这3个列对应的二进制位的情况就是:<br><img src="/images/MySQL/4.1/9.jpg"></p></blockquote><blockquote><p>所以这两条记录在填充了NULL值列表后的示意图就是这样:<br><img src="/images/MySQL/4.1/10.jpg"></p></blockquote><h2 id="记录的额外信息-之-记录头信息"><a href="#记录的额外信息-之-记录头信息" class="headerlink" title="记录的额外信息 之 记录头信息"></a>记录的额外信息 之 <code>记录头信息</code></h2><blockquote><p>除了 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 之外，还有一个 <code>用于描述记录</code>的 <code>记录头信息</code>。</p></blockquote><blockquote><p><code>记录头信息</code> 由固定的5个字节组成(也就是40个二进制位，不同的位代表不同的意思)，如图:<br><img src="/images/MySQL/4.1/11.jpg"></p></blockquote><blockquote><p><strong>这些二进制位代表的详细信息如下表</strong>:<br><img src="/images/MySQL/4.1/12.jpg"><br>现在暂时也没必要把它们的意思都记住，只需要看一遍混个脸熟，等之后用到这些属性的时候我们再回过头来看</p><p>现在我们并不清楚这些属性详细的用法，所以这里就不分析各个属性值是怎么产生的了，之后我们遇到会详细看的。</p></blockquote><blockquote><p>所以我们现在直接看一下record_format_demo 表中的两条记录的头信息分别是什么:<br><img src="/images/MySQL/4.1/13.jpg"><br>目前，你只需要对这两条记录的 <code>记录头信息部分</code> 有个印象就行。</p></blockquote><h1 id="记录的真实数据"><a href="#记录的真实数据" class="headerlink" title="记录的真实数据"></a>记录的真实数据</h1><blockquote><p>对于record_format_demo表来说，记录的真实数据除了 c1、c2、c3、c4 这几个我们自己定义的列的数据以外， <strong><code>MySQL会为每个记录默认的添加一些列(也称为隐藏列)</code></strong> ，具体的列如下:</p><table><thead><tr><th>列名</th><th>是否必须</th><th>占用空间</th><th>描述</th></tr></thead><tbody><tr><td>row_id</td><td>否</td><td>6字节</td><td>行ID，唯一标识一条记录</td></tr><tr><td>transaction_id</td><td>是</td><td>6字节</td><td>事务ID</td></tr><tr><td>roll_pointer</td><td>是</td><td>7字节</td><td>回滚指针</td></tr><tr><td>Tips: 实际上这几个列的真正名称其实是: <code>DB_ROW_ID</code>、<code>DB_TRX_ID</code>、 <code>DB_ROLL_PTR</code>，我们为了美观才写成了row_id、 transaction_id和roll_pointer。</td><td></td><td></td><td></td></tr></tbody></table></blockquote><blockquote><p>这里需要提一下 <strong><code>InnoDB表对主键的生成策略</code></strong>:</p><ul><li>优先使用用户自定义的主键作为主键;</li><li>如果用户没有定义主键，则选取一个Unique键作为主键;</li><li>如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为<code>row_id</code> 的<code>隐藏列</code>作为主键。</li></ul><p>所以我们可以看出: InnoDB存储引擎会为每条记录都添加 <code>transaction_id</code> 和 <code>roll_pointer</code> 这两个列，但是 <code>row_id</code> 是可选的(在没有自定义主键及Unique键的情况下才会添加该列)。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。</p><p>因为表record_format_demo示例表并没有定义主键，所以MySQL服务器会为每条记录增加上述的3个列。现在看一下加上记录的真实数据的、两个记录⻓什么样吧:<br><img src="/images/MySQL/4.1/14.jpg"><br>看这个图的时候我们需要注意几点:<br>表record_format_demo使用的是ascii字符集，所以0x61616161就表示字符串’aaaa’，0x626262就表示字符 串’bbb’，以此类推;</p><p>注意第1条记录中c3列的值，它是CHAR(10)类型的，虽然它实际存储的字符串是:’cc’(ascii字符集的字节表示是’0x6363’)，虽然表示这个字符串只需要用2个字节，但整个c3列仍然占用了10个字节的空间，除真实数据以外的8个字节的统统都用空格字符填充，空格字符在ascii字符集的表示就是0x20。</p><p><strong><code>注意第2条记录中c3和c4列的值都为NULL，它们被存储在了前边的NULL值列表处，在记录的真实数据处就不再冗余存储，从而节省存储空间</code></strong> 。</p></blockquote><h1 id="字符集对-COMPACT-行格式的影响"><a href="#字符集对-COMPACT-行格式的影响" class="headerlink" title="字符集对 COMPACT 行格式的影响"></a>字符集对 COMPACT 行格式的影响</h1><p><code>COMPACT行格式</code>会受<code>字符集</code>的影响。</p><blockquote><p>以 <code>CHAR(M)列的存储格式</code> 为例<br>尽管我们说在 <code>Compact行格式</code> 下只会把<code>变⻓字段存储的实际数据的⻓度</code>逆序存到 <code>变⻓字段⻓度列表</code>中。 <strong><code>但其实除了考虑字段本身的类型是否是变长字段，还需要考虑字符集的影响</code></strong> 。</p><p>对于record_format_demo示例表的c1,c2,c4列来说，它们是变长字段，这个没毛病，但此时我们的表采用的是ascii字符集(这个字符集是一个定⻓字符集，一个字符采用固定的一个字节)。<br>如果采用变⻓的字符集(也就是表示一个字符需要的字节数不确定，比如gbk表示一个字符要1<del>2个字节、utf8表示一个字符要1</del>3个字节等)的话， <strong><code>此时c3列虽然是char(10)这种定长字段，但它的数据⻓度也会被存储到变⻓字段⻓度列表中</code></strong> 。</p></blockquote><blockquote><p>假如我们将record_format_demo表的字符集修改为utf8,修改该列字符集后记录的变⻓字段⻓度列表也发生了变化:<br><img src="/images/MySQL/4.1/15.jpg"></p><p>这就意味着:  <strong><code>对于 CHAR(M) 类型的列来说，当采用的是定⻓字符集时，该列实际数据占用的字节数不会被加到变⻓字段⻓度列表中; 而如果采用的是变⻓字符集时，该列实际数据占用的字节数也会被加到变⻓字段⻓度列表</code></strong> 。</p></blockquote><blockquote><p>Tips:<br>另外有一点还需要注意， <strong><code>变⻓字符集的CHAR(M)类型的列要求至少占用M个字节</code></strong> （utf8表示一个字符要1~3个字节），而VARCHAR(M)却没有这个要求。</p><p>比方说对于使用utf8字符集的CHAR(10)的列来说，该列存储的数据字节⻓度的范围是10~30个字节。即使我们向该列中存储一个空字符串也会占用10个字节。这样的话，将来更新该列的值时，如果字节⻓度小于10个字节时，可以在该记录处直接更新，<code>而不是在存储空间中重新分配一个新的记录空间，导致原有的记录空间成为所谓的碎片</code>。(这里你感受到设计Compact行格式的大叔既想节省存储空间，又不想更新CHAR(M)类型的列产生碎片时的纠结心情了吧。)</p></blockquote><h1 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a><del>Redundant行格式</del></h1><blockquote><p><del>其实知道了Compact行格式之后，其他的行格式就是依葫芦画瓢了。我们现在要介绍的Redundant行格式是MySQL5.0之前用的一种行格式，也就是说它已经非常老了，大家乐呵乐呵的看就好。</del></p><p>……</p><p><del><strong><code>Redundant行格式: CHAR(M) 不会产生碎片</code></strong><br>我们知道<code>Compact行格式</code>在<code>CHAR(M)类型</code>的列中存储数据的时候还挺麻烦，分 <code>变⻓字符集</code> 和 <code>定⻓字符集</code> 的情况，而在Redundant行格式中十分干脆，不管该列使用的字符集是啥，只要是使用<code>CHAR(M)</code>类型，占用的真实数据空间就是该字符集表示一个字符最多需要的字节数和M的乘积。<br>比方说使用utf8字符集的CHAR(10)类型的列占用的真实数据空间始终为30个字节，使用gbk字符集的CHAR(10)类型的列占用的真实数据空间始终为20个字节。由此可以看出来，使用Redundant行格式的CHAR(M)类型的列是不会产生碎片的。</del></p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;COMPACT行格式&quot;&gt;&lt;a href=&quot;#COMPACT行格式&quot; class=&quot;headerlink&quot; title=&quot;COMPACT行格式&quot;&gt;&lt;/a&gt;COMPACT行格式&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;直接看图:&lt;br&gt;&lt;img src=&quot;/image</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>4.0 InnoDB记录存储结构 之 页的概念、行格式的概念</title>
+    <link href="http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/"/>
+    <id>http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/</id>
+    <published>2021-09-18T12:01:19.000Z</published>
+    <updated>2024-04-15T05:38:01.372Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote><p>到现在为止，MySQL对于我们来说还是一个黑盒。我们只是简单使用客户端发送请求并等待服务器返回结果。至于 <code>表中的数据到底存到了哪里?</code> <code>以什么格式存放的?</code> <code>MySQL是以什么方式来访问的这些数据?</code> 这些问题我们统统不知道。</p></blockquote><blockquote><p>不过前面已经多次提到， <strong>MySQL服务器上负责对表中数据的读取和写入工作的部分是<code>存储引擎</code></strong> 。<br>MySQL服务器支持多种不同类型的存储引擎(如InnoDB、MyISAM、Memory……)，不同的存储引擎一般是由不同的人为实现不同的特性而开发的，<code>真实数据在不同存储引擎中存放的方式一般是不同的</code>，甚至有的存储引擎比如Memory都不用磁盘来存储数据。</p></blockquote><blockquote><p>由于<code>InnoDB</code>是MySQL<code>默认的存储引擎</code>，也是我们最常用到的存储引擎，我们也没有那么多时间去把各个存储引擎的内部实现都看一遍，所以本集要唠叨的是使用InnoDB作为存储引擎时的<code>数据存储结构</code>，了解了一个存储引擎的数据存储结构之后，其他的存储引擎都是依葫芦画瓢，等以后用到了再说~</p></blockquote><h1 id="InnoDB存储引擎中⻚的概念"><a href="#InnoDB存储引擎中⻚的概念" class="headerlink" title="InnoDB存储引擎中⻚的概念"></a>InnoDB存储引擎中<code>⻚</code>的概念</h1><blockquote><p>InnoDB是一个将表中的数据存储到磁盘上的存储引擎，所以即使关机后重启我们的数据还是存在的。</p></blockquote><blockquote><p>不过，尽管InnoDB是将数据存储到磁盘上的存储引擎，<code>但真正处理数据的过程却是发生在内存中的</code>，所以需要把磁盘中的数据加载到内存中，如果是处理写入或修改请求的话，还需要把内存中的内容刷新到磁盘上。</p><p>而我们知道读写磁盘的速度非常慢，和内存读写差了几个数量级，所以当我们想从表中获取某些记录时，<code>InnoDB存储引擎需要一条一条的把记录从磁盘上读出来么?</code><br><strong>不，那样会慢死，InnoDB采取的方式是: 将数据划分为若干个<code>⻚</code>，<code>以⻚作为磁盘和内存之间交互的基本单位</code>，InnoDB 中⻚的大小一般为16KB。也就是在一般情况下，一次最少从磁盘中读取16KB的内容到内存中，一次最少把内存中的16KB内容刷新到磁盘中。</strong></p></blockquote><h1 id="InnoDB引擎的行格式-记录格式"><a href="#InnoDB引擎的行格式-记录格式" class="headerlink" title="InnoDB引擎的行格式(记录格式)"></a>InnoDB引擎的行格式(记录格式)</h1><blockquote><p>我们平时是以<code>行</code>(也叫<code>记录</code>)为单位来向表中插入数据的，这些<code>记录</code>在磁盘上的存放方式也被称为<code>行格式</code>或者<code>记录格式</code>。</p></blockquote><blockquote><p>设计InnoDB存储引擎的大叔们到现在为止设计了<code>4种不同类型的行格式</code>，分别是 <code>Compact</code>、<code>Redundant</code>、<code>Dynamic</code> 和 <code>Compressed</code> 行格式，随着时间的推移，他们可能会设计出更多的行格式，但是不管怎么变，在原理上大体都是相同的。</p></blockquote><blockquote><p><strong>如何指定表的行格式？</strong><br>我们可以在创建或修改表的语句中指定行格式:<br>&#x2F;&#x2F; 语法如下<br><code>CREATE TABLE 表名 (</code><br>    <code>列的信息</code><br><code>) ROW_FORMAT=行格式名称</code></p><p><code>ALTER TABLE 表名 ROW_FORMAT=行格式名称</code></p></blockquote>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;blockquote&gt;
+&lt;p&gt;到现在为止，MySQL对于我们来说还是一个黑盒。我们只是简单使用客户端发送请求并等待服务器返回结果。至于 &lt;cod</summary>
+      
+    
+    
+    
+    <category term="MySQL 读书笔记" scheme="http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="MySQL" scheme="http://rymuscle.github.io/tags/MySQL/"/>
     
   </entry>
   

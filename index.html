@@ -87,7 +87,7 @@
 
       <div class="outer">
         <section id="main">
-  <article id="post-redis/04. basic-data-structure-sorted-BitMap" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL知识点整理/6.6 InnoDB B+树索引 注意事项" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -95,7 +95,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
+      <a class="p-name article-title" href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
     </h1>
   
 
@@ -106,17 +106,17 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-04-18T10:36:56.000Z" itemprop="datePublished">2021年04月18日</time>
+  <time class="dt-published" datetime="2021-10-13T14:21:36.000Z" itemprop="datePublished">2021年10月13日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/redis/">redis</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/#comments" class="article-comment-link">
+<a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -126,223 +126,228 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-redis/04. basic-data-structure-sorted-set" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-04-17T06:09:51.000Z" itemprop="datePublished">2021年04月17日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/redis/">redis</a>
-  </div>
-
-      
-      
-<a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-redis/03. basic-data-structure-set" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-04-15T14:12:04.000Z" itemprop="datePublished">2021年04月15日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/redis/">redis</a>
-  </div>
-
-      
-      
-<a href="/2021/04/15/redis/03.%20basic-data-structure-set/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-redis/02. basic-data-structure-list" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-04-14T12:43:20.000Z" itemprop="datePublished">2021年04月14日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/redis/">redis</a>
-  </div>
-
-      
-      
-<a href="/2021/04/14/redis/02.%20basic-data-structure-list/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Redis的<code>list</code>底层采用的数据结构是<code>双向链表</code>(每个子元素都是String类型)，可以通过push和pop操作从列表的头部或者尾部添加或者删除元素，这样List即可以作为栈，也可以作为队列。 获取越接近两端的元素速度越快，但通过索引访问时会比较慢。</p>
+        <h1 id="根⻚面万年不动窝"><a href="#根⻚面万年不动窝" class="headerlink" title="根⻚面万年不动窝"></a>根⻚面万年不动窝</h1><p>我们前边介绍B+树索引时，为了大家理解上的方便，先把 <code>存储用户记录</code>的<code>叶子节点</code>都画出来，然后接着画 <code>存储目录项记录</code> 的<code>内节点</code>，实际上B+树的形成过程是这样的:</p>
 <blockquote>
-<p><code>LPUSH key element [element ...]</code>： 将一个或多个值插入到列表头部<br>时间复杂度：每添加一个元素是<code>O(1)</code>，当添加 N 个元素时是 <code>O(N)</code>。</p>
+<p>每当为某个表创建一个B+树索引(<code>聚簇索引不是人为创建的， 默认就有</code>)时，<code>都会为这个索引创建一个根节点⻚面</code>。</p>
+<p>最开始表中没有数据时，每个B+树索引对应的根节点中既没有用户记录，也没有目录项记录。</p>
+<p>随后向表中插入用户记录时，先把用户记录存储到这个 根节点 中。</p>
 </blockquote>
 <blockquote>
-<p>Lpop key [count] : 移出并获取列表的第一个元素<br>默认情况下，该命令从列表的开头弹出一个元素。当提供可选count参数时，将返回count个元素。<br>tip：count参数是从 Redis 版本 6.2.0 开始新增的。<br>时间复杂度：O(N) 其中 N 是返回的元素数，所以只返回一个元素的话，时间复杂度自然就是 O(1)。<br>#</p>
+<p>当 根节点 中的可用空间用完时继续插入记录，此时会将根节点中的所有记录复制到一个新分配的⻚，比如⻚a中，然后对这个新⻚进行<code>⻚分裂</code>(lant:这个算是正常的页分裂)的操作，得到另一个新⻚，比如⻚b。这时新插入的记录根据键值(也就是聚簇索引中的主键值，二级索引中对应的索引列的值)的大小就会被分配到⻚a或者⻚b中，<strong>而根节点便升级为<code>存储目录项记录</code>的⻚</strong>。</p>
 </blockquote>
-<h3 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h3><ol>
-<li>Redis list的应用场景非常多，也是Redis最重要的数据结构之一，比如twitter的关注列表，粉丝列表等都可以用Redis的list结构来实现。</li>
-<li>List的另一个应用就是消息队列， 可以利用List的PUSH操作，将任务存在List中，然后工作线程再用POP操作将任务取出进行执行。</li>
+<p>这个过程需要大家特别注意的是: <strong><code>一个B+树索引的根节点自诞生之日起，便不会再移动</code>。</strong> 这样只要我们对某个表建立一个索引，那么 **<code>它的根节点的⻚号便会被记录到某个地方，然后凡是InnoDB存储引擎需要用到这个索引的时候，都会从那个固定的地方取出根节点的⻚号，从而来访问这个索引</code>**。</p>
+<h1 id="内节点中目录项记录的唯一性"><a href="#内节点中目录项记录的唯一性" class="headerlink" title="内节点中目录项记录的唯一性"></a>内节点中目录项记录的唯一性</h1><p>我们知道B+树索引的 <code>内节点</code> 中 <code>目录项记录</code>的内容是 <code>索引列+⻚号</code> 的搭配，但是这个搭配对于二级索引来说有点儿不严谨。</p>
+<blockquote>
+<p>还拿index_demo表为例，假设这个表中的数据是这样的:<br>c1  c2  c3<br>1   1   ‘u’<br>3   1   ‘d’<br>5   1   ‘y’<br>7   1   ‘a’<br>如果二级索引中<code>目录项记录</code>的内容只是 <code>索引列 + ⻚号</code> 的搭配的话， 那么为c2列建立索引后的B+树应该⻓这样:<br><img src="/images/MySQL/6.6/1.jpg"></p>
+<p>如果我们想新插入一行记录(其中c1、c2、c3的值分别是:9、1、’c’)，那么在修改这个为c2列建立的二级索引对应的B+树时便碰到了个大问题: 由于⻚3中存储的目录项记录是由 <code>c2列+⻚号的值</code> 构成的，⻚3中的两条目录项记录对应的c2列的值都是1，而我们新插入的这条记录的c2列的值也是1，那我们这条新插入的记录到底应该放到⻚4中，还是⻚5中啊? 答案是: <code>对不起，懵逼了</code>。</p>
+<p>为了让新插入记录能找到自己在哪个⻚里，我们需要保证 <strong><code>在B+树的同一层 内节点 的 目录项记录 除⻚号这个字段外，其他字段(作为一个整体)应该是唯一的</code></strong> 。所以其实二级索引的<code>内节点</code>(<code>目录项记录页</code>)中的<code>目录项记录</code>的内容实际上是由三个部分构成的:</p>
+<ul>
+<li><code>索引列的值</code></li>
+<li><code>主键值</code></li>
+<li><code>⻚号</code><br>也就是我们把<code>主键值</code>也添加到<code>二级索引</code>的<code>内节点</code>中的<code>目录项记录</code>了，这样就能保证 **<code>在B+树的同一层 内节点 的 目录项记录 除⻚号这个字段外，其他字段(作为一个整体)应该是唯一的</code>**，所以我们为c2列建立二级索引后的示意图实际上应该是:</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/6.5 InnoDB 的联合索引" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-13T13:19:37.000Z" itemprop="datePublished">2021年10月13日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引。<br>比方说我们想让B+树按照c2和c3列的大小进行排序,这个包含两层含义:</p>
+<ul>
+<li>先把各个记录和⻚按照c2列进行排序；</li>
+<li>在记录的c2列相同的情况下，采用c3列进行排序；</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>为c2和c3列建立的联合索引的示意图如下：<br><img src="/images/MySQL/6.5/1.jpg"></p>
+<p>如图所示，我们需要注意以下几点:</p>
+<ul>
+<li>每条<code>目录项记录</code>都由 <code>c2、c3、⻚号</code> 这三个部分组成，各条记录先按照c2列的值进行排序，如果记录的c2列相同，则按照c3列的值进行排序。<br>  B+树叶子节点处的用户记录由 <code>c2、c3、主键c1列</code>组成。</li>
+<li>千万要注意一点，以c2和c3列的大小为排序规则建立的B+树称为<code>联合索引</code>，本质上也是一个二级索引。它的意思与分别为c2和c3列分别建立索引的表述是不同的，建立联合索引只会建立如上图一样的1棵B+树。而为c2和c3列分别建立索引会分别以c2和c3列的大小为排序规则建立2棵B+树</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/6.4 InnoDB 的 二级索引及其回表操作" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-06T14:04:19.000Z" itemprop="datePublished">2021年10月06日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>之前介绍的 <code>聚簇索引</code> <strong>只能在搜索条件是主键值时才能发挥作用</strong> 😓，因为B+树中的记录都是<code>按照主键进行排序</code>的。</p>
+</blockquote>
+<h1 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h1><blockquote>
+<p>如果我们想以别的列作为搜索条件该咋办呢? 难道只能从头到尾沿着链表依次遍历记录么? 🤔</p>
+<p>不，我们可以多建几棵B+树，<code>不同的B+树中的数据采用不同的排序规则</code> ✅。</p>
+</blockquote>
+<blockquote>
+<p>比方说我们用c2列的大小作为数据⻚、⻚中记录的排序规则，再建一棵B+树，效果如下图所示:<br><img src="/images/MySQL/6.4/1.jpg"><br>这个B+树与上边介绍的<code>聚簇索引</code>有几处不同:</p>
+<ul>
+<li><p>使用记录c2列的大小进行 <code>记录</code> 和 <code>⻚</code> 的排序，这包括三个方面的含义:</p>
+</li>
+<li><ol>
+<li><code>⻚内的记录</code>是按照c2列的大小顺序排成一个<code>单向链表</code>；</li>
 </ol>
-<p>比如微博： 在Redis中我们的最新微博ID使用了常驻缓存，这是一直更新的。但是我们做了限制不能超过5000个ID，因此我们的获取ID函数会一直询问Redis。只有在start&#x2F;count参数超出了这个范围的时候，才需要去访问数据库。我们的系统不会像传统方式那样“刷新”缓存，Redis实例中的信息永远是一致的。SQL数据库（或是硬盘上的其他类型数据库）只是在用户需要获取“很远”的数据时才会被触发，而主页或第一个评论页是不会麻烦到硬盘上的数据库了。</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3>
+</li>
+<li><ol start="2">
+<li>存放用户记录的<code>⻚</code>之间也是根据⻚中记录的c2列大小顺序排成一个<code>双向链表</code>；</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>存放<code>目录项记录</code>的<code>⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的c2列大小顺序排成一个<code>双向链表</code>。</li>
+</ol>
+</li>
+<li><p>B+树的叶子节点存储的并不是完整的用户记录，而只是 c2列 +主键 这两个列的值；</p>
+</li>
+<li><p><code>目录项记录</code>中不再是主键+⻚号的搭配，而变成了 c2列+⻚号的 搭配；</p>
+</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>所以如果我们现在想通过c2列的值查找某些记录的话就可以使用我们刚刚建好的这个B+树了。</p>
+<p>以查找c2列的值为4的记录为例，查找过程如下:</p>
+<ul>
+<li>确定目录项记录⻚<br>根据根⻚面，也就是⻚44，可以快速定位到目录项记录所在的⻚为⻚42(因为2 &lt; 4 &lt; 9)。</li>
+<li>通过目录项记录⻚确定用户记录真实所在的⻚。<br>在⻚42中可以快速定位到实际存储用户记录的⻚，但是由于c2列并没有唯一性约束，所以c2列值为4的记录可能分布在多个数据⻚中，又因为2 &lt; 4 ≤ 4，所以确定实际存储用户记录的⻚在⻚34和⻚35中。<br>在真实存储用户记录的⻚中定位到具体的记录。<br>  到⻚34和⻚35中定位到具体的记录。<br>  但是这个B+树的叶子节点中的记录只存储了c2和c1(也就是主键)两个列，所以我们<code>必须再根据主键值去聚簇索引中再查找一遍完整的用户记录</code>。</li>
+</ul>
+</blockquote>
+<h1 id="二级索引需要回表哦"><a href="#二级索引需要回表哦" class="headerlink" title="二级索引需要回表哦"></a>二级索引需要回表哦</h1><blockquote>
+<p>各位看到上面步骤4的操作了么?<br>我们根据这个以c2列大小排序的B+树只能确定我们要查找记录的主键值，所以如果我们想根据c2列的值查找到完整的用户记录的话，仍然需要到<code>聚簇索引</code>中再查一遍， 这个过程也被称为<code>回表</code>。</p>
+</blockquote>
+<blockquote>
+<p><strong><code>也就是根据c2列的值查询一条完整的用户记录需要使用到2棵B+树!!!</code></strong></p>
+</blockquote>
+<blockquote>
+<p>为什么我们还需要一次回表操作呢?直接把完整的用户记录放到叶子节点不就好了么?</p>
+<p>你说的对，如果把完整的用户记录放到叶子节点是可以不用回表，但是太占地方了呀~<br>相当于每建立一棵B+树都需要把所有的用户记录再都拷⻉一遍，这就有点太浪费存储空间了。</p>
+<p>因为 这种按照非主键列建立的B+树需要一次回表操作才可以定位到完整的用户记录，所以这种B+树也被称为二级索引(英文名secondary index)，或者辅助索引。由于我们使用的是c2列的大小作为B+树 的排序规则，所以我们也称这个B+树为为c2列建立的索引。</p>
+</blockquote>
+
         
         
       
@@ -353,7 +358,7 @@
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -371,7 +376,7 @@
 </article>
 
 
-  <article id="post-redis/01. basic-data-structure-hash" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL知识点整理/6.3 InnoDB 的 聚簇索引 - 索引即数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -379,7 +384,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
+      <a class="p-name article-title" href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
     </h1>
   
 
@@ -390,17 +395,17 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-04-11T11:43:20.000Z" itemprop="datePublished">2021年04月11日</time>
+  <time class="dt-published" datetime="2021-10-06T10:21:31.000Z" itemprop="datePublished">2021年10月06日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/redis/">redis</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2021/04/11/redis/01.%20basic-data-structure-hash/#comments" class="article-comment-link">
+<a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -410,205 +415,22 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="O-1-时间复杂度的操作"><a href="#O-1-时间复杂度的操作" class="headerlink" title="O(1)时间复杂度的操作"></a>O(1)时间复杂度的操作</h3><ol>
-<li>了解数据结构的都知道，<code>Hash表</code>这种数据结构最基本的 增<code>HSET</code>、删<code>HDEL</code>、改<code>HSET``HSETNX</code>、查<code>HGET</code>、<code>HEXISTS</code> 操作时间复杂度都是<code>O(1)</code>；</li>
-<li><code>HLEN</code> 获取哈希中的字段数  (todo: redis估计也是在散列表发生变化时，对长度额外做了记录)</li>
-<li>留意：<code>HSET</code>已经具备了<code>HMSET</code>同时为指定的一个hash key设置多个field&#x2F;value的功能，所以从 Redis 版本 4.0.0 开始，此命令被视为已弃用。(参考<a target="_blank" rel="noopener" href="https://www.tkcnn.com/redis/commands/Hmset.html">redis手册</a>)</li>
-</ol>
-<h3 id="O-n-时间复杂度的操作"><a href="#O-n-时间复杂度的操作" class="headerlink" title="O(n)时间复杂度的操作"></a>O(n)时间复杂度的操作</h3><ol>
-<li>不过，redis中 <code>HSET</code>、<code>HDEL</code> 都支持同时设置或者删除多个field, 此时的时间复杂度就是 <code>O(n)</code> 了。</li>
-<li><code>HGETALL key</code> 获取哈希表中指定key 中的所有字段和值</li>
-<li><code>HVALS key</code> 获取哈希表中指定key 中的所有值</li>
-<li><code>HKEYS key</code> 获取哈希表中指定key 中的所有字段</li>
-</ol>
-<span style="color:#6A9113;font-weight:600">
-lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些操作在操作Hash表时，都是针对指定 key 进行操作的。
-<br/>
-你的每个key中的 field/value 对儿会很多么?
-<br/>
-所以，效率下降应该不是特别严重，感觉也还算是常量级的时间复杂度吧!
-</span>
-
-<h3 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h3><p>特别适合存储对象信息</p>
-<blockquote>
-<p><strong>比如存储 用户信息 这种map信息:</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset jm:user:1 name austin age 25 address guangzhou </span><br><span class="line">&gt;hset jm:user:2 name austin age 25 address guangzhou</span><br></pre></td></tr></table></figure>
-<p><span style="color:red">如果用普通的 key&#x2F;value 结构来存储，主要有下面两种存储方式:</span><br>用户信息对象有多少成员就存成多少个key-value对儿，用用户ID+对应属性的名称作为唯一标识来取得对应属性的值，key部分的用户ID为重复存储，如果存在大量这样的数据，内存浪费还是非常可观的。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1:name austin</span><br><span class="line">&gt;set user:1:age 25</span><br><span class="line">&gt;set user:1:address guangzhou</span><br></pre></td></tr></table></figure>
-<p>将用户ID作为查找key,把其他信息封装成一个对象以序列化的方式存储，这种方式的缺点是，增加了序列化&#x2F;反序列化的开销，并且在需要修改其中一项信息时，需要把整个对象取回，并且修改操作需要对并发进行保护，引入CAS等复杂问题。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125; </span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br><span class="line">&gt;set user:1 &#123;&quot;name&quot;:&quot;austin&quot;,&quot;age&quot;:&quot;25&quot;,&quot;address&quot;:&quot;guangzhou&quot;&#125;</span><br></pre></td></tr></table></figure>
-</blockquote>
-<br/>
-
-<blockquote>
-<p><strong>再比如存储 帖子 点赞数,评论数,点击数 信息</strong>：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset article:1 star 9 comment 3 click 21</span><br><span class="line">&gt;hset article:2 star 2 comment 0 click 7</span><br><span class="line">&gt;hset article:3 star 6 comment 4 click 19</span><br></pre></td></tr></table></figure>
-</blockquote>
-<br/>
-
-<blockquote>
-<p><strong>甚至存储 订单信息：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt;hset order:692343390123213 amount 218.5 orderTime 2021-04-11 19:20:20 productId 1232 productName 黑人牙膏 ...</span><br><span class="line">&gt;hset order:128043390155801 amount 18.9 orderTime 2021-04-11 13:11:09 productId 345 productName 黑人牙刷 ...</span><br><span class="line">&gt;hset order:752344450123149 amount 21.35 orderTime 2021-04-11 21:29:56 productId 124 productName 短袖 ...</span><br></pre></td></tr></table></figure>
-</blockquote>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.tkcnn.com/redis/commands/Hset.html">Redis手册</a></p>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/12-4.map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/11/data-structure-algorithm/12-4.map/">「数据结构与算法」图的遍历 (TODO)</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-11T07:21:16.000Z" itemprop="datePublished">2020年11月11日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/11/11/data-structure-algorithm/12-4.map/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
-<p>树代表的是“一对多”的关系，而图则具有更高的自由度，可以表示任意的“多对多”关系。<br>因此，我们可以把树看作是图的一种特例。显然，树的遍历操作也是图的遍历操作的一种特例。</p>
-</blockquote>
-<br/>
-
-<blockquote>
-<p>图和树都需要应用搜索算法来实现遍历操作。<br>图的遍历方式可分为两种：「广度优先遍历 breadth-first traversal」和「深度优先遍历 depth-first traversal」。<br>它们也常被称为「广度优先搜索 breadth-first search」和「深度优先搜索 depth-first search」，简称 BFS 和 DFS 。</p>
-</blockquote>
-<h3 id="广度优先遍历"><a href="#广度优先遍历" class="headerlink" title="广度优先遍历"></a>广度优先遍历</h3><p><code>广度优先遍历</code>是一种由近及远的遍历方式，从某个节点出发，始终优先访问距离最近的顶点，并一层层向外扩张。<br>如下图所示，从左上角顶点出发，先遍历该顶点的所有邻接顶点，然后遍历下一个顶点的所有邻接顶点，以此类推，直至所有顶点访问完毕。</p>
-<blockquote>
-<img src="/images/data-structure-algorithm/graph_bfs.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</blockquote>
-<h4 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote>
-<p>BFS 通常借助<code>队列</code>来实现。队列具有“先入先出”的性质，这与 BFS 的“由近及远”的思想异曲同工:</p>
+        <blockquote>
+<p>我们上边介绍的B+树索有两个特点:</p>
 <ol>
-<li>将遍历起始顶点 startVet 加入队列，并开启循环。</li>
-<li>在循环的每轮迭代中，弹出队首顶点并记录访问，然后将该顶点的所有邻接顶点加入到队列尾部。 </li>
-<li>循环步骤 2. ，直到所有顶点被访问完成后结束。</li>
+<li>使用记录主键值的大小进行记录和⻚的排序，这包括三个方面 的含义:</li>
 </ol>
-<p>为了防止重复遍历顶点，我们需要借助一个哈希表 visited 来记录哪些节点已被访问。</p>
-</blockquote>
-<blockquote>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_bfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_bfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_bfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_bfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_bfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-</blockquote>
-<br/>
-
-<blockquote>
-<p>广度优先遍历的序列是否唯一？<br>不唯一。广度优先遍历只要求按“由近及远”的顺序遍历，而多个相同距离的顶点的遍历顺序是允许被任意打乱的。以图 9-10 为例，顶点 (1)、(3) 的访问顺序可以交换、顶点 (2)、(4)、(6) 的访问顺序也可以任意交换。</p>
-</blockquote>
-<p>TODO 代码</p>
-<h4 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会入队并出队一次，使用 (O(|V|)) 时间；在遍历邻接顶点的过程中，由于是无向图，因此所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。</p>
-<p>空间复杂度： 列表 res ，哈希表 visited ，队列 que 中的顶点数量最多为 (|V|) ，使用 (O(|V|)) 空间。</p>
-<h3 id="深度优先遍历"><a href="#深度优先遍历" class="headerlink" title="深度优先遍历"></a>深度优先遍历</h3><blockquote>
-<p>深度优先遍历是一种优先走到底、无路可走再回头的遍历方式。<br>如下图所示，从左上角顶点出发，访问当前顶点的某个邻接顶点，直到走到尽头时返回，再继续走到尽头并返回，以此类推，直至所有顶点遍历完成。<br><img src="/images/data-structure-algorithm/graph_dfs.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
-</blockquote>
-<h4 id="算法实现-1"><a href="#算法实现-1" class="headerlink" title="算法实现"></a>算法实现</h4><blockquote>
-<p>这种“走到尽头再返回”的算法范式通常基于递归来实现。与广度优先遍历类似，在深度优先遍历中我们也需要借助一个哈希表 visited 来记录已被访问的顶点，以避免重复访问顶点。<br>深度优先遍历的算法流程如下图</p>
 <ul>
-<li>直虚线代表向下递推，表示开启了一个新的递归方法来访问新顶点。</li>
-<li>曲虚线代表向上回溯，表示此递归方法已经返回，回溯到了开启此递归方法的位置。<br>为了加深理解，建议将图示与代码结合起来，在脑中（或者用笔画下来）模拟整个 DFS 过程，包括每个递归方法何时开启、何时返回。</li>
+<li><code>⻚内的记录</code>是按照主键的大小顺序排成一个<code>单向链表</code>；</li>
+<li><code>存放用户记录的⻚</code>之间也是根据⻚中用户记录的主键大小顺序排成一个<code>双向链表</code>；</li>
+<li><code>存放目录项记录的⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的主键大小顺序排成一个<code>双向链表</code>。</li>
 </ul>
+<ol start="2">
+<li><code>B+树的叶子节点存储的是完整的用户记录</code>，所谓完整的用户记录，就是指这个记录中存储了所有列的值 (包括隐藏列)。</li>
+</ol>
 </blockquote>
-<blockquote>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_dfs_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_dfs_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_dfs_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/graph_dfs_step10.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/graph_dfs_step11.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-</blockquote>
-<blockquote>
-<p>深度优先遍历的序列是否唯一？<br>与广度优先遍历类似，深度优先遍历序列的顺序也不是唯一的。给定某顶点，先往哪个方向探索都可以，即邻接顶点的顺序可以任意打乱，都是深度优先遍历。<br>以树的遍历为例，“根 (\rightarrow) 左 (\rightarrow) 右”、“左 (\rightarrow) 根 (\rightarrow) 右”、“左 (\rightarrow) 右 (\rightarrow) 根”分别对应前序、中序、后序遍历，它们展示了三种不同的遍历优先级，然而这三者都属于深度优先遍历。</p>
-</blockquote>
-<h4 id="复杂度分析-1"><a href="#复杂度分析-1" class="headerlink" title="复杂度分析"></a>复杂度分析</h4><p>时间复杂度： 所有顶点都会被访问 (1) 次，使用 (O(|V|)) 时间；所有边都会被访问 (2) 次，使用 (O(2|E|)) 时间；总体使用 (O(|V| + |E|)) 时间。<br>空间复杂度： 列表 res ，哈希表 visited 顶点数量最多为 (|V|) ，递归深度最大为 (|V|) ，因此使用 (O(|V|)) 空间。</p>
-<p>TODO 代码</p>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li><a href="hhttps://www.hello-algo.com/chapter_graph/graph_traversal/">hello-algo</a></li>
-<li>《数据结构与算法之美》王争</li>
-</ul>
+<p>我们把具有这两种特性的B+树称为<code>聚簇索引</code>， <strong><code>所有完整的用户记录都存放在这个聚簇索引的叶子节点处</code></strong> 。<br>这种聚簇索引并不需要我们在MySQL语句中显式的使用INDEX语句去创建(后边会介绍索引相关的语句)，<code>InnoDB存储引擎会自动的为我们创建聚簇索引</code>。</p>
+<p>另外有趣的一点是，在InnoDB存储引擎中， <strong><code>聚簇索引就是数据的存储方式</code></strong> (所有的用户记录都存储在了叶子节点)，也就是所谓的 <code>索引即数据</code>，<code>数据即索引</code>。</p>
 
         
         
@@ -620,7 +442,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -638,7 +460,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
 </article>
 
 
-  <article id="post-data-structure-algorithm/12-3.map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL知识点整理/6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方: B+树`" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -646,7 +468,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/09/data-structure-algorithm/12-3.map/">「数据结构与算法」图的基础操作 (TODO)</a>
+      <a class="p-name article-title" href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
     </h1>
   
 
@@ -657,17 +479,17 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-09T15:53:07.000Z" itemprop="datePublished">2020年11月09日</time>
+  <time class="dt-published" datetime="2021-10-04T14:09:13.000Z" itemprop="datePublished">2021年10月04日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2020/11/09/data-structure-algorithm/12-3.map/#comments" class="article-comment-link">
+<a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -677,46 +499,56 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>图的基础操作可分为对<code>边</code>的操作和对<code>顶点</code>的操作。在“邻接矩阵”和“邻接表”两种表示方法下，实现方式有所不同。</p>
-<h3 id="基于邻接矩阵存储"><a href="#基于邻接矩阵存储" class="headerlink" title="基于邻接矩阵存储"></a>基于邻接矩阵存储</h3><blockquote>
-<p>给定一个顶点数量为 n 的<code>无向图</code>，其各种操作如下：</p>
+        <h1 id="普通用户记录-vs-目录项记录"><a href="#普通用户记录-vs-目录项记录" class="headerlink" title="普通用户记录 vs 目录项记录"></a><code>普通用户记录</code> vs <code>目录项记录</code></h1><blockquote>
+<p>设计InnoDB的大叔们为了灵活管理所有<code>目录项</code>。他们发现这些<code>目录项</code>其实跟我们的<code>用户记录</code>也差不多，只不过<code>目录项</code>中的两个列是主键和⻚号而已。<br>所以大叔们复用了之前存储用户记录的<code>数据⻚</code>来存储<code>目录项</code>，为了和用户记录做一下区分，我们把这些用来表示目录项的记录称为<code>目录项记录</code>。</p>
+<p>为了区分一条记录是<code>普通用户记录</code>还是<code>目录项记录呢</code>，InnoDB 就用到了<code>记录头信息</code>里的<code>record_type</code>属性(<code>0:普通的用户记录</code>、<code>1:目录项记录</code>、2:最小记录、3:最大记录)</p>
+<p>所以我们把前面使用到的目录项放到数据⻚中的样子就是这样:<br><img src="/images/MySQL/6.2/1.jpg"></p>
+<p>从图中可以看出来，我们新分配了一个编号为30的⻚来专⻔存储 <code>目录项记录</code>。</p>
+<p>Tips:<br><code>目录项记录</code>和<code>普通的用户记录</code> 除了 <code>内容不同</code>、<code>记录头信息 里的 record_type 不同</code>，还有个不同点(可参考 <a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/">5.2 回顾: 行格式 之 记录头信息 的秘密</a>) :<br>我们之前在唠叨记录头信息时提到过一个叫 <code>min_rec_mask</code>的，只有在存储目录项记录的⻚中的主键值最小的目录项记录的min_rec_mask值为1，其他别的记录的min_rec_mask值都是0。</p>
+<p>除了上述几点外，这两者就没啥差别了，它们用的是一样的<code>数据⻚</code>。⻚的组成结构也是一样一样的。</p>
+</blockquote>
+<h1 id="只有单个存储目录项记录的数据⻚时的查找"><a href="#只有单个存储目录项记录的数据⻚时的查找" class="headerlink" title="只有单个存储目录项记录的数据⻚时的查找"></a>只有单个<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>现在以查找主键为20的记录为例，查找记录的步骤就可以大致拆分成下边两步:</p>
+<ol>
+<li>先到<code>存储目录项记录的数据⻚</code>(也就是⻚30)中，<code>通过二分法快速定位到对应目录项</code> (因为12 &lt; 20 &lt; 209，所以定位到对应的记录所在的⻚就是⻚9)；</li>
+<li>再到存储用户记录的⻚9中定位到主键值为20的用户记录。(之前多次提到的页内查找方法：O(log n) + O(1))</li>
+</ol>
+</blockquote>
+<h1 id="大量存储目录项记录的数据⻚时的查找"><a href="#大量存储目录项记录的数据⻚时的查找" class="headerlink" title="大量存储目录项记录的数据⻚时的查找"></a>大量<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>虽然说目录项记录中只存储主键值和对应的⻚号，比用户记录需要的存储空间小多了，但是不论怎么说一个⻚只有16KB大小，能存放的目录项记录也是有限的，如果表中的数据太多，以至于一个数据⻚不足以存放所有的目录项记录，该咋办呢?<br>当然是<code>再多整一个存储目录项记录的⻚喽</code>~</p>
+<p>为了大家更好的理解新分配一个<code>目录项记录⻚</code>的过程，我们假设一个存储目录项记录的⻚最多只能存放4条目录项记录，所以如果此时我们再向上图中插入一条主键值为320的用户记录的话，那就需要分配一个新的存储目录项记录的⻚喽:<br><img src="/images/MySQL/6.2/2.jpg"><br>从图中可以看出，我们插入了一条主键值为320的用户记录之后需要两个新的数据⻚:</p>
 <ul>
-<li>初始化：传入 n 个顶点，初始化长度为 n 的顶点列表 vertices ，使用 O(n)时间；初始化 n*n 大小的邻接矩阵 adjMat ，使用 $O(n^2)$ 时间。</li>
-<li>添加或删除边：直接在邻接矩阵中修改指定的边即可，使用 O(1) 时间。而由于是无向图，因此需要同时更新两个方向的边。</li>
-<li>添加顶点：在邻接矩阵的尾部<strong>添加一行一列</strong>，并全部填 0 即可，使用 O(n) 时间。</li>
-<li>删除顶点：在邻接矩阵中删除一行一列。当删除首行首列时达到最差情况，需要将 $(n-1)^2$ 个元素“向左上移动”，从而使用 $O(n^2)$ 时间。</li>
+<li>为存储该用户记录而新生成了⻚31。</li>
+<li>因为原先<code>存储目录项记录</code>的⻚30的容量已满(我们前边假设只能存储4条目录项记录)，所以不得不需要一个新的⻚32来存放⻚31对应的目录项。</li>
 </ul>
 </blockquote>
 <blockquote>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/adjacency_matrix_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_matrix_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_matrix_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/adjacency_matrix_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_matrix_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
+<p>现在因为<code>存储目录项记录的⻚不止一个</code>，所以如果我们想根据主键值查找一条用户记录大致需要3个步骤，以查找主键值为20的记录为例:</p>
+<ol>
+<li>确定目录项记录⻚<br>  我们现在的存储目录项记录的⻚有两个，即⻚30和⻚32，又因为⻚30表示的目录项的主键值的范围是[1, 320)，⻚32表示的目录项的主键值不小于320，所以主键值为20的记录对应的目录项记录在⻚30中。</li>
+<li>在一个存储目录项记录的⻚中通过主键值定位一条目录项记录的方式说过了，不赘述了~</li>
+<li>在真实存储用户记录的⻚中定位到具体的记录。 也多次提过了，不赘述了~</li>
+</ol>
 </blockquote>
-<p>代码实现可去参考本节末尾的文献</p>
-<h3 id="基于邻接表存储"><a href="#基于邻接表存储" class="headerlink" title="基于邻接表存储"></a>基于邻接表存储</h3><blockquote>
-<p>设无向图的顶点总数为n、边总数为m，则可根据下图所示的方法实现各种操作<br>初始化：在邻接表中创建 n 个顶点和 2m 条边，使用 O(n+m) 时间。<br>添加边：在顶点对应链表的末尾添加边即可，使用 O(1) 时间。因为是无向图，所以需要同时添加两个方向的边。<br>删除边：在顶点对应链表中查找并删除指定边，使用 O(m) 时间。在无向图中，需要同时删除两个方向的边。<br>添加顶点：在邻接表中添加一个链表，并将新增顶点作为链表头节点，使用 O(1) 时间。<br>删除顶点：需遍历整个邻接表，删除包含指定顶点的所有边，使用 O(n+m) 时间。</p>
+<h1 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h1><blockquote>
+<p>那么问题又来了:<br>在这个查询步骤的第1步中我们需要定位 <code>存储目录项记录的⻚</code>，但是这些⻚在存储空间中也可能不挨着，如果我们表中的数据非常多则会产生很多存储目录项记录的⻚，那我们怎么根据主键值快速定位一个存储目录项记录的⻚呢?<br>其实也简单， <strong><code>为这些存储目录项记录的⻚再生成一个更高级的目录</code></strong> ，所以现在各个⻚的 示意图就是这样子:<br><img src="/images/MySQL/6.2/3.jpg"><br>如图，我们生成了一个存储更高级目录项的⻚33，这个⻚中的两条记录分别代表⻚30和⻚32，如果用户记录的主键值在[1, 320)之间，则到⻚30中查找更详细的目录项记录，如果主键值不小于320的话，就到⻚32中查找更详细的目录项记录。</p>
 </blockquote>
 <blockquote>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/adjacency_list_initialization.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_list_add_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_list_remove_edge.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/adjacency_list_add_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/adjacency_list_remove_vertex.png" width="275px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
+<p>不过，随着表中记录的增加，这个目录的层级会继续增加，如果简化一下，<br><img src="/images/MySQL/6.2/4.jpg"><br>这玩意儿就像一个倒过来的树，上头是树根，下头是树叶! 这种组织数据的形式，或者说是一种数据结构，它的名称是<code>B+树</code>。</p>
+<p>不论是<code>存放用户记录的数据⻚</code>，还是<code>存放目录项记录的数据⻚</code>，我们都把它们存放到B+树这个数据结构中了，所以我们也称这些数据⻚为<code>节点</code>。<br>从图中可以看出来，我们的<code>实际用户记录其实都存放在B+树的最底层的节点上</code>，这些节点也被称为<code>叶子节点</code>或叶节点，其余用来<code>存放目录项记录的节点</code>称为<code>非叶子节点</code>或者内节点，其中B+树最上边的那个节点也称为<code>根节点</code>。</p>
+<p>从图中可以看出来，一个B+树的节点其实可以分成好多层，设计InnoDB的大叔们为了讨论方便，规定最下边的那层，也就是存放我们用户记录的那层为第0层，之后依次往上加。</p>
 </blockquote>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li>
-<li>《数据结构与算法之美》王争</li>
+<blockquote>
+<p>之前的讨论我们做了一个非常极端的假设:存放用户记录的⻚最多存放3条记录，存放目录项记录的⻚最多存放4条记录。其实真实环境中一个⻚存放的记录数量是非常大的</p>
+<p>假设，假设，假设所有存放用户记录的叶子节点代表的数据⻚可以存放100条用户记录，所有存放目录项记录的内节点代表的数据⻚可以存放1000条目录项记录，那么:</p>
+<ul>
+<li>如果B+树只有1层，也就是只有1个用于存放用户记录的节点，最多能存放100条记录。</li>
+<li>如果B+树有2层，最多能存放1000×100&#x3D;100000条记录。</li>
+<li>如果B+树有3层，最多能存放1000×1000×100&#x3D;100000000 条记录。</li>
+<li>如果B+树有4层，最多能存放1000×1000×1000×100&#x3D;100000000000条记录。</li>
 </ul>
+<p>你的表里能存放100000000000条记录么?<br>所以<code>一般情况下，我们用到的B+树都不会超过4层</code>，那我们通过主键值去查找某条记录最多只需要做4个⻚面内的查找(查找<code>3个目录项⻚</code>和<code>1个用户记录⻚</code>)，又因为在每个⻚面内有所谓的<code>Page Directory(⻚目录)</code>，所以在⻚面内也可以通过二分法实现快速定位记录，这不是很牛么，哈哈!</p>
+</blockquote>
 
         
         
@@ -728,7 +560,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -746,7 +578,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
 </article>
 
 
-  <article id="post-data-structure-algorithm/12-2.map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL知识点整理/6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -754,7 +586,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/09/data-structure-algorithm/12-2.map/">「数据结构与算法」图 的存储</a>
+      <a class="p-name article-title" href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/">6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)</a>
     </h1>
   
 
@@ -765,17 +597,17 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-09T14:49:32.000Z" itemprop="datePublished">2020年11月09日</time>
+  <time class="dt-published" datetime="2021-10-04T12:17:57.000Z" itemprop="datePublished">2021年10月04日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2020/11/09/data-structure-algorithm/12-2.map/#comments" class="article-comment-link">
+<a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -785,51 +617,56 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
-<p>在前面掌握了图的概念之后，我们今天聚焦在 <code>图存储</code> 这一方面，看下如何在<strong>内存中</strong>存储图这种数据结构。<br>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。 后面会分好几章节来依次讲解图相关的算法。</p>
-</blockquote>
-<h3 id="邻接矩阵存储方法"><a href="#邻接矩阵存储方法" class="headerlink" title="邻接矩阵存储方法"></a>邻接矩阵存储方法</h3><blockquote>
-<p>图最直观的一种存储方法就是 <code>邻接矩阵</code>（Adjacency Matrix）。<code>邻接矩阵</code>的底层依赖一个<code>二维数组</code>。</p>
+        <h1 id="Demo表"><a href="#Demo表" class="headerlink" title="Demo表"></a>Demo表</h1><blockquote>
+<p>为了故事的顺利发展，我们先建一个表:<br><code>mysql&gt; CREATE TABLE index_demo( c1 INT,</code><br><code>-&gt; c2 INT,</code><br><code>-&gt; c3 CHAR(1),</code><br><code>-&gt; PRIMARY KEY(c1)</code><br><code>-&gt; ) ROW_FORMAT = Compact;</code><br><code>-&gt; Query OK, 0 rows affected (0.03 sec)</code></p>
+<p>这个新建的index_demo表中有2个INT类型的列，1个CHAR(1)类型的列，而且我们规定了c1列为主键。</p>
+<p>这个表是使用Compact行格式来实际存储记录的。<br>为了我们理解上的方便，我们简化了一下 index_demo表 的行格式示意图:<br><img src="/images/MySQL/6.1/1.jpg"></p>
 <ul>
-<li>对于<code>无向图</code>来说，如果顶点 i 与顶点 j 之间有边，我们就将 <code>A[i][j]</code> 和 <code>A[j][i]</code> 标记为 1；</li>
-<li>对于<code>有向图</code>来说，如果顶点 i 到顶点 j 之间，有一条箭头从顶点 i 指向顶点 j 的边，那我们就将 <code>A[i][j]</code> 标记为 1。同理，如果有一条箭头从顶点 j 指向顶点 i 的边，我们就将 <code>A[j][i]</code> 标记为 1。</li>
-<li>对于<code>带权图</code>，数组中就存储相应的权重。<img src="/images/data-structure-algorithm/WX20231121-092751@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li>
+<li><code>record_type</code>: <code>记录头信息</code>的一个属性，表示记录的类型：0 表示普通记录、2表示最小记录、3表示最大记录、1我们还没用过，等会再说~</li>
+<li><code>next_record</code>: <code>记录头信息</code>的一个属性，表示下一条地址相对于本条记录的地址偏移量，为了方便大家理解，我们都会用箭头来表明下一条记录是谁。</li>
+<li>各个列的值: 这里只记录在index_demo表中的三个列，分别是c1、c2和c3。</li>
+<li>其他信息:除了上述3种信息以外的所有信息，包括其他隐藏列的值以及记录的额外信息。</li>
 </ul>
+<p>我们之后的示意图中会把  记录的其他信息 这个部分省略掉，因为它占地方并且不会有什么观赏效果:<br><img src="/images/MySQL/6.1/2.jpg"></p>
 </blockquote>
-<br/>
-
 <blockquote>
-<p>用邻接矩阵来表示一个图，虽然简单、直观，但是比较浪费存储空间。为什么这么说呢？</p>
+<p>把一些记录放到⻚里边的示意图就是:<br><img src="/images/MySQL/6.1/3.jpg"></p>
+</blockquote>
+<h1 id="一个简单的索引方案"><a href="#一个简单的索引方案" class="headerlink" title="一个简单的索引方案"></a>一个简单的索引方案</h1><blockquote>
+<p>现在我们已经知道，当我们根据某个搜索条件查找一些记录时，首先<code>需要遍历所有的数据⻚ O(n)</code>，然后再在每个数据页内利用 <code>pagedirectory二分法定位槽 O(logn)</code> + <code>组内遍历单链表 O(1)</code> 进行记录的匹配。</p>
+<p>所以…   效率问题目前是出在第一步，也就是在所有数据页中快速定位我们需要的页。<br>还记得我们 <code>通过主键</code> 在 <code>页内查找</code> 时为了快速定位一条记录在⻚中的位置而设立的 <code>⻚目录</code> 么?<br>我们也可以想办法为快速定位记录所在的 <code>数据⻚</code> 而建立一个别的<code>目录</code>，不过，要建这个目录必须完成下边的事儿；</p>
+</blockquote>
+<h2 id="数据页可以像页内记录那样也按主键顺序排列"><a href="#数据页可以像页内记录那样也按主键顺序排列" class="headerlink" title="数据页可以像页内记录那样也按主键顺序排列"></a><code>数据页</code>可以像<code>页内记录</code>那样也按主键顺序排列</h2><p><strong>下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。</strong></p>
+<blockquote>
+<p><strong><code>页分裂</code>问题：</strong> 😱</p>
+<p>为了故事的顺利发展，我们这里需要做一个假设: 假设我们的每个数据⻚最多能存放3条记录(实际上一个数据⻚非常大，可以存放下好多记录)。</p>
+<p>有了这个假设之后，如果我们向index_demo表插入4条记录，因为⻚10最多只能放3条记录，所以我们不得不再分配一个新⻚:<br><img src="/images/MySQL/6.1/4.jpg"><br>你可以看到，新分配的数据页的页号并不是11，而是28<br><code>这是因为我们使用的这些⻚在存储空间里可能并不挨着</code>。它们只是通过维护着上一个⻚和下一个⻚的编号而建立了<code>链表关系</code>。<br>另外，⻚10中用户记录最大的主键值是5，而⻚28中有一条记录的主键值是4，因为5 &gt; 4，所以<code>不符合下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值的要求</code>，**<code>所以在插入主键值为4的记录时需要伴随着一次记录移动</code>**，也就是把主键值为5的记录移动到⻚28中，然后再把主键值为4的记录插入到⻚10中，这个过程的示意图如下:<br><img src="/images/MySQL/6.1/5.jpg"></p>
+</blockquote>
+<blockquote>
+<p>这个过程表明了在对⻚中的记录进行增删改操作的过程中， <strong><code>我们必须通过一些诸如 记录移动的操作 来始终保证这个状态一直成立</code></strong> : 下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。<br>这个过程我们也可以称为 **<code>⻚分裂</code>**。<br>(lant:所以，所以这也说明了，主键为什么我们一般设置自增的，最好不要乱动主键，因为如果要保证“下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值”的要求，逐渐最好自增，不然就会经常出现页分裂，这显然是个低效的动作。即便要删除记录，我们最好也是给记录标记一个删除状态即可。)</p>
+</blockquote>
+<h2 id="数据页也可以像页内记录那样也有一个-Page-Directory-页目录"><a href="#数据页也可以像页内记录那样也有一个-Page-Directory-页目录" class="headerlink" title="数据页也可以像页内记录那样也有一个 Page Directory 页目录"></a><code>数据页</code>也可以像<code>页内记录</code>那样也有一个 <code>Page Directory 页目录</code></h2><blockquote>
+<p>由于数据⻚的编号可能并不是连续的，所以在向index_demo 表中插入许多条记录后，可能是这样的效果:<br><img src="/images/MySQL/6.1/6.jpg"></p>
+</blockquote>
+<blockquote>
+<p>如果想从更大量的⻚中根据主键值快速定位某些记录所在的⻚，我们也可以<code>给这些页做个目录</code>，每个⻚对应一个目录项，每个<code>目录项</code>包括下边两个部分:</p>
 <ul>
-<li>对于<code>无向图</code>来说，如果 A[i][j] 等于 1，那 A[j][i] 也肯定等于 1。实际上，我们只需要存储一个就可以了。<span style="color:Red;font-weight:600;">也就是说，无向图的二维数组中，如果我们将其用对角线划分为上下两部分，那我们只需要利用上面或者下面这样一半的空间就足够了，另外一半白白浪费掉了</span>。</li>
-<li>还有，如果我们存储的是 <code>稀疏图</code>（Sparse Matrix），也就是说，<span style="color:Red;font-weight:600;">顶点很多，但每个顶点的边并不多</span>，那邻接矩阵的存储方法就更加浪费空间了。<br>比如微信有好几亿的用户，对应到图上就是好几亿的顶点。但是每个用户的好友并不会很多，一般也就三五百个而已。<br>如果我们用邻接矩阵来存储，那绝大部分的存储空间都被浪费了。</li>
+<li>⻚的用户记录中最小的主键值，我们用key来表示。</li>
+<li>⻚号，我们用page_no表示。<br>所以我们为上边几个⻚做好的目录就像这样子:<br><img src="/images/MySQL/6.1/7.jpg"></li>
 </ul>
 </blockquote>
-<br/>
-
 <blockquote>
+<p>以⻚28为例，它对应目录项2，这个目录项中包含着该⻚的⻚号28以及该⻚中用户记录的最小主键值5。<br>比方说我们想找主键值为20的记录，具体查找过程分两步:</p>
 <ul>
-<li>但这也并不是说，邻接矩阵的存储方法就完全没有优点。<br>首先，邻接矩阵的存储方式简单、直接，因为基于数组，所以在获取两个顶点的关系时，就非常高效。<br>其次，用邻接矩阵存储图的另外一个好处是方便计算。这是因为，用邻接矩阵的方式存储图，可以将很多图的运算转换成矩阵之间的运算。比如求解最短路径问题时会提到一个Floyd-Warshall 算法，就是利用矩阵循环相乘若干次得到结果。</li>
+<li>先从目录项中根据二分法快速确定出主键值为20的记录在目录项3中，它对应的⻚是 ⻚9。</li>
+<li>再根据前边说的在⻚中查找记录的方式去⻚9中定位具体的记录。</li>
 </ul>
 </blockquote>
-<h3 id="邻接表存储方法"><a href="#邻接表存储方法" class="headerlink" title="邻接表存储方法"></a>邻接表存储方法</h3><blockquote>
-<p>针对上面<code>邻接矩阵</code>比较浪费内存空间的问题，我们来看另外一种图的存储方法，<code>邻接表</code>（Adjacency List）。 下面是一张邻接表的图，你可以先看下<br><img src="/images/data-structure-algorithm/WX20231121-093652@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
-</blockquote>
 <blockquote>
-<p>乍一看，邻接表是不是有点像散列表？<br>每个顶点对应一条链表，链表中存储的是与这个顶点相连接的其他顶点。<br>另外需要说明的是，图中画的是一个<code>有向图</code>的邻接表存储方式，每个顶点对应的链表里面，存储的是指向的顶点。<br>对于<code>无向图</code>来说，也是类似的，不过，每个顶点的链表中存储的，是跟这个顶点有边相连的顶点，你可以自己画下。</p>
+<p>由一个个的<code>目录项</code>组成的类似书籍中的<code>简易目录</code>，其实就是索引的雏形</p>
 </blockquote>
-<br/>
-
-<blockquote>
-<p>还记得我们之前讲过的时间、空间复杂度互换的设计思想吗？<br><code>邻接矩阵</code>存储起来比较浪费空间，但是使用起来比较节省时间。<br>相反，<code>邻接表</code>存储起来比较节省空间，但是使用起来就比较耗时间。<br>就像图中的例子，如果我们要确定，是否存在一条从顶点 2 到顶点 4 的边，那我们就要遍历顶点 2 对应的那条链表，看链表中是否存在顶点 4。<br>而且，我们前面也讲过，链表的存储方式对缓存不友好。所以，比起<code>邻接矩阵</code>的存储方式，在<code>邻接表</code>中查询两个顶点之间的关系就没那么高效了。<br>在<code>散列表</code>那几节里，我讲到，在基于链表法解决冲突的散列表中，如果链过长，为了提高查找效率，我们可以将链表换成其他更加高效的数据结构，比如<code>平衡二叉查找树</code>等。<br>我们刚刚也讲到，邻接表长得很像散列。所以，我们也可以将<code>邻接表</code>同<code>散列表</code>一样进行“改进升级”。 比如将<code>邻接表</code>中的<code>链表</code>改成<code>平衡二叉查找树</code>。 实际开发中，我们可以选择用<code>红黑树</code>。 这样，我们就可以更加快速地查找两个顶点之间是否存在边了。<br>当然，这里的二叉查找树可以换成其他动态数据结构，比如<code>跳表</code>、<code>散列表</code>等。<br>除此之外，我们还可以将链表改成<code>有序动态数组</code>，可以通过二分查找的方法来快速定位两个顶点之间否是存在边。</p>
-</blockquote>
-<h3 id="精选留言"><a href="#精选留言" class="headerlink" title="精选留言"></a>精选留言</h3><img src="/images/data-structure-algorithm/WX20231121-094703@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/WX20231121-094454@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li>《数据结构与算法之美》王争</li>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li>
-</ul>
+<p>至此，针对数据⻚做的<code>简易目录</code>就搞定了。不过忘了说了，这个目录有一个别名，称为<code>索引</code>。</p>
+<p>所以：<br>上一篇讲的，<code>数据页内，为许多记录设计的目录，叫 页目录</code>；<br>本篇讲的，<code>为许多数据页设计的目录，叫 索引</code>；</p>
 
         
         
@@ -841,7 +678,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -859,7 +696,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
 </article>
 
 
-  <article id="post-data-structure-algorithm/12-1.map" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL知识点整理/6.0 没有索引时，如何查找数据？" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -867,7 +704,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/09/data-structure-algorithm/12-1.map/">「数据结构与算法」图</a>
+      <a class="p-name article-title" href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/">6.0 没有索引时，如何查找数据？</a>
     </h1>
   
 
@@ -878,17 +715,17 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-09T14:01:12.000Z" itemprop="datePublished">2020年11月09日</time>
+  <time class="dt-published" datetime="2021-10-04T11:53:21.000Z" itemprop="datePublished">2021年10月04日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2020/11/09/data-structure-algorithm/12-1.map/#comments" class="article-comment-link">
+<a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -898,168 +735,340 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><blockquote>
-<p>微博、微信、QQ 这些社交软件你肯定都玩过。 在微博中，两个人可以互相关注；在微信中，两个人可以互加好友。<br>那你知道，如何存储微博、微信等这些社交网络的好友关系吗？ 这就要用到我们今天要讲的这种数据结构：<code>图</code>。</p>
-<p>实际上，涉及图的算法有很多，也非常复杂，比如 <code>图的搜索</code>、<code>最短路径</code>、<code>最小生成树</code>、<code>二分图</code>等等。<br>我们今天聚焦在 <code>图存储</code> 这一方面，后面会分好几节来依次讲解图相关的算法。</p>
+        <h1 id="没有索引的查找"><a href="#没有索引的查找" class="headerlink" title="没有索引的查找"></a>没有索引的查找</h1><p>本集的主题是<code>索引</code>，在正式介绍<code>索引</code>之前，我们需要了解一下没有索引时是怎么查找记录的。为了方便理解，下边先只唠叨搜索条件为对某个列精确匹配的情况，如：<code>SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;</code></p>
+<h2 id="在单个数据页中的查找"><a href="#在单个数据页中的查找" class="headerlink" title="在单个数据页中的查找"></a>在<code>单个数据页</code>中的查找</h2><blockquote>
+<p>假设目前表中的记录比较少，所有的记录都可以被存放到一个⻚中。在查找记录的时候可以根据搜索条件的不同分为两种情况:</p>
+<ul>
+<li>以<code>主键</code>为搜索条件 (😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)<br>可参考 <a target="_blank" rel="noopener" href="https://app.yinxiang.com/shard/s69/nl/50006762/4bed2a5d-ea50-4c85-80fb-f2e9613bb6c6/">5. 7 前情回顾: 数据页、目录页、槽、(页内)分组、记录</a></li>
+<li>以<code>其他列</code>作为搜索条件 (😭 <code>O(n)</code>)<br>对非主键列的查找的过程可就不这么幸运了，因为在<code>数据⻚中并没有对非主键列建立所谓的⻚目录</code>，所以我们<code>无法通过二分法快速定位相应的槽</code>。<br><code>这种情况下只能从最小记录开始依次遍历单链表中的每条记录，然后对比每条记录是不是符合搜索条件</code>。很显然，<code>这种查找的效率是非常低的</code>。</li>
+</ul>
 </blockquote>
-<h3 id="认识-图-无向"><a href="#认识-图-无向" class="headerlink" title="认识 图(无向)"></a>认识 图(无向)</h3><blockquote>
-<p>前面已经学过了<code>树</code>这种<code>非线性数据结构</code>，今天我们要讲另一种<code>非线性数据结构</code> <code>图(Graph)</code>。 和<code>树</code>比起来，这是一种更加复杂的结构。</p>
-</blockquote>
-<h4 id="顶点"><a href="#顶点" class="headerlink" title="顶点"></a>顶点</h4><blockquote>
-<p>我们知道，<code>树</code>中的元素我们称为<code>节点</code>，<code>图</code>中的元素我们就叫作<code>顶点</code>（vertex）。</p>
-</blockquote>
-<h4 id="边"><a href="#边" class="headerlink" title="边"></a>边</h4><blockquote>
-<p>从下图可以看出，图中的一个<code>顶点</code>可以与任意其他顶点建立连接关系。我们把这种建立的关系叫作<code>边</code>（edge）。<br><img src="/images/data-structure-algorithm/WX20231121-085828@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
-</blockquote>
-<h4 id="度"><a href="#度" class="headerlink" title="度"></a>度</h4><blockquote>
-<p>我们生活中就有很多符合图这种结构的例子。比如，开篇问题中讲到的社交网络，就是一个非常典型的图结构。<br>我们就拿微信举例子吧。我们可以把每个用户看作一个顶点。如果两个用户之间互加好友，那就在两者之间建立一条边。所以，整个微信的好友关系就可以用一张图来表示。其中，每个用户有多少个好友，对应到图中，就叫作顶点的<code>度（degree）</code>，就是跟顶点相连接的边的条数。</p>
-</blockquote>
-<h3 id="有向图"><a href="#有向图" class="headerlink" title="有向图"></a>有向图</h3><blockquote>
-<p>实际上，微博的社交关系跟微信还有点不一样，或者说更加复杂一点。<br>微博允许单向关注，也就是说，用户 A 关注了用户 B，但用户 B 可以不关注用户 A。那我们如何用图来表示这种单向的社交关系呢？</p>
+<p><strong>所以结论就是：在单个数据页内</strong></p>
+<ul>
+<li><code>主键查找</code>可以使用 “二分找槽 + 页内遍历”；(😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)</li>
+<li><code>非主键查找</code>还无法做到快速查找；(😭 <code>O(n)</code>)</li>
+</ul>
+<h2 id="在很多⻚中查找"><a href="#在很多⻚中查找" class="headerlink" title="在很多⻚中查找"></a>在很多⻚中查找</h2><blockquote>
+<p>大部分情况下我们表中存放的记录都是非常多的，<code>需要好多的 数据⻚</code> 来存储这些记录。<br>在很多⻚中查找记录的话可以分为两个步骤:</p>
+<ol>
+<li>定位到记录所在的⻚；</li>
+<li><code>⻚内查找</code>； (这个前面已经多次提过了)</li>
+</ol>
 </blockquote>
 <blockquote>
-<p>我们可以把刚刚讲的图结构稍微改造一下，引入边的“方向”的概念。<br>如果用户 A 关注了用户 B，我们就在图中画一条从 A 到 B 的带箭头的边，来表示边的方向。如果用户 A 和用户 B 互相关注了，那我们就画一条从 A 指向 B 的边，再画一条从 B指向 A 的边。我们把这种边有方向的图叫作“有向图”。以此类推，我们把边没有方向的图就叫作“无向图”。<br><img src="/images/data-structure-algorithm/WX20231121-090405@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<p><strong>现在问题就是第1步了，<code>如何定位记录所在的页?</code></strong><br>由于目前我们还没有讲什么方法去快速的定位到记录所在的⻚，<code>所以只能从第一个⻚沿着双向链表一直往下找</code>; 这种遍历所有数据⻚的方式显然是超级耗时的，如果一个表有一亿条记录，使用这种方式去查找记录那要等到猴年⻢月才能等到查找结果。（<code>定位页的操作，时间复杂度此时成了 O(n)</code>，显然很低效 ）<br>所以祖国和人⺠都在期盼一种能高效完成搜索的方法，<code>索引同志</code>就要亮相登台了。</p>
 </blockquote>
-<h4 id="出度、入度"><a href="#出度、入度" class="headerlink" title="出度、入度"></a>出度、入度</h4><blockquote>
-<p>我们刚刚讲过，无向图中有“度”这个概念，表示一个顶点有多少条边。在有向图中，我们把度分为<code>入度</code>（In-degree）和 <code>出度</code>（Out-degree）。<br>顶点的入度，表示有多少条边指向这个顶点；<br>顶点的出度，表示有多少条边是以这个顶点为起点指向其他顶点。<br>对应到微博的例子，入度就表示有多少粉丝，出度就表示关注了多少人。</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>lant: 所以…… 到了这里，我们应该清楚：</p>
+<ul>
+<li><code>索引 这个方案</code> 是为了：当数据量很大时(InnoDB会用到大量的数据页)，在 <code>大量的 数据页</code> 中高效定位到 <code>某个数据页</code>；</li>
+<li><code>Page Directory</code>、<code>槽</code>(对应<code>分组</code>) 是为了：在<code>页内</code>高效定位到某行记录（<code>在页的目录页中通过二分法定位槽(页内分组)</code> + <code>分组内遍历</code>）。</li>
+</ul>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/5.7 前情回顾 数据页、目录页、槽、(页内)分组、记录" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/02/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/">5.7 前情回顾 数据页、目录页、槽、(页内)分组、记录</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-02T02:21:43.000Z" itemprop="datePublished">2021年10月02日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/02/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系"><a href="#前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系" class="headerlink" title="前情回顾: 数据页、目录页、槽、(页内)分组、记录 之间的关系"></a>前情回顾: <code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系</h1><blockquote>
+<p>前边我们详细唠叨了InnoDB数据⻚的7个组成部分，知道了:</p>
+<ul>
+<li>各个<code>数据⻚</code> 可能在物理结构上并不相连，而是通过<code>双向链表</code>相关联；</li>
+<li>而<code>每个数据⻚中的记录会按照主键值从小到大的顺序组成一个单向链表</code>；<br>  <img src="/images/MySQL/5.7/1.jpg"></li>
+</ul>
 </blockquote>
-<h3 id="加权图"><a href="#加权图" class="headerlink" title="加权图"></a>加权图</h3><blockquote>
-<p>前面讲到了微信、微博、无向图、有向图，现在我们再来看另一种社交软件：QQ。 QQ 中的社交关系要更复杂的一点。不知道你有没有留意过 QQ 亲密度这样一个功能。<br>QQ不仅记录了用户之间的好友关系，还记录了两个用户之间的亲密度，如果两个用户经常往来，那亲密度就比较高；如果不经常往来，亲密度就比较低。 如何在图中记录这种好友关系的亲密度呢？<br>这里就要用到另一种图，<code>带权图</code>（weighted graph）。在带权图中，每条边都有一个权重 （weight），我们可以通过这个权重来表示 QQ 好友间的亲密度。<br><img src="/images/data-structure-algorithm/WX20231121-091103@2x.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<p><strong><code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系 回顾:</strong></p>
+<ul>
+<li>每个<code>数据页</code>内的记录，会被分成一个个的<code>(页内)分组</code>；</li>
+<li>每个<code>分组</code>中的记录也都是按照主键值从小到大由单链表串联起来的(页内记录本来就是这样串联的)；</li>
+<li>每个<code>分组</code>中的最大记录的<code>地址偏移量</code>被叫做<code>槽</code> （由于槽就是分组中最大那条记录的地址偏移量，所以<code>槽其实也就指向(代表)了对应分组中的最大那条记录的主键值</code>）；</li>
+<li>每个<code>分组</code>对应的<code>槽</code>都被放到了页内一个叫<code>页目录</code>的地方；</li>
+</ul>
+<blockquote>
+<p><strong><code>在某个页中</code></strong> 通过主键查找某条记录的时候:</p>
+<ul>
+<li>可以先在<code>⻚目录</code>中使用二分法快速定位到对应的<code>槽</code> (<code>O(log n)</code>)</li>
+<li>然后再遍历该<code>槽</code>对应<code>分组</code>中的记录，即可快速找到指定的记录(<code>O(1)</code>)。</li>
+</ul>
 </blockquote>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>关于图的概念比较多，今天也只是介绍了几个常用的，理解起来都不复杂。掌握了图的概念之后，我们再来看下，如何在内存中存储图这种数据结构呢？</p>
-<h3 id="图常见应用"><a href="#图常见应用" class="headerlink" title="图常见应用"></a>图常见应用</h3><p>如下表所示，许多现实系统都可以用图来建模，相应的问题也可以约化为图计算问题。</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/5.6 通用页结构 之 File Trailer(文件尾)部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/">5.6 `通用页`结构 之 File Trailer(文件尾)部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-29T13:37:31.000Z" itemprop="datePublished">2021年09月29日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通用页结构-之-File-Trailer-文件尾-部分"><a href="#通用页结构-之-File-Trailer-文件尾-部分" class="headerlink" title="通用页结构 之 File Trailer(文件尾)部分"></a><code>通用页</code>结构 之 <code>File Trailer</code>(文件尾)部分</h1><blockquote>
+<p><code>File Trailer(文件尾)</code> 部分和 <code>File Header</code> 部分 一样，都是所有类型的⻚通用的。</p>
+</blockquote>
+<blockquote>
+<p>我们知道InnoDB存储引擎会把数据存储到磁盘上，但是磁盘速度太慢，需要以⻚为单位把数据加载到内存中处理，如果该⻚中的数据在内存中被修改了，那么在修改后的某个时间需要把数据同步到磁盘中。**<code>但是在同步了一半的时候中断电了咋办，这不是莫名尴尬么?</code>**</p>
+</blockquote>
+<blockquote>
+<p>为了检测一个⻚是否完整(也就是<code>在同步的时候有没有发生只同步一半的尴尬情况</code>)，设计InnoDB的大叔们在每个⻚的尾部都加了一个<code>File Trailer</code>部分，这个部分由8个字节组成，可以分成2个小部分:</p>
+<ul>
+<li>**前4个字节代表<code>⻚的校验和</code>**：<br>这个部分是和 <code>File Header</code> 中的校验和相对应的。<br>每当一个⻚在内存中修改了，在同步之前就要把它的校验和算出来，因为File Header在⻚面的前边，所以校验和会被首先同步到磁盘，当完全写完时，校验和也会被写到⻚的尾部，<code>如果完全同步成功，则⻚的首部和尾部的校验和应该是一致的</code>。<code>如果写了一半儿断电了，那么在File Header中的校验和就代表着已经修改过的⻚，而在File Trialer中的校验和代表着原先的⻚，二者不同则意味着同步中间出了错</code>。</li>
+<li>后4个字节代表⻚面被最后修改时对应的日志序列位置(LSN)<br>这个部分也是为了校验⻚的完整性的，只不过我们目前还没说LSN是个什么意思，所以大家可以先不用管这个属性。 这个File Trailer与FILE Header类似，都是所有类型的⻚通用的。</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/5.5 通用页结构 之 File Header(文件头)部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/">5.5 `通用页`结构 之 File Header(文件头)部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-28T14:07:14.000Z" itemprop="datePublished">2021年09月28日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通用页结构-之-File-Header-文件头-部分"><a href="#通用页结构-之-File-Header-文件头-部分" class="headerlink" title="通用页结构 之 File Header(文件头)部分"></a><code>通用页</code>结构 之 <code>File Header</code>(文件头)部分</h1><blockquote>
+<p>上一篇讲的 数据页结构的<code>Page Header</code>部分 是 <code>专⻔针对</code> 页类型为 <code>数据⻚</code> 的这种页。 它的各个属性描述了 <code>数据页</code> 中的<code>记录的各种状态信息</code>，比方说⻚里头有多少个记录了呀，有多少个槽了呀。</p>
+</blockquote>
+<blockquote>
+<p>而我们现在讲到的 页结构的<code>File Header部分</code> 是属于各种类型的⻚都<code>通用</code>的部分，它描述了一些针对各种⻚都通用的一些信息，比方说 <code>这个⻚的编号是多少</code>，<code>它的上一个⻚、下一个⻚是谁</code> ……<br>这个部分占用固定的38个字节，是由下边这些内容组成的:</p>
 <table>
 <thead>
 <tr>
-<th align="center"></th>
-<th align="center">顶点</th>
-<th align="center">边</th>
-<th align="center">图计算问题</th>
+<th>名称</th>
+<th>占用空间</th>
+<th>描述</th>
 </tr>
 </thead>
 <tbody><tr>
-<td align="center">社交网络</td>
-<td align="center">用户</td>
-<td align="center">好友关系</td>
-<td align="center">潜在好友推荐</td>
+<td>📌 <strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code></strong></td>
+<td>4字节</td>
+<td><strong><code>页的校验和(checksum值)</code></strong></td>
 </tr>
 <tr>
-<td align="center">地铁线路</td>
-<td align="center">站点</td>
-<td align="center">站点间的连通性</td>
-<td align="center">最短路线推荐</td>
+<td>✅ FIL_PAGE_OFFSET</td>
+<td>4字节</td>
+<td>页号</td>
 </tr>
 <tr>
-<td align="center">太阳系</td>
-<td align="center">星体</td>
-<td align="center">星体间的万有引力作用</td>
-<td align="center">行星轨迹计算</td>
+<td>✅ <strong><code>FIL_PAGE_PREV</code></strong></td>
+<td>4字节</td>
+<td><code>上一个页的页号</code></td>
+</tr>
+<tr>
+<td>✅ <strong><code>FIL_PAGE_NEXT</code></strong></td>
+<td>4字节</td>
+<td><code>下一个页的页号</code></td>
+</tr>
+<tr>
+<td>FIL_PAGE_LSN</td>
+<td>8字节</td>
+<td>页面被最后修改时对应的日志序列(LSN)位置(log sequence number)</td>
+</tr>
+<tr>
+<td>✅ <strong><code>FIL_PAGE_TYPE</code></strong></td>
+<td>2字节</td>
+<td><code>该⻚的类型</code></td>
+</tr>
+<tr>
+<td>FIL_PAGE_FILE_FLUSH_LSN</td>
+<td>8字节</td>
+<td>仅在系统表空间的一个⻚中定义，代表文件至少被刷新到了对应的LSN值</td>
+</tr>
+<tr>
+<td>FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID</td>
+<td>4字</td>
+<td>⻚属于哪个表空间</td>
 </tr>
 </tbody></table>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li>《数据结构与算法之美》王争</li>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_graph/graph/">hello-algo</a></li>
-</ul>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-data-structure-algorithm/11-4.heap-TopK" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2020/11/04/data-structure-algorithm/11-4.heap-TopK/">「数据结构与算法」堆 的应用 -- TopK问题 (TODO)</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2020-11-04T12:11:32.000Z" itemprop="datePublished">2020年11月04日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a>
-  </div>
-
-      
-      
-<a href="/2020/11/04/data-structure-algorithm/11-4.heap-TopK/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>给定一个长度为 n 的无序数组 nums ，请返回数组中前 k 大的元素。</p>
-<p>对于该问题，我们先介绍两种思路比较直接的解法，再介绍效率更高的堆解法</p>
-<h3 id="方法一：遍历"><a href="#方法一：遍历" class="headerlink" title="方法一：遍历"></a>方法一：遍历</h3><blockquote>
-<p>如下图所示，进行k轮遍历，分别在每轮中提取第 1、2、……、k大的元素，时间复杂度为 O(kn)。<br><img src="/images/data-structure-algorithm/top_k_traversal.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><span style="color:red">此方法只适用于 k远小于n 的情况，因为当 k 与 n 比较接近时，其时间复杂度趋向于 O(n^2)，非常耗时。（因为 当 k&#x3D;n 时，我们可以得到完整的有序序列，此时等价于“选择排序”算法。）</span><br><br/></p>
 </blockquote>
-<h3 id="方法二：排序"><a href="#方法二：排序" class="headerlink" title="方法二：排序"></a>方法二：排序</h3><blockquote>
-<p>如下图所示，我们可以先对数组 nums 进行排序，再返回最右边的 k 个元素，时间复杂度为 O(n logn)。<br>显然，该方法“超额”完成任务了，因为我们只需要找出最大的 k 个元素即可，而不需要排序其他元素。<br><img src="/images/data-structure-algorithm/top_k_sorting.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
-</blockquote>
-<h3 id="高效解决Top-K问题-堆"><a href="#高效解决Top-K问题-堆" class="headerlink" title="高效解决Top-K问题 - - 堆"></a>高效解决Top-K问题 - - 堆</h3><p>我们可以基于堆更加高效地解决 Top-K 问题，流程如下：<br>*初始化一个小顶堆，其堆顶元素最小。<br>*先将数组的前 k 个元素依次入堆。<br>*从第 k+1 个元素开始，若当前元素大于堆顶元素，则将堆顶元素出堆，并将当前元素入堆。<br>*遍历完成后，堆中保存的就是最大的 k 个元素。</p>
 <blockquote>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/top_k_heap_step1.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step2.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step3.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/top_k_heap_step4.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step5.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step6.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
-<div style="display:flex;">
-<img src="/images/data-structure-algorithm/top_k_heap_step7.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step8.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-<img src="/images/data-structure-algorithm/top_k_heap_step9.png" width="350px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
-</div>
+<p>对照着这个表格，我们看几个目前比较重要的部分:<br><strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code>:</strong><br>这个属性代表当前⻚面的<code>校验和(checksum)</code>。啥是<code>校验和</code>?<br>就是对于一个很⻓很⻓的字节串来说，我们会通过某种算法计算出一个比较短的值来代表这个很⻓的字节串，这个比较短的值就称为<code>校验和</code>。**<code>这样在比较两个很⻓的字节串之前先比较这两个⻓字节串的校验和，如果校验和都不一样两个⻓字节串肯定是不同的，所以省去了直接比较两个比较⻓的字节串的时间损耗</code>**。</p>
 </blockquote>
-<p>总共执行了 n 轮入堆和出堆，堆的最大长度为 k，因此时间复杂度为 <code>O(nlogk)</code>。该方法的效率很高，当 k 较小时，时间复杂度趋向 <code>O(n)</code>；当<br>较大时，时间复杂度不会超过 <code>O(nlogn)</code>。</p>
-<p>另外，该方法适用于<strong>动态数据流</strong>的使用场景。在不断加入数据时，我们可以持续维护堆内的元素，从而实现最大 k 个元素的动态更新。</p>
-<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
-<li><a target="_blank" rel="noopener" href="https://www.hello-algo.com/chapter_heap/top_k/">hello-algo</a></li>
-<li>《数据结构与算法之美》王争</li>
-</ul>
+<blockquote>
+<p><strong><code>FIL_PAGE_OFFSET</code>:</strong><br>每一个⻚都有一个单独的⻚号，InnoDB通过⻚号来可以唯一定位一个⻚。</p>
+</blockquote>
+<blockquote>
+<p><strong><code>FIL_PAGE_TYPE</code>:</strong><br>这个代表当前⻚的类型，我们前边说过，InnoDB为了不同的目的而把⻚分为不同的类型，<code>我们上边介绍的其实都是存储记录的数据⻚</code>，其实还有很多别的类型的⻚。<br>(我们存放记录的数据⻚的类型其实是<code>FIL_PAGE_INDEX</code>，也就是所谓的<code>索引⻚</code>。至于啥是个索引，且听下回分解~)</p>
+</blockquote>
+<blockquote>
+<p><strong><code>FIL_PAGE_PREV</code></strong> 和 <strong><code>FIL_PAGE_NEXT</code></strong>:<br>我们前边强调过，<code>InnoDB是以⻚为单位存放数据的</code>，有时候我们存放的数据占用的空间非常大(比如一张表中可以有成千上万条记录)，InnoDB可能不可以一次性为这么多数据分配一个非常大的存储空间，<code>如果分散到多个不连续的⻚中存储的话需要把这些⻚关联起来</code>，FIL_PAGE_PREV和 FIL_PAGE_NEXT就分别代表本⻚的上一个和下一个⻚的⻚号。这样**<code>通过建立一个双向链表把许许多多的⻚就都串联起来 了</code>**，而无需这些⻚在物理上真正连着。(Tips: 也不是所有类型的⻚都有上一个和下一个⻚的属性，不过我们本集中唠叨的数据⻚(也就是类型为FIL_PAGE_INDEX的⻚)是有这两个属性的）。<br>所以所有的数据⻚其实是一个双链表，就像这样:<br><img src="/images/MySQL/5.5/1.jpg"></p>
+</blockquote>
+<p>关于File Header的其他属性我们暂时用不到，等用到的时候再提~</p>
 
         
         
@@ -1071,7 +1080,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -1107,23 +1116,23 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
       <ul>
         
           <li>
-            <a href="/2021/04/18/redis/04.%20basic-data-structure-sorted-BitMap/">redis基本数据结构浅析 之 BitMap(位图)</a>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
           </li>
         
           <li>
-            <a href="/2021/04/17/redis/04.%20basic-data-structure-sorted-set/">redis基本数据结构浅析 之 Sorted set(有序集合)</a>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
           </li>
         
           <li>
-            <a href="/2021/04/15/redis/03.%20basic-data-structure-set/">redis基本数据结构浅析 之 set(集合)</a>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
           </li>
         
           <li>
-            <a href="/2021/04/14/redis/02.%20basic-data-structure-list/">redis基本数据结构浅析 之 List(列表)</a>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
           </li>
         
           <li>
-            <a href="/2021/04/11/redis/01.%20basic-data-structure-hash/">redis基本数据结构浅析 之 Hash表</a>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
           </li>
         
       </ul>
@@ -1136,7 +1145,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 20px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
     </div>
   </div>
 
@@ -1145,7 +1154,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">22</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
     </div>
   </div>
 
@@ -1155,7 +1164,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/">2020年</a><span class="archive-list-count">22</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -1165,7 +1174,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">27</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 
@@ -1186,7 +1195,7 @@ lant: 上面的操作虽然都是 O(n) 级的时间复杂度，但其实这些�
       </p>
       
       <p>
-        <span>Copyright &copy; 2023 Rymuscle.</span>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
         <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
         <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
       </p>

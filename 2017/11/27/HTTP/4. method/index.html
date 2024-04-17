@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HTTP 之 method | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-HTTP/4. method" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      HTTP 之 method
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2017-11-27T11:43:20.000Z" itemprop="datePublished">2017年11月27日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2017/11/27/HTTP/4.%20method/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="PUT-vs-POST"><a href="#PUT-vs-POST" class="headerlink" title="PUT vs POST"></a>PUT vs POST</h2><ol>
+<li><p><code>PUT</code>: 替换资源;</p>
+</li>
+<li><p><code>PUT</code> 和 <code>POST</code>的区别: 在HTTP中, PUT被定义为 <a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.1.2"><code>idempotent(幂等性)</code></a> 的方法, POST则不是, <strong>这是一个很重要的区别</strong></p>
+</li>
+<li><p>应该用 <code>PUT</code> 还是 <code>POST</code>?</p>
+<ul>
+<li><p>取决于这个REST服务的行为是否是idempotent(幂等)的<br> 假如发送两个请求, 希望服务器端是产生两个新数据，那就说明这个服务不是idempotent的, 因为多次使用产生了副作用了, 那就应该使用 <code>POST</code> 方法;<br> 但如果是希望后一个请求把第一个请求覆盖掉(这不正是修改么), 那这个服务就是idempotent的, 那就应该使用 <code>PUT</code> 方法;</p>
+</li>
+<li><p>虽然 <code>POST</code> 和 <code>PUT</code> 差别不大, 用错了也没关系, 但是你的服务一放到internet上，如果不遵从HTTP协议的规范，就可能给自己带来麻烦;</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h2><ol>
+<li><p><code>POST</code>: 上面已经提过了, <strong>POST是非幂等的</strong>;</p>
+</li>
+<li><p><code>POST</code> 和 <code>PUT</code> 都可以上传文件或者创建新信息, 但主要看你的REST服务行为是否是幂等的;</p>
+</li>
+</ol>
+<h2 id="PATCH"><a href="#PATCH" class="headerlink" title="PATCH"></a>PATCH</h2><p><strong>PATCH不是HTTP标准方法的，服务端需要考虑客户端是否能够支持的问题</strong>;</p>
+<ol>
+<li><p>对已有资源的操作: 用于对资源的 <strong>部分内容</strong> 进行更新 (例如更新某一个字段, 具体比如说只更新用户信息的电话号码字段);   </p>
+</li>
+<li><p>而 <code>PUT</code> 则用于更新某个资源较完整的内容, 比如说用户要重填完整表单更新所有信息, 后台处理更新时可能只是保留内部记录ID不变;</p>
+</li>
+</ol>
+<h2 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h2><ol>
+<li>HEAD和 <code>GET</code> 本质是一样的, 区别在于如果使用HEAD, 响应体将不会被返回, 而仅仅返回HTTP头信息;<br>比如: 欲判断某个资源是否存在, 我们通常使用GET, <strong>但这里用HEAD则意义更加明确</strong>;</li>
+</ol>
+<h2 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h2><p>比较简单, 直接获取资源;</p>
+<h2 id="OPTIONS"><a href="#OPTIONS" class="headerlink" title="OPTIONS"></a>OPTIONS</h2><p>这个方法使用比较少, 它用于获取当前URL所支持的方法;<br>若请求成功, 则它会在HTTP头中包含一个名为 <code>Allow</code> 的头, 值是服务器所支持的方法, 如 GET, POST;<br>之前跨域相关博文 <a href="/2016/09/18/2016-09-18-sameoriginpolicy-06/">CORS方案 not-so-simple request</a> 中的”预检”请求用的请求方法就是 <code>OPTIONS</code>;</p>
+<h2 id="CONNECT"><a href="#CONNECT" class="headerlink" title="CONNECT"></a>CONNECT</h2><p>要求用隧道协议连接代理, 如使用SSL</p>
+<h2 id="TRACE"><a href="#TRACE" class="headerlink" title="TRACE"></a>TRACE</h2><p>~~未完待续</p>
+<h2 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h2><p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.7">参考</a></p>
+<h2 id="PURGE"><a href="#PURGE" class="headerlink" title="PURGE"></a>PURGE</h2><p>非规范中定义的方法</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PUT-vs-POST"><span class="toc-text">PUT vs POST</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POST"><span class="toc-text">POST</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PATCH"><span class="toc-text">PATCH</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#HEAD"><span class="toc-text">HEAD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GET"><span class="toc-text">GET</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#OPTIONS"><span class="toc-text">OPTIONS</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CONNECT"><span class="toc-text">CONNECT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#TRACE"><span class="toc-text">TRACE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DELETE"><span class="toc-text">DELETE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PURGE"><span class="toc-text">PURGE</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          认证与授权
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          0. 初阶需要重点关注 InnoDB存储引擎 存储结构 的相关知识
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

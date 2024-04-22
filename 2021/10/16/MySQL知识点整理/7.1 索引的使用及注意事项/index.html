@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>7.1 索引的使用及注意事项 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/7.1 索引的使用及注意事项" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      7.1 索引的使用及注意事项
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-16T13:05:37.000Z" itemprop="datePublished">2021年10月16日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/16/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.1%20%E7%B4%A2%E5%BC%95%E7%9A%84%E4%BD%BF%E7%94%A8%E5%8F%8A%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="测试数据表准备"><a href="#测试数据表准备" class="headerlink" title="测试数据表准备"></a>测试数据表准备</h1><p>B+树索引并不是万能的，并不是所有的查询语句都能用到我们建立的索引。</p>
+<blockquote>
+<p>为了故事的顺利发展，我们需要先创建一个 用户基本信息 表:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE person_info(</span><br><span class="line">id INT NOT NULL auto_increment,</span><br><span class="line">name VARCHAR(100) NOT NULL,</span><br><span class="line">birthday DATE NOT NULL,</span><br><span class="line">phone_number CHAR(11) NOT NULL,</span><br><span class="line">country varchar(100) NOT NULL,</span><br><span class="line">PRIMARY KEY (id),</span><br><span class="line">KEY idx_name_birthday_phone_number (name,</span><br><span class="line">birthday, phone_number) );</span><br></pre></td></tr></table></figure>
+<p>对于这个person_info表我们需要注意两点:</p>
+<ul>
+<li>表中的主键是id列，它存储一个自动递增的整数。所以InnoDB存储引擎会自动为id列建立<code>聚簇索引</code>。 </li>
+<li>我们额外定义了一个<code>二级索引</code> idx_name_birthday_phone_number，它是由3个列组成的联合索引。 所以在这个索引对应的B+树的叶子节点处存储的用户记录只保留name、birthday、phone_number这三个列的值以及主键id的值，并不会保存country列的值。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>person_info表会为 <code>聚簇索引</code> 和 <code>idx_name_birthday_phone_number索引</code> 建立2棵B+树<br>下边我们画一下索引idx_name_birthday_phone_number的示意图，不过既然我们已经掌握了InnoDB的B+树索引原理，那我们在画图的时候为了让图更加清晰，所以在省略一些不必要的部分，比如记录的额外信息，各⻚面的⻚号等等，其中内节点中目录项记录的⻚号信息我们用箭头来代替，在记录结构中只保 留name、birthday、phone_number、id这四个列的真实数据值，所以示意图就⻓这样:<br><img src="/images/MySQL/7.1/1.png"><br>为了方便大家理解，我们特意标明了哪些是内节点，哪些是叶子节点。<br>再次强调一下，<code>内节点</code>中存储的是<code>目录项记录</code>，<code>叶子节点</code>中存储的是<code>用户记录</code>(由于不是聚簇索引，所以用户记录是不完整的，缺少country列的值)。</p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出，这个 idx_name_birthday_phone_number 索引对应的B+树中⻚面和记录的排序方式就是这样的:</p>
+<ul>
+<li>先按照name列的值进行排序。</li>
+<li>如果name列的值相同，则按照birthday列的值进行排序。</li>
+<li>如果birthday列的值也相同，则按照phone_number的值进行排序。<br>这个排序方式十分、特别、非常、巨、very very very重要，因为只要⻚面和记录是排好序的，我们就可以通过二分法来快速定位查找。</li>
+</ul>
+<p>下边的内容都仰仗这个图了，大家对照着图理解。</p>
+</blockquote>
+<h1 id="全值匹配"><a href="#全值匹配" class="headerlink" title="全值匹配"></a>全值匹配</h1><p>当我们的 <code>where搜索条件</code> 中的列和 <code>索引列</code> 一致的话，这种情况就称为<code>全值匹配</code>，比方说下边这个查找语句:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM person_info WHERE name = &#x27;Ashburn&#x27; AND birthday = &#x27;1990-09-27&#x27; AND phone_number = &#x27;15123983239&#x27;;</span><br></pre></td></tr></table></figure>
+<p>我们建立的 <code>idx_name_birthday_phone_number索引</code> 包含的3个列在这个查询语句中都展现出来了。</p>
+<blockquote>
+<p>大家可以想象一下这个查询过程:</p>
+<ul>
+<li>因为B+树的<code>数据⻚</code>和<code>记录</code>先是按照name列的值进行排序的， 所以先可以很快定位name列的值是Ashburn的记录位置。</li>
+<li>在name列相同的记录里又是按照birthday列的值进行排序的，所以在name列的值是Ashburn的记录里又可以快速定位birthday列的值是’1990-09-27’的记录。</li>
+<li>如果很不幸，name和birthday列的值都是相同的，那记录是按照phone_number列的值排序的，所以<code>联合索引中的三个列都可能被用到</code>。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>有的同学也许有个疑问，如果调换WHERE子句中的几个搜索条件的顺序对查询结果有啥影响么? 比方说写成下边这样:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM person_info WHERE birthday = &#x27;1990- 09-27&#x27; AND phone_number = &#x27;15123983239&#x27; AND name = &#x27;Ashburn&#x27;;</span><br></pre></td></tr></table></figure>
+<p>答案是: 没影响哈。MySQL有一个叫<code>查询优化器</code>的东东，会分析这些搜索条件并且按照可以使用的索引中列的顺序来决定先使用哪个搜索条件，后使用哪个搜索条件。我们后边儿会有专⻔的章节来介绍查询 优化器，敬请期待。</p>
+</blockquote>
+<h1 id="匹配左边的列"><a href="#匹配左边的列" class="headerlink" title="匹配左边的列"></a>匹配左边的列</h1><blockquote>
+<p>其实在我们的搜索语句中也可以不用包含全部联合索引中的列，<code>只包含左边</code> 的就行，比方说下边的查询语句:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM person_info WHERE name = &#x27;Ashburn&#x27;;</span><br><span class="line">或者</span><br><span class="line">SELECT * FROM person_info WHERE name = &#x27;Ashburn&#x27; AND birthday = &#x27;1990-09-27&#x27;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+<p>那为什么搜索条件中必须出现左边的列才可以使用到这个B+树索引呢? 比如下边的语句就用不到这个B+树索引么?</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM person_info WHERE birthday = &#x27;1990-09-27&#x27;;</span><br></pre></td></tr></table></figure>
+<p>是的，的确用不到，因为B+树的数据⻚和记录先是按照name列的值排序的，在name列的值相同的情况下才使用birthday列进行排序，也就是说name列的值不同的记录中birthday的值可能是无序的。<br>而现在你跳过name列直接根据birthday的值去查找，臣妾做 不到呀~</p>
+</blockquote>
+<blockquote>
+<p>那如果我就想在只使用birthday的值去通过B+树索引进行查找咋办呢?这好办，你再对birthday列建一个B+树索引就行了。</p>
+</blockquote>
+<blockquote>
+<p>但是需要特别注意的一点是，如果我们想使用联合索引中尽可能多的列，搜索条件中的各个列必须是联合索引中从最左边连续的列。<br>比方说联合索引idx_name_birthday_phone_number中列的定义顺序是name、birthday、phone_number，如果我们的搜索条件中只有name和phone_number，而没有中间的birthday，比方说这样:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM person_info WHERE name = &#x27;Ashburn&#x27; AND phone_number = &#x27;15123983239&#x27;;</span><br></pre></td></tr></table></figure>
+<p>这样只能用到name列的索引，birthday和phone_number的索引就用不上了，因为name值相同的记录先按照birthday的值进行排序，birthday值相同的记录才按照phone_number值进行排序。</p>
+</blockquote>
+<h1 id="匹配列前缀"><a href="#匹配列前缀" class="headerlink" title="匹配列前缀"></a>匹配列前缀</h1><blockquote>
+<p>我们前边说过为某个列建立索引的意思其实就是 <code>在对应的B+树的记录中使用该列的值进行排序</code><br>比方说person_info表上建立的联合索引idx_name_birthday_phone_number会先用name列的值进行排序，所以这个联合索引对应的B+树中的记录的name列的排列就是这样的:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">Aaron</span><br><span class="line">Aaron</span><br><span class="line">...</span><br><span class="line">Aaron</span><br><span class="line">Asa</span><br><span class="line">Ashburn</span><br><span class="line">...</span><br><span class="line">Ashburn</span><br><span class="line">Baird</span><br><span class="line">Barlow</span><br><span class="line">...</span><br><span class="line">Barlow</span><br></pre></td></tr></table></figure>
+<p>字符串排序的本质就是比较哪个字符串大一点儿，一般的比较规则都是逐个比较字符的大小，也就是说我们比较两个字符串的大小的过程其实是这样的:</p>
+<ul>
+<li>先比较字符串的第一个字符，第一个字符小的那个字符串就比较小。</li>
+<li>如果两个字符串的第一个字符相同，那就再比较第二个字符， 第二个字符比较小的那个字符串就比较小。</li>
+<li>如果两个字符串的第二个字符也相同，那就接着比较第三个字符，依此类推。</li>
+</ul>
+<p>也就是说这些字符串的前n个字符，也就是前缀都是排好序的， <strong>所以对于字符串类型的索引列来说，我们只匹配它的前缀也是可以快速定位记录的</strong> 。</p>
+</blockquote>
+<blockquote>
+<p>比方说我们想查询名字以’As’开头的记录，那就可以这么写查询语句:<br>SELECT * FROM person_info WHERE name LIKE ‘As%’;<br>但是需要注意的是，如果只给出后缀或者中间的某个字符串，比如这样:<br>SELECT * FROM person_info WHERE name LIKE ‘%As%’;<br>MySQL就无法快速定位记录位置了，因为字符串中间有’As’的字符串并没有排好序， <strong>所以只能<code>全表扫描</code>了</strong> 。</p>
+</blockquote>
+<h1 id="匹配范围值"><a href="#匹配范围值" class="headerlink" title="匹配范围值"></a>匹配范围值</h1><blockquote>
+<p>回头看我们idx_name_birthday_phone_number索引的B+树示意图，所有记录都是按照索引列的值从小到大的顺序排好序的，所以这极大的方便我们查找索引列的值在某个范围内的记录。</p>
+<p>比方说查询语句: <code>SELECT * FROM person_info WHERE name &gt; &#39;Asa&#39; AND name &lt; &#39;Barlow&#39;;</code><br>由于B+树中的数据⻚和记录是先按name列排序的，所以我们上边的查询过程其实是这样的:<br>找到name值为Asa的记录。<br>找到name值为Barlow的记录。<br>哦啦，由于所有记录都是由链表连起来的(记录之间用单链表，数据⻚之间用双链表)，所以他们之间的记录都可以很容易的取出来喽~<br>找到这些记录的主键值，再到<code>聚簇索引</code>中<code>回表</code>查找完整的记录。</p>
+</blockquote>
+<blockquote>
+<p>不过在使用联合索引进行范围查找的时候需要注意，如果对多个列同时进行范围查找的话，只有对索引最左边的那个列进行范围查找的时候才能用到B+树索引，比方说这样:<br><code>SELECT * FROM person_info WHERE name &gt; &#39;Asa&#39; AND name &lt; &#39;Barlow&#39; AND birthday &gt; &#39;1980-01-01&#39;;</code><br>上边这个查询可以分成两个部分:</p>
+<ol>
+<li>通过条件name &gt; ‘Asa’ AND name &lt; ‘Barlow’来对name进行范围，查找的结果可能有多条name值不同的记录</li>
+<li>对这些name值不同的记录继续通过 birthday &gt; ‘1980-01-01’条件继续过滤</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>这样子对于联合索引idx_name_birthday_phone_number来说，只能用到name列的部分，而用不到birthday列的部分，因为只有name值相同的情况下才能用birthday列的值进行排序，而这个查询中通过name进行范围查找的记录中可能并不是按照birthday列进行排序的，所以在搜索条件中继续以birthday列进行查找时是用不到这个B+树索引的。</p>
+</blockquote>
+<h1 id="精确匹配某一列并范围匹配另外一列"><a href="#精确匹配某一列并范围匹配另外一列" class="headerlink" title="精确匹配某一列并范围匹配另外一列"></a>精确匹配某一列并范围匹配另外一列</h1><blockquote>
+<p>对于同一个联合索引来说，虽然对多个列都进行范围查找时只能用到最左边那个索引列，但是如果左边的列是精确查找，则右边的列可以进行范围查找，比方说这样:<br><code>SELECT * FROM person_info WHERE name = &#39;Ashburn&#39; AND birthday &gt; &#39;1980-01-01&#39; AND birthday &lt; &#39;2000- 12-31&#39; AND phone_number &gt; &#39;15100000000&#39;;</code><br>name &#x3D; ‘Ashburn’，对name列进行精确查找，当然可以使用B+树索引了。<br>birthday &gt; ‘1980-01-01’ AND birthday &lt; ‘2000- 12-31’，由于name列是精确查找，所以通过name &#x3D; ‘Ashburn’条件查找后得到的结果的name值都是相同的，它们会再按照birthday的值进行排序。所以此时对birthday 列进行范围查找是可以用到B+树索引的。<br>phone_number &gt; ‘15100000000’，通过birthday的范围查找的记录的birthday的值可能不同，所以这个条件无法再利用B+树索引了，只能遍历上一步查询得到的记录。</p>
+</blockquote>
+<h1 id="用于排序-（注意-文件排序-英文名-filesort-）"><a href="#用于排序-（注意-文件排序-英文名-filesort-）" class="headerlink" title="用于排序 （注意 文件排序(英文名:filesort)）"></a>用于排序 （注意 文件排序(英文名:filesort)）</h1><blockquote>
+<p>我们在写查询语句的时候经常需要对查询出来的记录通过 ORDER BY 子句按照某种规则进行排序。</p>
+<ul>
+<li>一般情况下，我们只能把记录都加载到内存中，再用一些排序算法，比如快速排序、归并排序、吧啦吧啦排序……</li>
+<li>在内存中对这些记录进行排序，有的时候可能<strong>查询的结果集太大以至于不能在内存中进行排序的话</strong>，还可能暂时借助磁盘的空间来存放中间结果，排序操作完成后再把排好序的结果集返回到客户端。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>在MySQL中，把这种<code>在内存中或者磁盘上进行排序的方式统称为 文件排序(英文名:filesort)</code>，跟文件这个词儿一沾边儿，就显得这些排序操作非常慢了。<br>但是如果ORDER BY子句里使用到了我们的索引列，就有可能省去在内存或文件中排序的步骤，比如下边这个简单的查询语句:<br><code>SELECT * FROM person_info ORDER BY name, birthday, phone_number LIMIT 10;</code><br>这个查询的结果集需要先按照name值排序，如果记录的name值相同，则需要按照birthday来排序，如果birthday的值相同，则需要按照phone_number排序。<br>大家可以回过头去看我们建立的 idx_name_birthday_phone_number 索引的示意图，<strong>因为这个B+树索引本身就是按照上述规则排好序的，所以直接从索引中提取数据</strong>，然后进行回表操作取出该索引中不包含的列就好了。<br>简单吧? 是的，索引就是这么牛逼。 （lant:如果用到索引，你就不用再次排序了。）</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>请注意，本例的查询语句中加了limit子句，这是因为如果不限制需要获取的记录数量，会导致为大量二级索引记录执行回表操作，这样会影响整体的查询性能。<br>关于回表操作造成的影响，我们后续再聊。</p>
+</blockquote>
+<h2 id="使用联合索引进行排序注意事项"><a href="#使用联合索引进行排序注意事项" class="headerlink" title="使用联合索引进行排序注意事项"></a>使用联合索引进行排序注意事项</h2><blockquote>
+<p>对于联合索引有个问题需要注意，ORDER BY的子句后边的列的顺序也必须按照索引列的顺序给出，如果给出ORDER BY phone_number, birthday, name的顺序，那也是用不了B+树索引，这种颠倒顺序就不能使用索引的原因我们上边详细说过了，这就不赘述了。</p>
+</blockquote>
+<blockquote>
+<p>当联合索引左边列的值为常量，也可以使用后边的列进行排序，比如这样:<br><code>SELECT * FROM person_info WHERE name = &#39;A&#39; ORDER BY birthday, phone_number LIMIT 10;</code><br>这个查询能使用联合索引进行排序是因为name列的值相同的记录是按照birthday, phone_number排序的，说了好多遍了都。</p>
+</blockquote>
+<h2 id="不可以使用索引进行排序的几种情况"><a href="#不可以使用索引进行排序的几种情况" class="headerlink" title="不可以使用索引进行排序的几种情况"></a>不可以使用索引进行排序的几种情况</h2><h3 id="ASC、DESC混用"><a href="#ASC、DESC混用" class="headerlink" title="ASC、DESC混用"></a>ASC、DESC混用</h3><blockquote>
+<p>对于使用联合索引进行排序的场景，我们要求各个排序列的排序顺序是一致的，也就是要么各个列都是ASC规则排序，要么都是DESC规则排序。<br>为啥会有这种奇葩规定呢? 这个还得回头想想这个idx_name_birthday_phone_number联合索引中记录的结构:</p>
+<ul>
+<li>先按照记录的name列的值进行升序排列。 </li>
+<li>如果记录的name列的值相同，再按照birthday列的值进行升序排列。</li>
+<li>如果记录的birthday列的值相同，再按照phone_number列的值进行升序排列。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>如果查询中的各个排序列的排序顺序是一致的，比方说下边这两种情况:<br><code>ORDER BY name, birthday LIMIT 10</code> : 这种情况直接从索引的最左边开始往右读10行记录就可以了。<br><code>ORDER BY name DESC, birthday DESC LIMIT 10</code>: 这种情况直接从索引的最右边开始往左读10行记录就可以了。</p>
+</blockquote>
+<blockquote>
+<p>但是如果我们查询的需求是先按照name列进行升序排列，再按照birthday列进行降序排列的话，比如说这样的查询语句:<br><code>SELECT * FROM person_info ORDER BY name ASC, birthday DESC LIMIT 10;</code><br>这样就不能高效使用索引，而要采取更复杂的算法去从索引中取数据，设计MySQL的大叔觉得这样还不如直接文件排序来的快，所以就规定使用联合索引的各个排序列的排序顺序必须是一致的。</p>
+</blockquote>
+<h3 id="WHERE子句中出现非排序使用到的索引列"><a href="#WHERE子句中出现非排序使用到的索引列" class="headerlink" title="WHERE子句中出现非排序使用到的索引列"></a>WHERE子句中出现非排序使用到的索引列</h3><blockquote>
+<p>如果WHERE子句中出现了非排序使用到的索引列，那么排序依然是使用不到索引的，比方说这样:<br><code>SELECT * FROM person_info WHERE country = &#39;China&#39; ORDER BY name LIMIT 10;</code><br>这个查询只能先把符合搜索条件country &#x3D; ‘China’的记录提取出来(这个筛选本身就用不到索引)后再进行排序。<br>注意和下边这个查询作区别:<br><code>SELECT * FROM person_info WHERE name = &#39;A&#39; ORDER BY birthday, phone_number LIMIT 10;</code><br>虽然这个查询也有搜索条件，但是name &#x3D; ‘A’可以使用到索引 idx_name_birthday_phone_number，而且过滤剩下的记录还是按照birthday、phone_number列排序的，所以还是可以使用索引进行排序的。</p>
+</blockquote>
+<h3 id="排序列包含非同一个索引的列"><a href="#排序列包含非同一个索引的列" class="headerlink" title="排序列包含非同一个索引的列"></a>排序列包含非同一个索引的列</h3><blockquote>
+<p>有时候用来排序的多个列不是一个索引里的，这种情况也不能使用索引进行排序，比方说:<br><code>SELECT * FROM person_info ORDER BY name, country LIMIT 10;</code><br>name和country并不属于一个联合索引中的列，所以无法使用索引进行排序，至于为啥我就不想再唠叨了，自己用前边的理论自己捋一捋把~</p>
+</blockquote>
+<p>&#x2F;&#x2F; TODO: 为什么不能先用 order by name 索引先拿出10条记录，然后用这10条记录的主键id再去回表取到country列，然后再在内存中做 order by country 呢？<br>&#x2F;&#x2F; 哦： 这样在内存中进行排序，其实就是 文件排序了，也就是说还要你重新再排序，并没有使用到现成排好序的索引。</p>
+<h3 id="排序列使用了复杂的表达式"><a href="#排序列使用了复杂的表达式" class="headerlink" title="排序列使用了复杂的表达式"></a>排序列使用了复杂的表达式</h3><blockquote>
+<p>要想使用索引进行排序操作，必须保证索引列是以单独列的形式出现，而不是修饰过的形式，比方说这样:<br><code>SELECT * FROM person_info ORDER BY UPPER(name) LIMIT 10;</code><br>使用了UPPER函数修饰过的列就不是单独的列啦，这样就无法使用索引进行排序啦。</p>
+</blockquote>
+<h1 id="用于分组"><a href="#用于分组" class="headerlink" title="用于分组"></a>用于分组</h1><blockquote>
+<p>有时候我们为了方便统计表中的一些信息，会把表中的记录按照某些列进行分组。比如下边这个分组查询:<br><code>SELECT name, birthday, phone_number, COUNT(*) FROM person_info GROUP BY name, birthday, phone_number</code></p>
+</blockquote>
+<blockquote>
+<p>这个查询语句相当于做了3次分组操作:</p>
+<ul>
+<li>先把记录按照name值进行分组，所有name值相同的记录划分为一组。</li>
+<li>将每个name值相同的分组里的记录再按照birthday的值进行分组，将birthday值相同的记录放到一个小分组里，所以看起来就像在一个大分组里又化分了好多小分组。</li>
+<li>再将上一步中产生的小分组按照phone_number的值分成更小的分组，所以整体上看起来就像是先把记录分成一个大分组，然后把大分组分成若干个小分组，然后把若干个小分组再细分成更多的小小分组。</li>
+<li>然后针对那些小小分组进行统计，比如在我们这个查询语句中就是统计每个小小分组包含的记录条数。</li>
+</ul>
+<p>如果没有索引的话，这个分组过程全部需要在内存里实现，而如果有了索引的话，恰巧这个分组顺序又和我们的B+树中的索引列的顺序是一致的，而我们的B+树索引又是按照索引列排好序的，这不正好么，所以可以直接使用B+树索引进行分组。</p>
+</blockquote>
+<blockquote>
+<p>和使用B+树索引进行排序是一个道理，分组列的顺序也需要和索引列的顺序一致，也可以只使用索引列中左边的列进行分组。</p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%95%B0%E6%8D%AE%E8%A1%A8%E5%87%86%E5%A4%87"><span class="toc-text">测试数据表准备</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%A8%E5%80%BC%E5%8C%B9%E9%85%8D"><span class="toc-text">全值匹配</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%B9%E9%85%8D%E5%B7%A6%E8%BE%B9%E7%9A%84%E5%88%97"><span class="toc-text">匹配左边的列</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%B9%E9%85%8D%E5%88%97%E5%89%8D%E7%BC%80"><span class="toc-text">匹配列前缀</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%B9%E9%85%8D%E8%8C%83%E5%9B%B4%E5%80%BC"><span class="toc-text">匹配范围值</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B2%BE%E7%A1%AE%E5%8C%B9%E9%85%8D%E6%9F%90%E4%B8%80%E5%88%97%E5%B9%B6%E8%8C%83%E5%9B%B4%E5%8C%B9%E9%85%8D%E5%8F%A6%E5%A4%96%E4%B8%80%E5%88%97"><span class="toc-text">精确匹配某一列并范围匹配另外一列</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%A8%E4%BA%8E%E6%8E%92%E5%BA%8F-%EF%BC%88%E6%B3%A8%E6%84%8F-%E6%96%87%E4%BB%B6%E6%8E%92%E5%BA%8F-%E8%8B%B1%E6%96%87%E5%90%8D-filesort-%EF%BC%89"><span class="toc-text">用于排序 （注意 文件排序(英文名:filesort)）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95%E8%BF%9B%E8%A1%8C%E6%8E%92%E5%BA%8F%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-text">使用联合索引进行排序注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%8D%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E7%B4%A2%E5%BC%95%E8%BF%9B%E8%A1%8C%E6%8E%92%E5%BA%8F%E7%9A%84%E5%87%A0%E7%A7%8D%E6%83%85%E5%86%B5"><span class="toc-text">不可以使用索引进行排序的几种情况</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ASC%E3%80%81DESC%E6%B7%B7%E7%94%A8"><span class="toc-text">ASC、DESC混用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#WHERE%E5%AD%90%E5%8F%A5%E4%B8%AD%E5%87%BA%E7%8E%B0%E9%9D%9E%E6%8E%92%E5%BA%8F%E4%BD%BF%E7%94%A8%E5%88%B0%E7%9A%84%E7%B4%A2%E5%BC%95%E5%88%97"><span class="toc-text">WHERE子句中出现非排序使用到的索引列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E5%88%97%E5%8C%85%E5%90%AB%E9%9D%9E%E5%90%8C%E4%B8%80%E4%B8%AA%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%97"><span class="toc-text">排序列包含非同一个索引的列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E5%BA%8F%E5%88%97%E4%BD%BF%E7%94%A8%E4%BA%86%E5%A4%8D%E6%9D%82%E7%9A%84%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-text">排序列使用了复杂的表达式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%A8%E4%BA%8E%E5%88%86%E7%BB%84"><span class="toc-text">用于分组</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/16/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.0%20%E5%9B%9E%E9%A1%BEB+%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%AC%E8%B4%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          7.0 回顾B+树索引的本质
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/10/16/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.2%20%E5%9B%9E%E8%A1%A8%E7%9A%84%E4%BB%A3%E4%BB%B7%E4%B8%8E%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          7.2 回表的代价与覆盖索引
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/">11. 连接的原理</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/">10. 单表访问方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20TODO%20%E5%AD%98%E6%94%BE%E9%A1%B5%E9%9D%A2%E7%9A%84%E5%A4%A7%E6%B1%A0%E5%AD%90--InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4/">9.6 InnoDB的表空间 之 系统表空间</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/">9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/">9.4 InnoDB的表空间 之 独立表空间结构(4)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">41</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">41</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

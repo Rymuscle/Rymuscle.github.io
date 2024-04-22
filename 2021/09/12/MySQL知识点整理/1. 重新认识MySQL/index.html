@@ -270,11 +270,11 @@
 </blockquote>
 <hr>
 <p>所以，虽然查询缓存有时可以提升系统性能，但也不得不因维护这块缓存而造成一些开销，比如<code>每次都要去查询缓存中检索</code>，<code>查询请求处理完需要更新查询缓存</code>，<code>维护该查询缓存对应的内存区域</code>。从MySQL 5.7.20开始，不推荐使用查询缓存，并在MySQL 8.0中删除。</p>
-<h2 id="语法解析"><a href="#语法解析" class="headerlink" title="语法解析"></a>语法解析</h2><blockquote>
+<h3 id="语法解析"><a href="#语法解析" class="headerlink" title="语法解析"></a>语法解析</h3><blockquote>
 <p>如果 <code>查询缓存</code> 没有命中，接下来就需要进入正式的 <code>查询阶段</code> 了。</p>
 <p>但由于<code>客户端程序</code> 发送过来的请求只是一段文本而已，所<code>以MySQL服务器程序</code>首先要对这段文本做分析，判断请求的语法是否正确，然后从文本中将 <code>要查询的表</code>、<code>各种查询条件</code> … 等信息都提取出来放到MySQL服务器内部使用的一些数据结构上来。<br>⚠️ Tips:<br>这个从指定的文本中提取出我们需要的信息本质上算是一个<code>编译过程</code>，涉及 <code>词法解析</code>、<code>语法分析</code>、<code>语义分析</code> 等阶段，这些问题不属于我们讨论的范畴，大家只要了解在处理请求的过程中需要这个步骤就好了。</p>
 </blockquote>
-<h2 id="📌-查询优化"><a href="#📌-查询优化" class="headerlink" title="📌 查询优化"></a>📌 查询优化</h2><blockquote>
+<h3 id="📌-查询优化"><a href="#📌-查询优化" class="headerlink" title="📌 查询优化"></a>📌 查询优化</h3><blockquote>
 <p><code>语法解析</code>之后，服务器程序获得到了需要的信息，比如 <code>要查询的列是哪些</code>，<code>表是哪个</code>，<code>搜索条件是什么</code> 等等…，但光有这些是不够的，因为我们写的MySQL语句执行起来效率可能并不是很高，MySQL的优化程序会对我们的语句做一些优化，如外连接转换为内连接、表达式简化、子查询转为连接吧啦吧啦的一堆东⻄。</p>
 </blockquote>
 <blockquote>
@@ -398,7 +398,7 @@
 <td></td>
 </tr>
 </tbody></table>
-<h1 id="关于存储引擎的一些操作"><a href="#关于存储引擎的一些操作" class="headerlink" title="关于存储引擎的一些操作"></a>关于存储引擎的一些操作</h1><blockquote>
+<h1 id="查看、设置-存储引擎"><a href="#查看、设置-存储引擎" class="headerlink" title="查看、设置 存储引擎"></a>查看、设置 存储引擎</h1><blockquote>
 <p>我们可以用<code>SHOW ENGINES;</code>命令来查看当前服务器程序支持的存储引擎:<br><img src="/images/MySQL/1/1713156308289.jpg"></p>
 <ul>
 <li><code>Support列</code> 表示该存储引擎是否可用;</li>
@@ -425,7 +425,7 @@
   <div class="widget-wrap" id="toc-wrap">
     <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
     <div class="widget">
-      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E7%9A%84-%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84"><span class="toc-text">MySQL的 客户端&#x2F;服务器架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E5%AE%89%E8%A3%85-%E5%B0%8F%E9%A1%BB%E7%9F%A5"><span class="toc-text">MySQL安装 小须知</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL服务器程序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld"><span class="toc-text">mysqld</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-safe"><span class="toc-text">mysqld_safe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysql-server"><span class="toc-text">mysql.server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-multi"><span class="toc-text">mysqld_multi</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL客户端程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">客户端与服务器连接的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-IP"><span class="toc-text">TCP&#x2F;IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-text">命名管道和共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%87%E4%BB%B6"><span class="toc-text">Unix域套接字文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A4%84%E7%90%86%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82"><span class="toc-text">服务器处理客户端请求</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86"><span class="toc-text">📌连接管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="toc-text">解析与优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">查询缓存</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%A3%E6%9E%90"><span class="toc-text">语法解析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="toc-text">📌 查询优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">📌 存储引擎</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">常用存储引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%B3%E4%BA%8E%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E7%9A%84%E4%B8%80%E4%BA%9B%E6%93%8D%E4%BD%9C"><span class="toc-text">关于存储引擎的一些操作</span></a></li></ol>
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E7%9A%84-%E5%AE%A2%E6%88%B7%E7%AB%AF-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9E%B6%E6%9E%84"><span class="toc-text">MySQL的 客户端&#x2F;服务器架构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL%E5%AE%89%E8%A3%85-%E5%B0%8F%E9%A1%BB%E7%9F%A5"><span class="toc-text">MySQL安装 小须知</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL服务器程序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld"><span class="toc-text">mysqld</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-safe"><span class="toc-text">mysqld_safe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysql-server"><span class="toc-text">mysql.server</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysqld-multi"><span class="toc-text">mysqld_multi</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8MySQL%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%A8%8B%E5%BA%8F"><span class="toc-text">启动MySQL客户端程序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BF%9E%E6%8E%A5%E7%9A%84%E8%BF%87%E7%A8%8B"><span class="toc-text">客户端与服务器连接的过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#TCP-IP"><span class="toc-text">TCP&#x2F;IP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%E5%92%8C%E5%85%B1%E4%BA%AB%E5%86%85%E5%AD%98"><span class="toc-text">命名管道和共享内存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Unix%E5%9F%9F%E5%A5%97%E6%8E%A5%E5%AD%97%E6%96%87%E4%BB%B6"><span class="toc-text">Unix域套接字文件</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A4%84%E7%90%86%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82"><span class="toc-text">服务器处理客户端请求</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C%E8%BF%9E%E6%8E%A5%E7%AE%A1%E7%90%86"><span class="toc-text">📌连接管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E4%B8%8E%E4%BC%98%E5%8C%96"><span class="toc-text">解析与优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98"><span class="toc-text">查询缓存</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95%E8%A7%A3%E6%9E%90"><span class="toc-text">语法解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%F0%9F%93%8C-%E6%9F%A5%E8%AF%A2%E4%BC%98%E5%8C%96"><span class="toc-text">📌 查询优化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%F0%9F%93%8C-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">📌 存储引擎</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">常用存储引擎</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E3%80%81%E8%AE%BE%E7%BD%AE-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E"><span class="toc-text">查看、设置 存储引擎</span></a></li></ol>
     </div>
   </div>
 
@@ -505,23 +505,23 @@
       <ul>
         
           <li>
-            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/">6.6 InnoDB B+树索引 注意事项</a>
+            <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/">11. 连接的原理</a>
           </li>
         
           <li>
-            <a href="/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
+            <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/">10. 单表访问方法</a>
           </li>
         
           <li>
-            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
+            <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20TODO%20%E5%AD%98%E6%94%BE%E9%A1%B5%E9%9D%A2%E7%9A%84%E5%A4%A7%E6%B1%A0%E5%AD%90--InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4/">9.6 InnoDB的表空间 之 系统表空间</a>
           </li>
         
           <li>
-            <a href="/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+            <a href="/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/">9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况</a>
           </li>
         
           <li>
-            <a href="/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
+            <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/">9.4 InnoDB的表空间 之 独立表空间结构(4)</a>
           </li>
         
       </ul>
@@ -543,7 +543,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">24</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">41</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
     </div>
   </div>
 
@@ -553,7 +553,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">24</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -563,7 +563,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">24</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">41</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

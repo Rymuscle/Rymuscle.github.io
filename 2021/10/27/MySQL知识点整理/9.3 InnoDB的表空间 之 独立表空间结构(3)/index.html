@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>📌 9.3 InnoDB的表空间 之 独立表空间结构(3) | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/9.3 InnoDB的表空间 之 独立表空间结构(3)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      📌 9.3 InnoDB的表空间 之 独立表空间结构(3)
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-27T14:19:17.000Z" itemprop="datePublished">2021年10月27日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/27/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.3%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(3)/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>到现在为止，我们已经提出的概念五花八⻔(像 <code>区</code>、<code>碎片区</code>、<code>段</code>、<code>附属于段的区</code>、区对应的<code>XDES Entry结构</code>)。<br>我们把事情搞这么麻烦，初心仅仅是 <strong>想减少随机IO，而又不至于数据量少的表浪费空间</strong> 。</p>
+<p>现在我们知道向表中插入数据本质上就是向表中各个索引的 <code>叶子节点段</code>、<code>非叶子节点段</code> 插入数据，也知道了不同的区有不同的状态。<br>再回到最初的起点，捋一捋向某个<code>段</code>中插入数据时，申请新页面的过程;</p>
+<h1 id="先从直接隶属于表空间的碎片区中申请页"><a href="#先从直接隶属于表空间的碎片区中申请页" class="headerlink" title="先从直接隶属于表空间的碎片区中申请页"></a>先从<strong>直接隶属于</strong><code>表空间</code>的<code>碎片区</code>中申请<code>页</code></h1><p>一开始，当<code>段</code>中数据较少时，首先会查看<code>表空间</code>中是否有状态为<code>FREE_FRAG的区</code>，也就是找还空闲页的<code>碎片区</code></p>
+<ul>
+<li>如果找到了，则从该区中取一些零碎的⻚把数据插进去;</li>
+<li>如果没找到，则到<code>表空间</code>下申请一个状态为<code>FREE的区</code>(也就是空闲的区)，把该区的状态变为<code>FREE_FRAG</code>，(lant:相当于从表空间中新拿了个<code>FREE空闲区</code>作为 新的<code>FREE_FRAG空闲碎片区</code>)，然后从 新的<code>FREE_FRAG空闲碎片区</code> 中取一些零碎的⻚把数据插进去。之后不同的段使用零碎⻚的时候都从该区中取，<strong>直到该区中没有空闲页面，然后该区的状态就变成了<code>FULL_FRAG</code></strong> 。</li>
+</ul>
+<h1 id="引出-XDES-Entry-链表：-lant-3种区状态链表"><a href="#引出-XDES-Entry-链表：-lant-3种区状态链表" class="headerlink" title="引出 XDES Entry 链表：(lant: 3种区状态链表)"></a>引出 <code>XDES Entry 链表</code>：(lant: 3种<code>区状态</code>链表)</h1><p>现在的问题是你怎么知道表空间里的哪些区是FREE的，哪些区的状态是FREE_FRAG的，哪些区是FULL_FRAG的?<br>要知道表空间的大小是可以不断增大的，当增⻓到GB级别的时候，区的数量也就上千了，我们总不能每次都遍历这些区对应的 <code>XDES Entry结构</code>(查看其 <code>state</code>状态) 吧?</p>
+<p>这时候就是 <code>XDES Entry结构</code> 中的<code>List Node部分</code>发挥奇效的时候了，我们可以通过List Node中的指针做下面三件事:</p>
+<ul>
+<li>把 <code>状态为FREE的区</code> 对应的 <code>XDES Entry结构</code> 通过 <code>List Node</code> 连接成一个链表，称之为 <code>FREE链表</code>；</li>
+<li>把 <code>状态为FREE_FRAG的区</code> 对应的 <code>XDES Entry结构</code> 通过 <code>List Node</code> 连接成一个链表，称之为 <code>FREE_FRAG链表</code>；</li>
+<li>把 <code>状态为FULL_FRAG的区</code> 对应的 <code>XDES Entry结构</code> 通过 <code>List Node</code> 连接成一个链表，称之为 <code>FULL_FRAG链表</code>；</li>
+</ul>
+<p>这样每当我们想找一个<code>FREE_FRAG状态</code>的区时，就直接把 <code>FREE_FRAG链表</code> 的头节点拿出来，从这个节点<code>对应的区</code>中取一些零碎的⻚来插入数据，当这个节点对应的区用完时，就修改一下这个节点的State字段的值，然后从FREE_FRAG链表中移到FULL_FRAG链表中。<br>同理，如果 <code>FREE_FRAG链表</code> 中一个节点都没有，那么就直接从 <code>FREE链表</code> 中取一个节点移动到 <code>FREE_FRAG链表</code> 的状态，并修改该节点的STATE字段值为FREE_FRAG，然后从这个节点对应的区中获取零碎的⻚就好了。<br>当<code>段</code>中数据已经占满了32个零散的⻚后，就直接申请完整的区来插入数据了。</p>
+<p>lant小结:<br>我这里给 <code>XDES Entry 链表</code> 叫 <code>XDES Entry 状态链表</code><br>其实 3种<code>XDES Entry 链表</code> 就是根据<code>区</code>的状态，将 相同状态的<code>区</code> 对应的 <code>XDES Entry 结构</code> 连起来组成的三种状态链表。<br>这样，无论我们需要哪种状态的区，直接找到对应的状态链表，就能快速地拿到处于该状态的区，而不用遍历表空间的所有区才能拿到你想要的那个装态的区。</p>
+<h1 id="申请完整的区"><a href="#申请完整的区" class="headerlink" title="申请完整的区"></a>申请完整的区</h1><p>在<code>段</code>中数据已经占满32个零碎的页后，我们就可以申请完整的区来插入数据了。</p>
+<h1 id="引出-段状态链表：-每个段下都有3类状态链表"><a href="#引出-段状态链表：-每个段下都有3类状态链表" class="headerlink" title="引出 段状态链表：(每个段下都有3类状态链表)"></a>引出 <code>段状态链表</code>：(每个段下都有3类状态链表)</h1><p>还是那个问题，那么多区，我们怎么知道哪些区已经是属于哪个段的了呢?<br><span style="font-weight:600;color:#f8b500;"><br>lant: 毕竟你不能随便拿个有空闲页的区就去用了，因为该区可能已经被别的段使用了(属于别的段了)，你肯定要保证每个段使用的区都是属于自己的段(这样段中的数据才会尽可能在物理上连续，减少随机IO)；<br>其次，即便你取到的区属于当前段，但也可能已经没有空闲页了。<br></span><br>那咋办？再遍历各个XDES Entry结构，查看<code>区状态</code>和<code>区所属的段ID1</code>? </p>
+<p>遍历是不可能的，这辈子都不可能遍历的，有<code>链表</code>还遍历个毛线啊。</p>
+<p>所以我们这里可以根据<code>段号</code>(也就 是Segment ID)来建立链表，有多少个段就建多少个链表?<br>因为一个段中可以有好多个区，有的区是完全空闲的，有的区还有一些⻚面可以用，有的区已经没有空闲⻚面可以用了，所以设计InnoDB的大叔们为每个段中的区对应的XDES Entry结构建立了三个链表:</p>
+<ul>
+<li><code>FREE (段)链表</code>: <code>同一个段</code>中，<code>所有⻚面都是空闲的区</code> 对应的 <code>XDES Entry结构</code> 会被加入到这个链表。注意和直属于表空间的FREE链表区别开了，此处的FREE链表是附属于某个段的。</li>
+<li><code>NOT_FULL (段)链表</code>: <code>同一个段</code>中，<code>仍有空闲空间的区</code> 对应的 <code>XDES Entry结构</code> 会被加入到这个链表。</li>
+<li><code>FULL (段)链表</code>: <code>同一个段</code>中，<code>已经没有空闲空间的区</code> 对应的 <code>XDES Entry结构</code> 会被加入到这个链表。</li>
+</ul>
+<p>再次强调一遍，每一个索引都对应两个段，每个段都会维护上述的3个链表。</p>
+<blockquote>
+<p>假设表t共有两个索引，一个聚簇索引，一个二级索引idx_c2，每个索引都有 <code>叶子节点段</code> 和 <code>非叶子节点段</code> 2个段，所以这个表共有4个段，每个段都会维护上述3个链表，所以这个表共需要维护12个链表。</p>
+</blockquote>
+<p>所以<code>段</code>在数据量比较大时插入数据的话，会先获取NOT_FULL链表的头节点，直接把数据插入这个头节点对应的区中即可，如果该区的空间已经被用完，就把该节点移到FULL链表中。</p>
+<blockquote>
+<p>Tip<br>lant: 当然，无论是<code>直属于 表空间 的链表</code> 还是 <code>属于 段 的链表</code>, 我估计一开始都是从 Free状态链表那里取直属于表空间的Free状态的区 新的空闲区的。</p>
+</blockquote>
+<h1 id="链表基节点-List-Base-Node"><a href="#链表基节点-List-Base-Node" class="headerlink" title="链表基节点 List Base Node"></a>链表基节点 <code>List Base Node</code></h1><p>上边介绍了一堆链表，可我们怎么在表空间中找到这些链表呢，或者说怎么找到某个链表的头节点或者尾节点在表空间中的位置呢?<br>设计 InnoDB的大叔当然考虑了这个问题，他们设计了一个叫<code>List Base Node</code>的结构，翻译成中文就是链表的基节点。<br>这个结构中包含了链表的头节点和尾节点的指针以及这个链表中包含了多少节点的信息，示意图如下:<br><img src="/images/MySQL/9.0/8.png" width="500px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<p>我们上边介绍的 <strong><code>每个链表</code>都对应这么一个 <code>List Base Node结构</code></strong> ， 其中:</p>
+<ul>
+<li><code>List Length</code>表明该链表一共有多少节点；</li>
+<li><code>First Node Page Number</code> 和 <code>First Node Offset</code> 表明该链表的头节点在表空间中的位置；</li>
+<li><code>Last Node Page Number</code> 和 <code>Last Node Offset</code> 表明该链表的尾节点在表空间中的位置。</li>
+</ul>
+<p>一般我们把某个链表对应的 <code>List Base Node结构</code> 放置在表空间中固定的位置(后面会介绍)，这样想找定位某个链表就变得so easy啦。</p>
+<h1 id="链表小结-📌"><a href="#链表小结-📌" class="headerlink" title="链表小结 📌"></a>链表小结 📌</h1><div style="font-weight:500;border: 1px solid #33b045;border-radius: 5px;padding:10px 0 0 10px;">
+
+<ol>
+<li><p>综上所述，<code>表空间</code> 是由若干个<code>区</code> 组成的，<code>每个区</code>都对应一个<code>XDES Entry的结构</code>；</p>
+</li>
+<li><p><code>直属于表空间</code>的区对应的<code>XDES Entry结构</code>可以分成<code>FREE</code>、<code>FREE_FRAG</code>和<code>FULL_FRAG</code>这3个链表；</p>
+</li>
+<li><p>每个<code>段</code>可以拥有若干个区，每个段中的区对应的XDES Entry结构可以分成 <code>FREE</code>、<code>NOT_FULL</code> 和 <code>FULL</code> 这3个链表；</p>
+</li>
+<li><p>上面每个链表都对应一个<code>List Base Node的结构</code>，这个结构里记录了链表的头、尾节点的位置以及该链表中包含的节点数；</p>
+</li>
+</ol>
+<p>正是因为这些链表的存在，管理这些区才变成了一件so easy的事情。</p>
+</div>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%85%88%E4%BB%8E%E7%9B%B4%E6%8E%A5%E9%9A%B6%E5%B1%9E%E4%BA%8E%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E7%A2%8E%E7%89%87%E5%8C%BA%E4%B8%AD%E7%94%B3%E8%AF%B7%E9%A1%B5"><span class="toc-text">先从直接隶属于表空间的碎片区中申请页</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E5%87%BA-XDES-Entry-%E9%93%BE%E8%A1%A8%EF%BC%9A-lant-3%E7%A7%8D%E5%8C%BA%E7%8A%B6%E6%80%81%E9%93%BE%E8%A1%A8"><span class="toc-text">引出 XDES Entry 链表：(lant: 3种区状态链表)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7%E5%AE%8C%E6%95%B4%E7%9A%84%E5%8C%BA"><span class="toc-text">申请完整的区</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E5%87%BA-%E6%AE%B5%E7%8A%B6%E6%80%81%E9%93%BE%E8%A1%A8%EF%BC%9A-%E6%AF%8F%E4%B8%AA%E6%AE%B5%E4%B8%8B%E9%83%BD%E6%9C%893%E7%B1%BB%E7%8A%B6%E6%80%81%E9%93%BE%E8%A1%A8"><span class="toc-text">引出 段状态链表：(每个段下都有3类状态链表)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E5%9F%BA%E8%8A%82%E7%82%B9-List-Base-Node"><span class="toc-text">链表基节点 List Base Node</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%93%BE%E8%A1%A8%E5%B0%8F%E7%BB%93-%F0%9F%93%8C"><span class="toc-text">链表小结 📌</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.2%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(2)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          9.2 InnoDB的表空间 之 独立表空间结构(2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          9.4 InnoDB的表空间 之 独立表空间结构(4)
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/">11. 连接的原理</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/">10. 单表访问方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20TODO%20%E5%AD%98%E6%94%BE%E9%A1%B5%E9%9D%A2%E7%9A%84%E5%A4%A7%E6%B1%A0%E5%AD%90--InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4/">9.6 InnoDB的表空间 之 系统表空间</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/">9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/">9.4 InnoDB的表空间 之 独立表空间结构(4)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">41</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">41</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>11. 连接的原理 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/11. 连接的原理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      11. 连接的原理
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-11-09T14:10:12.000Z" itemprop="datePublished">2021年11月09日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>搞数据库一个避不开的概念就是<code>Join</code>，翻译成中文就是连接。<br>相信很多小伙伴在初学连接的时候都有些一脸懵逼，理解了连接的语义之后又可能不明白各个表中的记录到底是怎么连起来的，以至于在使用的时候常常陷入下边两种误区:</p>
+<ul>
+<li>误区一:业务至上，管他三七二十一，再复杂的查询也用在一个连接语句中搞定。</li>
+<li>误区二:敬而远之，上次 DBA 那给报过来的慢查询就是因为使用了连接导致的，以后再也不敢用了。<br>所以本章就来扒一扒连接的原理。考虑到一部分小伙伴可能忘了连接是个啥或者压根儿就不知道，为了节省他们百度或者看其他书的宝贵时间以及为了我的书凑字数，我们先来介绍一下 MySQL 中支持的一些连接语法。</li>
+</ul>
+</blockquote>
+<h1 id="连接简介"><a href="#连接简介" class="headerlink" title="连接简介"></a><code>连接</code>简介</h1><p>为了故事的顺利发展，我们先建立 t1、t2 两个简单的表并给它们填充一点数据，这两个表都有两个列，一个是INT类型的，一个是CHAR(1)类型的，填充好数据的两个表⻓这样:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM t1; </span><br><span class="line">+------+------+</span><br><span class="line">|m1 |n1 | </span><br><span class="line">+------+------+ </span><br><span class="line">|1|a| </span><br><span class="line">|2|b| </span><br><span class="line">|3|c| </span><br><span class="line">+------+------+</span><br><span class="line">3 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt; SELECT * FROM t2; </span><br><span class="line">+------+------+</span><br><span class="line">|m2 |n2 | </span><br><span class="line">+------+------+ </span><br><span class="line">|2|b| </span><br><span class="line">|3|c| </span><br><span class="line">|4|d| </span><br><span class="line">+------+------+</span><br><span class="line">3 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+<p>连接的本质就是把各个连接表中的记录都取出来依次匹配的组合加入结果集并返回给用户。所以我们把t1和t2两个表连接起来的过程如下图所示:<br><img src="/images/MySQL/11/1.png"><br>这个过程看起来就是把t1表的记录和t2的记录连起来组成新的更大的记录，所以这个查询过程称之为 <code>连接查询</code>。<br>连接查询的结果集中包含一个表中的每一条记录与另一个表中的每一条记录相互匹配的组合，像这样的结果集就可以称之为<code>笛卡尔积</code>。<br>因为表t1中有3条记录，表t2中也有3条记录，所以这两个表连接之后的笛卡尔积就有3×3&#x3D;9行记录。<br>在MySQL中，连接查询的语法也很随意，只要在FROM语句后边跟多个表名就好了，比如我们把t1表和t2表连接起来的查询语句可以写成这样:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SELECT * FROM t1, t2; </span><br><span class="line">+------+------+------+------+ </span><br><span class="line">|m1 |n1 |m2 |n2 | </span><br><span class="line">+------+------+------+------+ </span><br><span class="line">|1|a|2|b| </span><br><span class="line">|2|b|2|b| </span><br><span class="line">|3|c|2|b| </span><br><span class="line">|1|a|3|c| </span><br><span class="line">|2|b|3|c| </span><br><span class="line">|3|c|3|c| </span><br><span class="line">|1|a|4|d| </span><br><span class="line">|2|b|4|d| </span><br><span class="line">|3|c|4|d| </span><br><span class="line">+------+------+------+------+ </span><br><span class="line">9 rows in set (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<h1 id="连接过程简介"><a href="#连接过程简介" class="headerlink" title="连接过程简介"></a>连接过程简介</h1><p>如果我们乐意，我们可以连接任意数量张表，但是如果没有任何限制条件的话，这些表连接起来产生的笛卡尔积可能是非常巨大的。<br>比方说3个100行记录的表连接起来产生的笛卡尔积就有 100×100×100&#x3D;1000000行数据!<br>所以在连接的时候过滤掉特定<br>记录组合是有必要的，在连接查询中的过滤条件可以分成两种:</p>
+<ul>
+<li>涉及单表的条件<br>这种只涉及单表的过滤条件我们之前都提到过一万遍了，我们之前也一直称为搜索条件，比如t1.m1 &gt; 1是只针对t1表的过滤条件，t2.n2 &lt; ‘d’是只针对t2表的过滤条件。</li>
+<li>涉及两表的条件<br>这种过滤条件我们之前没⻅过，比如t1.m1 &#x3D; t2.m2、t1.n1 &gt; t2.n2等，这些条件中涉及到了两个表，我们稍后会仔细分析这种过滤条件是如何使用的哈。</li>
+</ul>
+<p>下边我们就要看一下携带过滤条件的连接查询的大致执行过程了，比 方说下边这个查询语句:<br><code>SELECT * FROM t1, t2 WHERE t1.m1 &gt; 1 AND t1.m1 = t2.m2 AND t2.n2 &lt; &#39;d&#39;;</code><br>在这个查询中我们指明了这三个过滤条件:<br><code>t1.m1 &gt; 1</code><br><code>t1.m1 = t2.m2</code><br><code>t2.n2 &lt; &#39;d&#39;</code></p>
+<p>那么这个连接查询的大致执行过程如下:</p>
+<ol>
+<li><p>首先确定第一个需要查询的表，这个表称之为驱动表。怎样在 单表中执行查询语句我们在前一章都唠叨过了，只需要选取代 价最小的那种访问方法去执行单表查询语句就好了(就是说从 const、ref、ref_or_null、range、index、all这些执行方法 中选取代价最小的去执行查询)。此处假设使用t1作为驱动 表，那么就需要到t1表中找满足t1.m1 &gt; 1的记录，因为表 中的数据太少，我们也没在表上建立二级索引，所以此处查询 t1表的访问方法就设定为all吧，也就是采用全表扫描的方式 执行单表查询。关于如何提升连接查询的性能我们之后再说， 现在先把基本概念捋清楚哈。所以查询过程就如下图所示:<br><img src="/images/MySQL/11/2.png"><br>我们可以看到，t1表中符合t1.m1 &gt; 1的记录有两条。</p>
+</li>
+<li><p>针对上一步骤中从驱动表产生的结果集中的每一条记录，分别 需要到t2表中查找匹配的记录，所谓匹配的记录，指的是符合 过滤条件的记录。因为是根据t1表中的记录去找t2表中的记 录，所以t2表也可以被称之为被驱动表。上一步骤从驱动表中 得到了2条记录，所以需要查询2次t2表。此时涉及两个表的列 的过滤条件t1.m1 &#x3D; t2.m2就派上用场了:<br>当t1.m1 &#x3D; 2时，过滤条件t1.m1 &#x3D; t2.m2就相当于 t2.m2 &#x3D; 2，所以此时t2表相当于有了t1.m1 &#x3D; 2、t2.n2 &lt; ‘d’这两个过滤条件，然后到t2表中执行 单表查询。<br>当t1.m1 &#x3D; 3时，过滤条件t1.m1 &#x3D; t2.m2就相当于 t2.m2 &#x3D; 3，所以此时t2表相当于有了t1.m1 &#x3D; 3、t2.n2 &lt; ‘d’这两个过滤条件，然后到t2表中执行 单表查询。<br>所以整个连接查询的执行过程就如下图所示:<br><img src="/images/MySQL/11/3.png"><br>也就是说整个连接查询最后的结果只有两条符合过滤条件的记录:</p>
+<p>从上边两个步骤可以看出来，我们上边唠叨的这个两表连接查询共需 要查询1次t1表，2次t2表。当然这是在特定的过滤条件下的结果， 如果我们把t1.m1 &gt; 1这个条件去掉，那么从t1表中查出的记录就 有3条，就需要查询3次t3表了。也就是说在两表连接查询中，驱动 表只需要访问一次，被驱动表可能被访问多次。</p>
+</li>
+</ol>
+<h1 id="内连接和外连接"><a href="#内连接和外连接" class="headerlink" title="内连接和外连接"></a>内连接和外连接</h1><p>为了大家更好理解后边内容，我们先创建两个有现实意义的表，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE student (</span><br><span class="line">number INT NOT NULL AUTO_INCREMENT COMMENT &#x27;学</span><br><span class="line">号&#x27;,</span><br><span class="line">name VARCHAR(5) COMMENT &#x27;姓名&#x27;, major VARCHAR(30) COMMENT &#x27;专业&#x27;, PRIMARY KEY (number)</span><br><span class="line">) Engine=InnoDB CHARSET=utf8 COMMENT &#x27;学生信息表&#x27;;</span><br><span class="line"></span><br><span class="line">CREATE TABLE score (</span><br><span class="line">number INT COMMENT &#x27;学号&#x27;,</span><br><span class="line">subject VARCHAR(30) COMMENT &#x27;科目&#x27;, score TINYINT COMMENT &#x27;成绩&#x27;, PRIMARY KEY (number, score)</span><br><span class="line">) Engine=InnoDB CHARSET=utf8 COMMENT &#x27;学生成绩表&#x27;;</span><br></pre></td></tr></table></figure>
+<p>我们新建了一个学生信息表，一个学生成绩表，然后我们向上述两个 表中插入一些数据，为节省篇幅，具体插入过程就不唠叨了，插入后 两表中的数据如下:</p>
+<h1 id=""><a href="#" class="headerlink" title=""></a></h1>
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E7%AE%80%E4%BB%8B"><span class="toc-text">连接简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9E%E6%8E%A5%E8%BF%87%E7%A8%8B%E7%AE%80%E4%BB%8B"><span class="toc-text">连接过程简介</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E8%BF%9E%E6%8E%A5%E5%92%8C%E5%A4%96%E8%BF%9E%E6%8E%A5"><span class="toc-text">内连接和外连接</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-text"></span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          10. 单表访问方法
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/">11. 连接的原理</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/">10. 单表访问方法</a>
+          </li>
+        
+          <li>
+            <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20TODO%20%E5%AD%98%E6%94%BE%E9%A1%B5%E9%9D%A2%E7%9A%84%E5%A4%A7%E6%B1%A0%E5%AD%90--InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4/">9.6 InnoDB的表空间 之 系统表空间</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/">9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况</a>
+          </li>
+        
+          <li>
+            <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/">9.4 InnoDB的表空间 之 独立表空间结构(4)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">41</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">41</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

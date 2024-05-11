@@ -2,9 +2,270 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://rymuscle.github.io/2021/10/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.2%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(2)/</loc>
+    
+    <lastmod>2024-05-08</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/29/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/</loc>
+    
+    <lastmod>2024-05-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/28/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/</loc>
+    
+    <lastmod>2024-05-06</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/</loc>
+    
+    <lastmod>2024-05-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/</loc>
+    
+    <lastmod>2024-05-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</loc>
+    
+    <lastmod>2024-05-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.2%20redo%E6%97%A5%E5%BF%97%20%E5%90%8E%E7%BB%AD%E7%9F%A5%E8%AF%86%E7%82%B9/</loc>
+    
+    <lastmod>2024-05-02</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.1%20Log%20Sequeue%20Number/</loc>
+    
+    <lastmod>2024-04-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.3%20redo%E6%97%A5%E5%BF%97%E7%9A%84%E5%86%99%E5%85%A5%E8%BF%87%E7%A8%8B/</loc>
+    
+    <lastmod>2024-04-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.0%20redo%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/</loc>
+    
+    <lastmod>2024-04-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.2%20Mini-Transcation/</loc>
+    
+    <lastmod>2024-04-28</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.0%20redo%E6%97%A5%E5%BF%97/</loc>
+    
+    <lastmod>2024-04-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.1%20redo%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F%E5%92%8C%E7%B1%BB%E5%9E%8B/</loc>
+    
+    <lastmod>2024-04-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/10/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/19.%E4%BA%8B%E5%8A%A1%E7%AE%80%E4%BB%8B/</loc>
+    
+    <lastmod>2024-04-27</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/15/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/22.undo%E6%97%A5%E5%BF%97(%E4%B8%8A)/</loc>
+    
+    <lastmod>2024-04-26</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/18.%E8%B0%83%E8%8A%82%E7%A3%81%E7%9B%98%E5%92%8CCPU%E7%9A%84%E7%9F%9B%E7%9B%BE--InnoDB%E7%9A%84Buffer%20Pool/</loc>
+    
+    <lastmod>2024-04-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/12.%20TODO%20%E5%9F%BA%E4%BA%8E%E6%88%90%E6%9C%AC%E7%9A%84%E4%BC%98%E5%8C%96/</loc>
+    
+    <lastmod>2024-04-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/15.0%20explain%E8%AF%A6%E8%A7%A3(%E4%B8%8A)/</loc>
+    
+    <lastmod>2024-04-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/23.%E9%94%81/</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/12/15/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/22.undo%E6%97%A5%E5%BF%97(%E4%B8%8B)/</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/27/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/16.%20explain%E8%AF%A6%E8%A7%A3(%E4%B8%8B)/</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/14.%20%E5%9F%BA%E4%BA%8E%E8%A7%84%E5%88%99%E7%9A%84%E4%BC%98%E5%8C%96/</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/</loc>
+    
+    <lastmod>2024-04-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.1%20TODO%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
+    
+    <lastmod>2024-04-23</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>http://rymuscle.github.io/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/</loc>
     
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-04-23</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -20,7 +281,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/</loc>
+    <loc>http://rymuscle.github.io/2021/10/29/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/</loc>
     
     <lastmod>2024-04-22</lastmod>
     
@@ -29,7 +290,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/</loc>
+    <loc>http://rymuscle.github.io/2021/10/28/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -38,7 +299,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.2%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(2)/</loc>
+    <loc>http://rymuscle.github.io/2021/10/27/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.3%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(3)/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -47,7 +308,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/27/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.3%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(3)/</loc>
+    <loc>http://rymuscle.github.io/2021/10/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.1%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(1)/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -56,7 +317,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.1%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(1)/</loc>
+    <loc>http://rymuscle.github.io/2021/10/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.0%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E9%A1%B5%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E5%9B%9E%E9%A1%BE/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -65,7 +326,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.0%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E9%A1%B5%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E5%9B%9E%E9%A1%BE/</loc>
+    <loc>http://rymuscle.github.io/2021/10/22/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/8.0%20%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AE%B6--MySQL%E7%9A%84%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -74,16 +335,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/22/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/8.0%20%E6%95%B0%E6%8D%AE%E7%9A%84%E5%AE%B6--MySQL%E7%9A%84%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95/</loc>
-    
-    <lastmod>2024-04-21</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/20/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.4%20%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E/</loc>
+    <loc>http://rymuscle.github.io/2021/10/20/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/7.4%20%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -101,7 +353,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/16/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.2%20%E5%9B%9E%E8%A1%A8%E7%9A%84%E4%BB%A3%E4%BB%B7%E4%B8%8E%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95/</loc>
+    <loc>http://rymuscle.github.io/2021/10/16/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/7.2%20%E5%9B%9E%E8%A1%A8%E7%9A%84%E4%BB%A3%E4%BB%B7%E4%B8%8E%E8%A6%86%E7%9B%96%E7%B4%A2%E5%BC%95/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -119,7 +371,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/16/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/7.0%20%E5%9B%9E%E9%A1%BEB+%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%AC%E8%B4%A8/</loc>
+    <loc>http://rymuscle.github.io/2021/10/16/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/7.0%20%E5%9B%9E%E9%A1%BEB+%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%9C%AC%E8%B4%A8/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -128,7 +380,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.8%20%E7%B4%A2%E5%BC%95%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/</loc>
+    <loc>http://rymuscle.github.io/2021/10/14/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.8%20%E7%B4%A2%E5%BC%95%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -137,7 +389,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.7%20MyISAM%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/</loc>
+    <loc>http://rymuscle.github.io/2021/10/14/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.7%20MyISAM%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -146,7 +398,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
+    <loc>http://rymuscle.github.io/2021/10/13/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.6%20InnoDB%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -155,7 +407,7 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/09/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/</loc>
+    <loc>http://rymuscle.github.io/2021/10/13/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -164,7 +416,142 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/</loc>
+    <loc>http://rymuscle.github.io/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/10/02/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/25/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/3.%20%E5%AD%97%E7%AC%A6%E9%9B%86%E5%92%8C%E6%AF%94%E8%BE%83%E8%A7%84%E5%88%99/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/2.%20MySQL%E7%9A%84%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E3%80%81%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F%E3%80%81%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F/</loc>
     
     <lastmod>2024-04-21</lastmod>
     
@@ -182,198 +569,9 @@
   </url>
   
   <url>
-    <loc>http://rymuscle.github.io/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/</loc>
+    <loc>http://rymuscle.github.io/2017/11/27/HTTP/4.%20method/</loc>
     
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/10/02/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/26/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/25/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/23/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/3.%20%E5%AD%97%E7%AC%A6%E9%9B%86%E5%92%8C%E6%AF%94%E8%BE%83%E8%A7%84%E5%88%99/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/2.%20MySQL%E7%9A%84%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E3%80%81%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F%E3%80%81%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F/</loc>
-    
-    <lastmod>2024-04-15</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/</loc>
-    
-    <lastmod>2024-03-09</lastmod>
+    <lastmod>2024-04-21</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -382,16 +580,7 @@
   <url>
     <loc>http://rymuscle.github.io/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/</loc>
     
-    <lastmod>2024-03-09</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
-    <loc>http://rymuscle.github.io/2017/11/27/HTTP/4.%20method/</loc>
-    
-    <lastmod>2024-03-08</lastmod>
+    <lastmod>2024-04-21</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -400,7 +589,16 @@
   <url>
     <loc>http://rymuscle.github.io/2017/11/25/HTTP/2.%20status_code/</loc>
     
-    <lastmod>2024-03-08</lastmod>
+    <lastmod>2024-04-21</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/</loc>
+    
+    <lastmod>2024-04-21</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -418,7 +616,7 @@
 
   <url>
     <loc>http://rymuscle.github.io/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -426,35 +624,49 @@
   
   <url>
     <loc>http://rymuscle.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/tags/HTTP/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/tags/CAS/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/tags/MySQL/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/tags/TCP/</loc>
+    <lastmod>2024-05-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/tags/%E4%B8%8D%E8%A6%81-select/</loc>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
@@ -463,42 +675,49 @@
   
   <url>
     <loc>http://rymuscle.github.io/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/categories/redis/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/categories/HTTP/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/categories/SSO/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/categories/MySQL/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
     <loc>http://rymuscle.github.io/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</loc>
-    <lastmod>2024-04-22</lastmod>
+    <lastmod>2024-05-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>http://rymuscle.github.io/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/</loc>
+    <lastmod>2024-05-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>

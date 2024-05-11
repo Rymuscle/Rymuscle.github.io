@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>4.1 compact 行格式 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL-InnoDB-页结构/4.1 compact 行格式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      4.1 compact 行格式
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-18T12:41:09.000Z" itemprop="datePublished">2021年09月18日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h1><blockquote>
+<p>直接看图:<br><img src="/images/MySQL/4.1/1.jpg"><br>从图中可以看出来，一条完整的记录其实可以被分为 <code>记录的额外信息</code> 和 <code>记录的真实数据</code> 两大部分，下边我们详细看一下这两部分的组成。</p>
+</blockquote>
+<h1 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h1><p>这部分信息是 <strong><code>服务器为了描述这条记录而不得不额外添加的一些信息</code></strong> 。这些额外信息分为3部分，分别是 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 和 <code>记录头信息</code>，我们分别看一下</p>
+<h2 id="记录的额外信息-之-变⻓字段⻓度列表"><a href="#记录的额外信息-之-变⻓字段⻓度列表" class="headerlink" title="记录的额外信息 之 变⻓字段⻓度列表"></a>记录的额外信息 之 <code>变⻓字段⻓度列表</code></h2><blockquote>
+<p>我们知道MySQL支持一些变⻓的数据类型，比如 VARCHAR(M)、VARBINARY(M)、各种TEXT类型，各种BLOB类型，我们可以把被设置为这些数据类型的列称为<code>变⻓字段</code>；<br>变⻓字段中存储多少字节的数据是不固定的，所以我们在存储真实数据时，InnoDB引擎会顺便把这些数据实际占用的字节数也存起来，这样才不至于把MySQL服务器搞懵，所以这些变⻓字段占用的存储空间分为两部分: <code>真正的数据内容</code>、<code>数据内容占用的字节数</code>。</p>
+<p>在Compact行格式中，把<code>所有变⻓字段的真实数据所占用的字节数</code>都存放在记录的开头部位，从而形成一个<code>变⻓字段⻓度列表</code>。各变⻓字段的真实数据所占用的字节数，按照列的顺序<code>逆序存放</code>。</p>
+</blockquote>
+<blockquote>
+<p>示例:<br><img src="/images/MySQL/4.1/2.jpg"><br>拿 record_format_demo 示例表中的 第一条记录 来举例:</p>
+<p>因为record_format_demo表的c1、c2、c4字段都是 VARCHAR(10)类型(<code>变⻓数据类型</code>)， <strong>所以这三个列的所存储的真实数据的⻓度值都需要保存在当前记录的 <code>变⻓字段⻓度列表中</code></strong> ；</p>
+<p>又因为record_format_demo表中的各个列都使用的是ascii字符集(每个字符只需要1个字节来进行编码);来看一下第一条记录各变⻓字段的 实际内容 的⻓度:<br><img src="/images/MySQL/4.1/4.jpg"></p>
+<p>又因为这些⻓度值需要按照列的逆序存放，所以最后<code>这条记录的变⻓字段⻓度列表</code> 的字节串用十六进制表示的效果就是：<br><img src="/images/MySQL/4.1/5.jpg"></p>
+<p> <strong><code>第一行记录中，c1、c2、c4 每列中的真实数据所占的字节长度的数值比较小(4，3，1这些小数字)，用1个字节就可以表示；但是如果变⻓列的数据占用的字节数比较多，可能就需要用2个字节来表示</code></strong> 。(如果某行记录的c1变长字段的真实数据长度是300字节，300这个数值用一个字节就无法表示了，因为一个字节是8位，最大只能表示的数字是255)<br>每个变长字段在 <code>变长字段列表中</code> 具体用1个还是2个字节来表示真实数据所占用的字节数，InnoDB有它的一套规则，我们首先声明一下<code>W</code>、<code>M</code>和<code>L</code>的意思。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong><code>W</code></strong>:<br>假设一个<code>字符集</code>中表示一个字符最多需要使用的字节数为<code>W</code>，也就是使用 <code>SHOW CHARSET</code> 语句的结果中的<code>Maxlen</code>列。(比方说utf8字符集中的W就是3，utf8mb4字符集中的W就是4)。</p>
+<p><strong><code>M</code></strong>:<br>对于变⻓类型<code>VARCHAR(M)</code>来说， <strong><code>这种类型表示能存储最多M个字符</code></strong> (注意是字符不是字节)，所以这个类型能表示的字符串最多占用的字节数就是 <code>M×W</code>。</p>
+<p> <strong><code>L</code></strong>:<br>假设该变长实际存储的字符串占用的字节数是 <code>L</code>;</p>
+<p>所以确定使用1个字节还是2个字节表示真正字符串占用的字节数的规则就是:</p>
+<ol>
+<li><p>如果 <code>M×W &lt;= 255</code>，那么使用1个字节来表示真正字符串占用的字节数； (一个字节能表示的最大数值就是255)</p>
+</li>
+<li><p>如果<code>M×W &gt; 255</code>，则分为两种情况:</p>
+</li>
+</ol>
+<ul>
+<li>如果 <code>L &lt;= 127</code>，则用1个字节来表示真正字符串占用的字节数。</li>
+<li>如果 <code>L &gt; 127</code>，则用2个字节来表示真正字符串占用的字节数。</li>
+</ul>
+<p>对于一些占用字节数非常多的字段，比方说某个字段⻓度大于了16KB，即 该记录在单个⻚面中都存储不下时，InnoDB 会把一部分数据存放到所谓的<code>溢出⻚</code>中(我们后边会唠叨)，在变⻓字段⻓度列表处只存储留在本⻚面中的⻓度，所以使用两个字节也可以存放下来。</p>
+<p>总结一下就是说: 如果该变长字段允许存储的最大字节数(M×W)超过255字节并且真实存储的字节数(L)超过127字节，则使用2个字节，否则使用1个字节。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>另外需要注意的一点是，<code>变⻓字段⻓度列表中只存储实际内容为非NULL的列数据占用的字节数，值为NULL的列的⻓度是不储存的</code><br>也就是 说对于第二条记录来说，<code>因为c4列的值为NULL，所以第二条记录的变⻓字段⻓度列表只需要存储c1和c2列的⻓度即可</code>（其中c1列存储的值为’eeee’，占用的实际字节数为4，c2列存储的值为’fff’，占用的实际字节数为3。数字4可以用1个字节表示，3也可以用1个字节表示， 所以整个变⻓字段⻓度列表共需2个字节）。<br>填充完变⻓字段⻓度列表 的两条记录的对比图如下:<br><img src="/images/MySQL/4.1/6.jpg"></p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>并不是所有<code>记录</code>都有这个 <code>变⻓字段⻓度列表</code> 部分，比方说表中所有的列都不是变⻓的数据类型的话，这一部分就不需要有。</p>
+</blockquote>
+<h2 id="记录的额外信息-之-NULL值列表"><a href="#记录的额外信息-之-NULL值列表" class="headerlink" title="记录的额外信息 之 NULL值列表"></a>记录的额外信息 之 <code>NULL值列表</code></h2><p>我们知道表中的某些列可能存储NULL值，<code>如果把这些NULL值都放到记录的真实数据中存储，那就会很占地方</code>，所以<code>Compact行格式</code>把这些值为NULL的列统一管理起来，存储到了 <code>记录的额外信息</code> 中的 <code>NULL值列表</code> 中，它的处理过程是这样的:</p>
+<blockquote>
+<ol>
+<li>首先统计表中允许存储NULL的列有哪些<br>像 <code>主键列</code>、<code>被NOT NULL修饰的列</code> 都是不可以存储NULL值的，所以在统计时不会把这些列算进去。</li>
+<li>如果表中没有允许存储 NULL 的列，则NULL值列表也不存在。否则 <strong><code>将每个允许存储NULL的列对应一个二进制位</code></strong> ，二进制位按照列的顺序逆序排列，二进制位的值为1时，代表该列的值为NULL。二进制位的值为0时，代表该列的值不为NULL。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>MySQL规定NULL值列表必须用整数个字节的位表示，如果可以为NULL的字段数 达不到整数个字节，则在字节的高位补0。<br>表record_format_demo只有3个值允许为NULL的列，对应3个二进制位，不足一个字节，所以在字节的高位补0，效果就是这样:<br><img src="/images/MySQL/4.1/7.jpg"></p>
+</blockquote>
+<blockquote>
+<p>对于第一条记录来说，c1、c3、c4 这3个列的值都不为NULL，所以它们对应的二进制位都是0:<br><img src="/images/MySQL/4.1/8.jpg"></p>
+</blockquote>
+<blockquote>
+<p>对于第二条记录来说，c1、c3、c4 这3个列中c3和c4的值都为NULL，所以这3个列对应的二进制位的情况就是:<br><img src="/images/MySQL/4.1/9.jpg"></p>
+</blockquote>
+<blockquote>
+<p>所以这两条记录在填充了NULL值列表后的示意图就是这样:<br><img src="/images/MySQL/4.1/10.jpg"></p>
+</blockquote>
+<h2 id="记录的额外信息-之-记录头信息"><a href="#记录的额外信息-之-记录头信息" class="headerlink" title="记录的额外信息 之 记录头信息"></a>记录的额外信息 之 <code>记录头信息</code></h2><blockquote>
+<p>除了 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 之外，还有一个 <code>用于描述记录</code>的 <code>记录头信息</code>。</p>
+</blockquote>
+<blockquote>
+<p><code>记录头信息</code> 由固定的5个字节组成(也就是40个二进制位，不同的位代表不同的意思)，如图:<br><img src="/images/MySQL/4.1/11.jpg"></p>
+</blockquote>
+<blockquote>
+<p><strong>这些二进制位代表的详细信息如下表</strong>:<br><img src="/images/MySQL/4.1/12.jpg"><br>现在暂时也没必要把它们的意思都记住，只需要看一遍混个脸熟，等之后用到这些属性的时候我们再回过头来看</p>
+<p>现在我们并不清楚这些属性详细的用法，所以这里就不分析各个属性值是怎么产生的了，之后我们遇到会详细看的。</p>
+</blockquote>
+<blockquote>
+<p>所以我们现在直接看一下record_format_demo 表中的两条记录的头信息分别是什么:<br><img src="/images/MySQL/4.1/13.jpg"><br>目前，你只需要对这两条记录的 <code>记录头信息部分</code> 有个印象就行。</p>
+</blockquote>
+<h1 id="记录的真实数据"><a href="#记录的真实数据" class="headerlink" title="记录的真实数据"></a>记录的真实数据</h1><blockquote>
+<p>对于record_format_demo表来说，记录的真实数据除了 c1、c2、c3、c4 这几个我们自己定义的列的数据以外， <strong><code>MySQL会为每个记录默认的添加一些列(也称为隐藏列)</code></strong> ，具体的列如下:</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>是否必须</th>
+<th>占用空间</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>row_id</td>
+<td>否</td>
+<td>6字节</td>
+<td>行ID，唯一标识一条记录</td>
+</tr>
+<tr>
+<td>transaction_id</td>
+<td>是</td>
+<td>6字节</td>
+<td>事务ID</td>
+</tr>
+<tr>
+<td>roll_pointer</td>
+<td>是</td>
+<td>7字节</td>
+<td>回滚指针</td>
+</tr>
+<tr>
+<td>Tips: 实际上这几个列的真正名称其实是: <code>DB_ROW_ID</code>、<code>DB_TRX_ID</code>、 <code>DB_ROLL_PTR</code>，我们为了美观才写成了row_id、 transaction_id和roll_pointer。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p>这里需要提一下 <strong><code>InnoDB表对主键的生成策略</code></strong>:</p>
+<ul>
+<li>优先使用用户自定义的主键作为主键;</li>
+<li>如果用户没有定义主键，则选取一个Unique键作为主键;</li>
+<li>如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为<code>row_id</code> 的<code>隐藏列</code>作为主键。</li>
+</ul>
+<p>所以我们可以看出: InnoDB存储引擎会为每条记录都添加 <code>transaction_id</code> 和 <code>roll_pointer</code> 这两个列，但是 <code>row_id</code> 是可选的(在没有自定义主键及Unique键的情况下才会添加该列)。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。</p>
+<p>因为表record_format_demo示例表并没有定义主键，所以MySQL服务器会为每条记录增加上述的3个列。现在看一下加上记录的真实数据的、两个记录⻓什么样吧:<br><img src="/images/MySQL/4.1/14.jpg"><br>看这个图的时候我们需要注意几点:<br>表record_format_demo使用的是ascii字符集，所以0x61616161就表示字符串’aaaa’，0x626262就表示字符 串’bbb’，以此类推;</p>
+<p>注意第1条记录中c3列的值，它是CHAR(10)类型的，虽然它实际存储的字符串是:’cc’(ascii字符集的字节表示是’0x6363’)，虽然表示这个字符串只需要用2个字节，但整个c3列仍然占用了10个字节的空间，除真实数据以外的8个字节的统统都用空格字符填充，空格字符在ascii字符集的表示就是0x20。</p>
+<p><strong><code>注意第2条记录中c3和c4列的值都为NULL，它们被存储在了前边的NULL值列表处，在记录的真实数据处就不再冗余存储，从而节省存储空间</code></strong> 。</p>
+</blockquote>
+<h1 id="字符集对-COMPACT-行格式的影响"><a href="#字符集对-COMPACT-行格式的影响" class="headerlink" title="字符集对 COMPACT 行格式的影响"></a>字符集对 COMPACT 行格式的影响</h1><p><code>COMPACT行格式</code>会受<code>字符集</code>的影响。</p>
+<blockquote>
+<p>以 <code>CHAR(M)列的存储格式</code> 为例<br>尽管我们说在 <code>Compact行格式</code> 下只会把<code>变⻓字段存储的实际数据的⻓度</code>逆序存到 <code>变⻓字段⻓度列表</code>中。 <strong><code>但其实除了考虑字段本身的类型是否是变长字段，还需要考虑字符集的影响</code></strong> 。</p>
+<p>对于record_format_demo示例表的c1,c2,c4列来说，它们是变长字段，这个没毛病，但此时我们的表采用的是ascii字符集(这个字符集是一个定⻓字符集，一个字符采用固定的一个字节)。<br>如果采用变⻓的字符集(也就是表示一个字符需要的字节数不确定，比如gbk表示一个字符要1<del>2个字节、utf8表示一个字符要1</del>3个字节等)的话， <strong><code>此时c3列虽然是char(10)这种定长字段，但它的数据⻓度也会被存储到变⻓字段⻓度列表中</code></strong> 。</p>
+</blockquote>
+<blockquote>
+<p>假如我们将record_format_demo表的字符集修改为utf8,修改该列字符集后记录的变⻓字段⻓度列表也发生了变化:<br><img src="/images/MySQL/4.1/15.jpg"></p>
+<p>这就意味着:  <strong><code>对于 CHAR(M) 类型的列来说，当采用的是定⻓字符集时，该列实际数据占用的字节数不会被加到变⻓字段⻓度列表中; 而如果采用的是变⻓字符集时，该列实际数据占用的字节数也会被加到变⻓字段⻓度列表</code></strong> 。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>另外有一点还需要注意， <strong><code>变⻓字符集的CHAR(M)类型的列要求至少占用M个字节</code></strong> （utf8表示一个字符要1~3个字节），而VARCHAR(M)却没有这个要求。</p>
+<p>比方说对于使用utf8字符集的CHAR(10)的列来说，该列存储的数据字节⻓度的范围是10~30个字节。即使我们向该列中存储一个空字符串也会占用10个字节。这样的话，将来更新该列的值时，如果字节⻓度小于10个字节时，可以在该记录处直接更新，<code>而不是在存储空间中重新分配一个新的记录空间，导致原有的记录空间成为所谓的碎片</code>。(这里你感受到设计Compact行格式的大叔既想节省存储空间，又不想更新CHAR(M)类型的列产生碎片时的纠结心情了吧。)</p>
+</blockquote>
+<h1 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a><del>Redundant行格式</del></h1><blockquote>
+<p><del>其实知道了Compact行格式之后，其他的行格式就是依葫芦画瓢了。我们现在要介绍的Redundant行格式是MySQL5.0之前用的一种行格式，也就是说它已经非常老了，大家乐呵乐呵的看就好。</del></p>
+<p>……</p>
+<p><del><strong><code>Redundant行格式: CHAR(M) 不会产生碎片</code></strong><br>我们知道<code>Compact行格式</code>在<code>CHAR(M)类型</code>的列中存储数据的时候还挺麻烦，分 <code>变⻓字符集</code> 和 <code>定⻓字符集</code> 的情况，而在Redundant行格式中十分干脆，不管该列使用的字符集是啥，只要是使用<code>CHAR(M)</code>类型，占用的真实数据空间就是该字符集表示一个字符最多需要的字节数和M的乘积。<br>比方说使用utf8字符集的CHAR(10)类型的列占用的真实数据空间始终为30个字节，使用gbk字符集的CHAR(10)类型的列占用的真实数据空间始终为20个字节。由此可以看出来，使用Redundant行格式的CHAR(M)类型的列是不会产生碎片的。</del></p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#COMPACT%E8%A1%8C%E6%A0%BC%E5%BC%8F"><span class="toc-text">COMPACT行格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E7%9A%84%E9%A2%9D%E5%A4%96%E4%BF%A1%E6%81%AF"><span class="toc-text">记录的额外信息</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E7%9A%84%E9%A2%9D%E5%A4%96%E4%BF%A1%E6%81%AF-%E4%B9%8B-%E5%8F%98%E2%BB%93%E5%AD%97%E6%AE%B5%E2%BB%93%E5%BA%A6%E5%88%97%E8%A1%A8"><span class="toc-text">记录的额外信息 之 变⻓字段⻓度列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E7%9A%84%E9%A2%9D%E5%A4%96%E4%BF%A1%E6%81%AF-%E4%B9%8B-NULL%E5%80%BC%E5%88%97%E8%A1%A8"><span class="toc-text">记录的额外信息 之 NULL值列表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E7%9A%84%E9%A2%9D%E5%A4%96%E4%BF%A1%E6%81%AF-%E4%B9%8B-%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF"><span class="toc-text">记录的额外信息 之 记录头信息</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%B0%E5%BD%95%E7%9A%84%E7%9C%9F%E5%AE%9E%E6%95%B0%E6%8D%AE"><span class="toc-text">记录的真实数据</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AD%97%E7%AC%A6%E9%9B%86%E5%AF%B9-COMPACT-%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="toc-text">字符集对 COMPACT 行格式的影响</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Redundant%E8%A1%8C%E6%A0%BC%E5%BC%8F"><span class="toc-text">Redundant行格式</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          4.0 InnoDB记录存储结构 之 页的概念、行格式的概念
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          4.2 行溢出数据 与 溢出页
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

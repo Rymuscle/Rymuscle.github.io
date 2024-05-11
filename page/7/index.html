@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  <article id="post-MySQL知识点整理/2. MySQL的启动选项和配置文件、系统变量、状态变量" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/2.%20MySQL%E7%9A%84%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E3%80%81%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F%E3%80%81%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F/">2. MySQL的启动选项和配置文件、系统变量、状态变量</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-14T13:17:21.000Z" itemprop="datePublished">2021年09月14日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/2.%20MySQL%E7%9A%84%E5%90%AF%E5%8A%A8%E9%80%89%E9%A1%B9%E5%92%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E3%80%81%E7%B3%BB%E7%BB%9F%E5%8F%98%E9%87%8F%E3%80%81%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="MySQL的启动选项"><a href="#MySQL的启动选项" class="headerlink" title="MySQL的启动选项"></a>MySQL的<code>启动选项</code></h1><blockquote>
+<p>MySQL的 服务器程序 和 客户端程序 都有很多的<code>设置项</code>:</p>
+<ul>
+<li>比如 <code>MySQL服务器程序</code> 可以指定像 <code>允许同时连入的客户端数量</code>、<code>客户端和服务器通信方式</code>、<code>表的默认存储引擎</code>、<code>查询缓存的大小</code>…等 <code>设置项</code>。</li>
+<li>对于<code>MySQL客户端程序</code>，则可以指定像 <code>需要连接的服务器程序所在主机的主机名或IP地址</code>、<code>用户名</code>及<code>密码</code>等信息。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这些<code>设置项</code>一般都有各自的默认值，比方说<code>服务器允许同时连入的客户端的默认数量是151</code>，<code>表的默认存储引擎是InnoDB</code>。</p>
+<p><strong>我们可以在程序启动的时候去修改这些默认值，对于这种在程序启动时指定的<code>设置项</code>也称之为<code>启动选项(startup options)</code>，这些选项控制着程序启动后的行为</strong>。</p>
+</blockquote>
+<blockquote>
+<p>在MySQL安装目录下的<code>bin目录</code>中的各种<code>可执行文件</code>，不论是服务器相关的程序(比如<code>mysqld</code>、<code>mysqld_safe</code>)还是客户端相关的程序(比如<code>mysql</code>、<code>mysqladmin</code>)， <strong>在启动时基本都可以指定<code>启动参数</code></strong> 。</p>
+<p>这些<code>启动参数</code>可以放在<code>命令行</code>中指定，也可以把它们放在<code>配置文件</code>中指定。</p>
+</blockquote>
+<pre><code>下面会以`mysqld`为例，来详细唠叨如何指定`启动选项`。下边出现的`启动选项不`论大家认不认识，先不用去纠结每个选项具体的作用是啥，之后我们会对一些重要的启动选项详细唠叨。
+</code></pre>
+<h1 id="在命令行上设置启动选项"><a href="#在命令行上设置启动选项" class="headerlink" title="在命令行上设置启动选项"></a>在命令行上设置启动选项</h1><blockquote>
+<p>通过上一篇的学习，我们已经知道，如果我们在启动客户端程序时在<code>-h参数</code>后边紧跟服务器的IP地址，这就意味着客户端和服务器之间需要通过<code>TCP/IP网络</code>进行通信（当然，如果ip指定的是 127.0.0.1，那也可能是通过 <code>unix套接字进行通信</code>）。</p>
+</blockquote>
+<blockquote>
+<p>如果我们在启动服务器程序时，想禁止各客户端使用TCP&#x2F;IP网络与服务器程序进行通信，则可以在<code>启动服务器程序的命令行</code>里添加 <code>skip-networking</code> 启动选项，如: <code>mysqld --skip-networking</code></p>
+<p>Tips：<br>在命令行中指定启动选项时需要在选项名前加上 <code>--前缀</code>。<br>如果选项名是由多个单词构成的，它们之间可以由<code>短划线-</code>连接起来，也可以使用<code>下划线_</code>连接起来，也就是说 <code>skip-networking</code> 和 <code>skip_networking</code> 表示的含义是相同的。</p>
+<p>在按照上述命令启动服务器程序后，如果我们再使用mysql来启动客户端程序时，仍把服务器主机名指定为127.0.0.1(IP地址的形式)的话，就会显示连接失败。这就意味着我们指定的启动选项 skip-networking 生效了!</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>再举一个例子，我们前边说过如果在创建表的语句中没有显式指定表的存储引擎的话，则会默认使用InnoDB作为表的存储引擎。如果我们想改变表的默认存储引擎的话，可以这样写启动服务器的命令行: <code>mysqld --default-storage-engine=MyISAM</code>。<br>这下，你再次建表时即便没有明确指定表的存储引擎，建表成功后通过 <code>SHOW CREATE TABLE 表名\G</code> 会发现表已经是 MyISAM 引擎了。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>小结：</strong><br>在启动服务器程序的命令行后边指定启动选项的通用格式是 <code>--启动选项1[=值1] --启动选项2[=值2] ... --启动选项n[= 值n]</code></p>
+<p>即，我们可以将多个启动选项写到一行，各个启动选项间用空白字符隔开，在每个启动选项名称前边添加<code>--</code>。<br>对于不需要值的启动选项，比方说 <code>skip-networking</code>，它们就不需要指定对应的值。<br>对于需要指定值的启动选项，比如<code>default-storage-engine</code>,我们在指定这个设置项的时候需要显式的指定它的值。</p>
+<p>在命令行上指定有值的启动选项时，需要注意，<code>选项名、=、选项值之间不可以有空白字符</code>。</p>
+<p>每个MySQL程序都有许多不同的启动选项。大多数程序提供了一个 <code>--help</code> 选项来查看该程序支持的全部启动选项以及它们的默认值。例如，使用 <code>mysql --help</code> 可以看到mysql程序支持的启动选项，<code>mysqld_safe --help</code> 可以看mysqld_safe程序支持的启动选项。查看mysqld支持的启动选项有些特别，需要使用 <code>mysqld --verbose --help</code>。</p>
+</blockquote>
+<h1 id="启动选项的⻓形式和短形式"><a href="#启动选项的⻓形式和短形式" class="headerlink" title="启动选项的⻓形式和短形式"></a>启动选项的⻓形式和短形式</h1><blockquote>
+<p>我们前边提到的 <code>skip-networking</code>、<code>default-storage-engine</code>称之为<code>⻓形式的选项</code>，设计MySQL的大叔为了我们使用的方便，对于一些常用的选项提供了<code>短形式</code>，我们列举一些具有短形式的启动选项来瞅瞅(MySQL支持的短形式选项太多了，全列出来会刷屏的)</p>
+<table>
+<thead>
+<tr>
+<th>⻓形式</th>
+<th>短形式</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>host</td>
+<td>-h</td>
+<td>主机名</td>
+</tr>
+<tr>
+<td>–user</td>
+<td>-u</td>
+<td>用户名</td>
+</tr>
+<tr>
+<td>–password</td>
+<td>-p</td>
+<td>密码</td>
+</tr>
+<tr>
+<td>–port</td>
+<td>-P</td>
+<td>端口</td>
+</tr>
+<tr>
+<td>–version</td>
+<td>-V</td>
+<td>版本信息</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>短形式的选项名只有一个字母，与使用⻓形式选项时需要在选项名前加<code>--前缀</code>不同的是，使用短形式选项时在选项名前只加一个短划线<code>-前缀</code>。</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>使用短形式指定启动选项时，选项名和选项值之间可以无间隙，也可以用空白字符隔开(-p选项有些特殊，-p和密码值之间不能有空白字符)。(<strong>得了，无论 短形式 还是 长形式，选项名和选项值之间都别有空格就行了</strong>)</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</blockquote>
+<h1 id="在配置文件中设置启动选项"><a href="#在配置文件中设置启动选项" class="headerlink" title="在配置文件中设置启动选项"></a>在配置文件中设置启动选项</h1><blockquote>
+<p>在命令行中设置启动选项只对当次启动生效，下次重启程序时还得在启动命令行中加这些<code>启动选项</code>! 于是设计MySQL的大叔们提出 <code>配置文件</code>(也称为<code>选项文件</code>)的概念，我们把需要设置的启动选项都写在这个配置文件中，每次启动服务器时都从这个文件里加载相应的启动选项。由于这个配置文件可以⻓久的保存在计算机的硬盘里，所以只需我们配置一次，以后就都不用显式的把启动选项都写在启动命令行中了， <strong><code>所以我们推荐使用配置文件的方式来设置启动选项</code></strong> 。</p>
+</blockquote>
+<blockquote>
+<p><strong>配置文件的路径</strong>:<br> MySQL程序在启动时会寻找多个路径下的配置文件，这些路径有的是固定的，有的是可以在命令行指定的。根据操作系统的不同，配置文件的路径也有所不同，这里重点看下类unix系统。</p>
+<p>在类UNIX操作系统中，MySQL会按照下列路径来寻找配置文件:</p>
+<table>
+<thead>
+<tr>
+<th>路径名</th>
+<th>备注</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&#x2F;etc&#x2F;my.cnf</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>&#x2F;etc&#x2F;mysql&#x2F;my.cnf</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SYSCONFDIR&#x2F;my.cnf</td>
+<td></td>
+<td>SYSCONFDIR 表示在使用CMake构建MySQL时使用SYSCONFDIR选项指定的目录。默认情况下，这是位于编译安装目录下的etc目录。</td>
+</tr>
+<tr>
+<td>$MYSQL_HOME&#x2F;my.cnf</td>
+<td>特定于服务器的选项(仅限服务器)</td>
+<td>MYSQL_HOME是一个环境变量，该变量的值是我们自己设置的，我们想设置就设置，不想设置就不设置。该变量的值代表一个路径，我们可以在该路径下创建一个my.cnf配置文件。这个配置文件中只能放置关于启动服务器程序相关的选项(言外之意就是其他的配置文件既能存放服务器相关的选项也 能存放客户端相关的选项，.mylogin.cnf除外，它只能存放客户端相关的一些选项)。</td>
+</tr>
+<tr>
+<td>defaults-extra-file</td>
+<td>命令行指定的额外配置文件路径</td>
+<td></td>
+</tr>
+<tr>
+<td>~&#x2F;.my.cnf</td>
+<td>用户特定选项</td>
+<td></td>
+</tr>
+<tr>
+<td>~&#x2F;.mylogin.cnf</td>
+<td>用户特定的登录路径选项(仅限客户端)</td>
+<td>.mylogin.cnf 不是纯文本文件，只能使用mysql_config_editor实用程序去创建或修改，用于存放客户端登陆服务器时的相关选 项。</td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p>这也就是说，在我的计算机中这几个路径中的任意一个都可以当作配置文件来使用，如果它们不存在，你可以手动创建一个。</p>
+<p>另外，我们在唠叨如何启动MySQL服务器程序的时候说过，使用mysqld_safe程序启动服务器时，会间接调用mysqld，所以对于传递给mysqld_safe的启动选项来说，如果mysqld_safe程序<br>不处理，会接着传递给mysqld程序处理。比方说skip-networking选项是由mysqld处理的，mysqld_safe并不处理。</p>
+</blockquote>
+<blockquote>
+<p><strong>配置文件的内容:</strong><br>与在命令行中指定启动选项不同的是，配置文件中的<code>启动选项</code>被划分为若干个组，每个组有一个组名，用中括号<code>[]</code>扩起来，像这样:</p>
+<p><code>[server] </code><br><code>(具体的启动选项...)</code><br><code>[mysqld] </code><br><code>(具体的启动选项...)</code><br><code>[mysqld_safe] </code><br><code>(具体的启动选项...)</code><br><code>[client] </code><br><code>(具体的启动选项...)</code><br><code>[mysql] </code><br><code>(具体的启动选项...)</code><br><code>[mysqladmin] </code><br><code>(具体的启动选项...)</code></p>
+<p>每个组下边可以定义若干个启动选项，我们以[server]组为例来看一下填写启动选项的形式<br><code>[server]</code><br><code>option1 #这是option1，该选项不需要选项值</code><br><code>option2 = value2 #这是option2，该选项需要选项值 ...</code></p>
+</blockquote>
+<blockquote>
+<p>在配置文件中指定启动选项的语法类似于命令行语法，但是<code>配置文件中只能使用⻓形式的选项</code>。在配置文件中指定的启动选项<code>不允许加--前缀</code>，并且每行只指定一个选项，而且&#x3D;周围可以有空白字符。另外，在配置文件中，我们可以使用#来添加注释，从#出现直到行尾的内容都属于注释内容，读取配置文件时会忽略这些注释内容。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><code>配置文件中不同的选项组是给不同的启动命令使用的</code>，如果选项组名称与程序名称相同，则组中的选项将专⻔应用于该程序。例如，<code>[mysqld]</code> 和 <code>[mysql]</code>  组分别应用于<code>mysqld服务器程序</code> 和 <code>mysql客户端程序</code>。不过有两个选项组比较特别:</p>
+<ul>
+<li><code>[server]组</code>下边的启动选项将作用于所有的服务器程序。</li>
+<li><code>[client]组</code>下边的启动选项将作用于所有的客户端程序。</li>
+</ul>
+<p>不过， 需要注意的一点是，mysqld_safe和mysql.server这两个程序在启动时都会读取[mysqld]选项组中的内容。</p>
+<p>为了直观感受一下，我们挑一些启动命令来看一下它们能读取的选项组都有哪些:</p>
+<table>
+<thead>
+<tr>
+<th>启动命令</th>
+<th>类别</th>
+<th>能读取的组</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>mysqld</td>
+<td>启动服务器</td>
+<td>[mysqld]、[server]</td>
+</tr>
+<tr>
+<td>mysqld_safe</td>
+<td>启动服务</td>
+<td>[mysqld]、[server]、[mysqld_safe]</td>
+</tr>
+<tr>
+<td>mysql.server</td>
+<td>启动服务</td>
+<td>[mysqld]、[server]、[mysql.server]</td>
+</tr>
+<tr>
+<td>mysql</td>
+<td>启动客户端</td>
+<td>[mysql]、[client]</td>
+</tr>
+<tr>
+<td>mysqladmin</td>
+<td>启动客户端</td>
+<td>[mysqladmin]、[client]</td>
+</tr>
+<tr>
+<td>mysqldump</td>
+<td>启动客户端</td>
+<td>[mysqldump]、[client]</td>
+</tr>
+</tbody></table>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>特定MySQL版本的专用选项组</strong><br>我们可以在选项组的名称后加上特定的MySQL版本号，比如对于 <code>[mysqld]选项组</code> 来说，我们可以定义一个 <code>[mysqld-5.7] 的选项组</code>，它的含义和 <code>[mysqld]</code> 一样，只不过只有版本号为5.7的 mysqld程序才能使用这个选项组中的选项。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>配置文件的优先级</strong><br>我们前边唠叨过MySQL将在某些固定的路径下搜索配置文件，我们也可以通过在命令行上指定<code>defaults-extra-file启动选项</code> 来指定额外的配置文件路径。MySQL将按照我们在上表中给定的顺序依次读取各个配置文件，如果该文件不存在则忽略。值得注意的是，如果我们在多个配置文件中设置了相同的启动选项，那以最后一个配置文件中的为准。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>同一个配置文件中多个组的优先级</strong><br>我们说同一个命令可以访问配置文件中的多个组，比如mysqld可以访问[mysqld]、[server]组，如果在同一个配置文件中的这些组里出现了同样的配置项，比如:<br><code>[server]</code><br><code>default-storage-engine=InnoDB</code><br><code>[mysqld]</code><br><code>default-storage-engine=MyISAM</code><br>那么，将以最后一个出现的组中的启动选项为准，因为[mysqld]组在[server]组后边，就以 [mysqld]组中的配置项为准。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>defaults-file的使用</strong><br>如果我们不想让MySQL到默认的路径下搜索配置文件(就是上表中列出的那些)，则可以在命令行指定<code>defaults-file选项</code><br>比如：<code>mysqld --defaults-file=/tmp/myconfig.txt</code>，在程序启动的时候将只在&#x2F;tmp&#x2F;myconfig.txt路径下搜索配置文件。如果文件不存在或无法访问，则会发生错误。</p>
+<p>Tips: 注意<code>defaults-extra-file</code>和<code>defaults-file</code>的区别<br>使用<code>defaults-extra-file</code>可以指定额外的配置文件搜索路径 (也就是说那些固定的配置文件路径也会被搜索)。</p>
+</blockquote>
+<h1 id="命令行和配置文件中启动选项的区别"><a href="#命令行和配置文件中启动选项的区别" class="headerlink" title="命令行和配置文件中启动选项的区别"></a>命令行和配置文件中启动选项的区别</h1><p>在命令行上指定的绝大部分启动选项都可以放到配置文件中，但是有一些选项是专⻔为命令行设计的，比方说<code>defaults-extra-file</code>、<code>defaults-file</code>这样的选项本身就是为了指定配置文件路径的，再放在配置文件中使用就没啥意义了。剩下的一些只能用在命令行上而不能用到配置文件中的启动选项就不一一列举了，用到的时候再提。</p>
+<p>另外有一点需要特别注意，如果同一个启动选项既出现在命令行中，又出现在配置文件中，那么以命令行中的启动选项为准!</p>
+<h1 id="系统变量简介"><a href="#系统变量简介" class="headerlink" title="系统变量简介"></a>系统变量简介</h1><blockquote>
+<p>MySQL服务器程序运行过程中会用到许多影响程序行为的变量，它们被称为<code>MySQL系统变量</code>。</p>
+<ul>
+<li>比如允许同时连入的客户端数量用系统变量 <code>max_connections</code> 表示</li>
+<li>表的默认存储引擎用系统变量 <code>default_storage_engine</code> 表示</li>
+<li>查询缓存的大小用系统变量 <code>query_cache_size</code> 表示</li>
+</ul>
+<p>MySQL服务器程序的系统变量有好几百条，我们就不一一列举了。<br>每个<code>系统变量</code>都有一个默认值，我们可以使用<code>命令行</code>或者<code>配置文件</code>中的选项在启动服务器时改变它们。 不过，<code>大多数的系统变量的值也可以在程序运行过程中修改，而无需停止并重新启动它</code>。</p>
+</blockquote>
+<h2 id="查看系统变量"><a href="#查看系统变量" class="headerlink" title="查看系统变量"></a>查看系统变量</h2><blockquote>
+<p>可以使用 <code>SHOW VARIABLES [LIKE 匹配的模式];</code> 命令查看MySQL服务器程序支持的系统变量以及它们的当前值:<br>不过，由于系统变量实在太多了，如果我们直接使用 <code>SHOW VARIABLES</code> 查看的话就直接刷屏了，所以通常都会带一个LIKE过滤条件来查看我们需要的系统变量的值，比如:<br>mysql&gt; SHOW VARIABLES LIKE ‘default_storage_engine’;<br>+————————+——–+<br>| Variable_name          | Value  |<br>+————————+——–+<br>| default_storage_engine | InnoDB |<br>+————————+——–+<br>1 row in set (0.01 sec)</p>
+<p>mysql&gt; SHOW VARIABLES like ‘max_connections’;<br>+—————–+——-+<br>| Variable_name   | Value |<br>+—————–+——-+<br>| max_connections | 151   |<br>+—————–+——-+<br>1 row in set (0.00 sec)</p>
+<p>mysql&gt;</p>
+</blockquote>
+<h2 id="设置系统变量"><a href="#设置系统变量" class="headerlink" title="设置系统变量"></a>设置系统变量</h2><h3 id="通过启动选项设置系统变量"><a href="#通过启动选项设置系统变量" class="headerlink" title="通过启动选项设置系统变量"></a>通过启动选项设置系统变量</h3><blockquote>
+<p>大部分的系统变量都可以通过启动服务器时传送<code>启动选项</code>的方式来进行设置。如何填写启动选项我们上边已经花了大篇幅来唠叨了，就是下边两种方式:</p>
+<ul>
+<li>通过命令行添加启动选项:<br>比方说我们在启动服务器程序时用命令: <code>mysqld --default-storage-engine=MyISAM --max-connections=10</code></li>
+<li>通过配置文件添加启动选项:<br><code>[server] </code><br><code>default-storage-engine=MyISAM </code><br><code>max-connections=10</code></li>
+</ul>
+<p>有一点需要注意的是，对于启动选项来说，如果<code>启动选项名</code>由多个单词组成，各个单词之间用短划线-或者下划线_连接起来都可以，但是<strong>对应的 <code>系统变量</code> 之间必须使用<code>下划线_</code>连接起来</strong>。</p>
+</blockquote>
+<h3 id="服务器程序运行过程中设置系统变量"><a href="#服务器程序运行过程中设置系统变量" class="headerlink" title="服务器程序运行过程中设置系统变量"></a>服务器程序运行过程中设置系统变量</h3><blockquote>
+<p>系统变量比较牛逼的一点就是，对于大部分系统变量来说，<strong>它们的值可以在服务器程序运行过程中进行动态修改而无需停止并重启服务器</strong>。不过系统变量有作用范围之分，下边详细唠叨下。</p>
+</blockquote>
+<blockquote>
+<p><strong>系统变量的不同作用范围</strong><br>我们前边说过，多个客户端程序可以同时连接到一个服务器程序。<br>对于同一个系统变量，我们有时想让不同的客户端有不同的值。</p>
+<blockquote>
+<p>比方说狗哥使用客户端A，他想让当前客户端对应的默认存储引擎为InnoDB，所以他可以把系统变量default_storage_engine的值设置为InnoDB; 猫爷使用客户端B，他想让当前客户端对应的默认存储引擎为MyISAM，所以他可以把系统变量default_storage_engine的值设置为MyISAM。这样可以使狗哥和猫爷的的客户端拥有不同的默认存储引擎，使用时互不影响，十分方便。但是这样各个客户端都私有一份系统变量会产生这么两个问题:</p>
+</blockquote>
+<ul>
+<li>有一些系统变量并不是针对单个客户端的，比如允许同时连接到服务器的客户端数量max_connections，查询缓存的大小query_cache_size，这些公有的系统变量让某个客户端私有显然不合适。</li>
+<li>一个新连接到服务器的客户端对应的系统变量的值该怎么设置?</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>为了解决这两个问题，设计MySQL的大叔提出了<code>系统变量的作用范围</code>的概念，具体来说作用范围分为这两种:</p>
+<ul>
+<li>GLOBAL:全局变量，影响服务器的整体操作。</li>
+<li>SESSION:会话变量，影响某个客户端连接的操作。(注:SESSION有个别名叫LOCAL)</li>
+</ul>
+<p>在服务器启动时，会将每个全局变量初始化为其默认值(可以通过<code>命令行</code>或<code>配置文件</code>中指定的选项更改这些默认值)。然后服务器还为每个连接的客户端维护一组会话变量，客户端的会话变量在连接时使用相应全局变量的当前值初始化。<br>以default_storage_engine举例，在服务器启动时会初始化一个名为default_storage_engine，作用范围为GLOBAL的系统变量。之后每当有一个客户端连接到该服务器时，服务器都会单独为该客户端分配一个名为default_storage_engine，作用范围为SESSION的系统变量，该作用范围为SESSION的系统变量值按照当前作用范围为GLOBAL的同名系统变量值进行初始化。</p>
+</blockquote>
+<blockquote>
+<p><strong>服务器程序运行过程中设置系统变量</strong><br>了解了系统变量的GLOBAL和SESSION作用范围之后，我们再看一下在服务器程序运行期间通过客户端程序设置系统变量的语法:<br><code>SET [GLOBAL|SESSION] 系统变量名 = 值;</code><br>或者<br><code>SET [@@(GLOBAL|SESSION).]var_name = XXX;</code></p>
+<p><code>如果在设置系统变量的语句中省略了作用范围，默认的作用范围就是SESSION</code></p>
+</blockquote>
+<h3 id="查看不同作用范围的系统变量"><a href="#查看不同作用范围的系统变量" class="headerlink" title="查看不同作用范围的系统变量"></a>查看不同作用范围的系统变量</h3><blockquote>
+<p>既然系统变量有作用范围之分，那我们的<code>SHOW VARIABLES</code>语句查看的是什么作用范围的系统变量呢?<br>答:默认查看的是SESSION作用范围的系统变量。</p>
+</blockquote>
+<blockquote>
+<p>当然我们也可以在查看系统变量的语句上加上要查看哪个作用范围的系统变量，就像这样:<br><code>SHOW [GLOBAL|SESSION] VARIABLES [LIKE 匹配的模式];</code></p>
+</blockquote>
+<blockquote>
+<p>如果某个客户端改变了某个系统变量在<code>GLOBAL</code>作用范围的值，并不会影响该系统变量在当前已经连接的客户端作用范围为 <code>SESSION</code>的值，只会影响后续连入的客户端在作用范围为 <code>SESSION</code>的值。</p>
+</blockquote>
+<h3 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h3><blockquote>
+<p>并不是所有系统变量都具有GLOBAL和SESSION的作用范围</p>
+<ul>
+<li>有一些系统变量只具有GLOBAL作用范围，比方说 max_connections，表示服务器程序支持同时最多有多少个客户端程序进行连接。</li>
+<li>有一些系统变量只具有SESSION作用范围，比如 insert_id，表示插入值时使用的AUTO_INCREMENT修饰的列的值。</li>
+<li>有一些系统变量的值既具有GLOBAL作用范围，也具有SESSION作用范围，比如我们前边用到的 default_storage_engine，而且其实大部分的系统变量都是这样的。</li>
+<li>有些系统变量是只读的，并不能设置值。 比方说version，表示当前MySQL的版本，我们客户端是不能设置它的值的，只能在SHOW VARIABLES语句里查看。</li>
+</ul>
+</blockquote>
+<h1 id="启动选项和系统变量的区别"><a href="#启动选项和系统变量的区别" class="headerlink" title="启动选项和系统变量的区别"></a>启动选项和系统变量的区别</h1><p><code>启动选项</code>是在程序启动时我们程序员传递的一些参数，而<code>系统变量</code>是影响服务器程序运行行为的变量，它们之间的关系如下:</p>
+<ul>
+<li><p>大部分的<code>系统变量</code>都可以被当作<code>启动选项</code>传入;</p>
+</li>
+<li><p>有些<code>系统变量</code>是在程序运行过程中自动生成的，是不可以当作<code>启动选项</code>来设置，比如 auto_increment_offset、character_set_client啥的。</p>
+</li>
+<li><p>有些<code>启动选项</code>也不是<code>系统变量</code>，比如defaults-file。</p>
+</li>
+</ul>
+<h1 id="状态变量"><a href="#状态变量" class="headerlink" title="状态变量"></a>状态变量</h1><p>为了让我们更好的了解服务器程序的运行情况，MySQL服务器程序中维护了好多关于程序运行状态的变量，它们被称为<code>状态变量</code>。比方说 <code>Threads_connected</code> 表示当前有多少客户端与服务器建立了连接，<code>Handler_update</code>表示已经更新了多少行记录吧啦吧啦，像这样显示服务器程序状态信息的状态变量还有好几百个，我们就不一一唠叨了，等遇到了会详细说它们的作用的。</p>
+<p>由于<code>状态变量</code>是用来显示服务器程序运行状况的，所以它们的值只能由服务器程序自己来设置，我们程序员是不能设置的。与系统变量类似，状态变量也有GLOBAL和SESSION两个作用范围的，所以查看状态变量的语句可以这么写:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SHOW [GLOBAL|SESSION] STATUS [LIKE 匹配的模式];</span><br><span class="line">// 类似的，如果我们不写明作用范围，默认的作用范围是SESSION</span><br><span class="line">// 如下， 所有以Thread开头的SESSION作用范围的状态变量就都被展示出来 了。</span><br><span class="line">mysql&gt; SHOW STATUS LIKE &#x27;thread%&#x27;;</span><br><span class="line">+-------------------+-------+</span><br><span class="line">| Variable_name     | Value |</span><br><span class="line">+-------------------+-------+</span><br><span class="line">| Threads_cached    | 1     |</span><br><span class="line">| Threads_connected | 1     |</span><br><span class="line">| Threads_created   | 2     |</span><br><span class="line">| Threads_running   | 2     |</span><br><span class="line">+-------------------+-------+</span><br><span class="line">4 rows in set (0.00 sec)</span><br><span class="line"></span><br><span class="line">mysql&gt;</span><br></pre></td></tr></table></figure>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/1. 重新认识MySQL" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/1.%20%E9%87%8D%E6%96%B0%E8%AE%A4%E8%AF%86MySQL/">1. 重新认识MySQL</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-12T05:01:09.000Z" itemprop="datePublished">2021年09月12日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/1.%20%E9%87%8D%E6%96%B0%E8%AE%A4%E8%AF%86MySQL/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="MySQL的-客户端-服务器架构"><a href="#MySQL的-客户端-服务器架构" class="headerlink" title="MySQL的 客户端&#x2F;服务器架构"></a>MySQL的 客户端&#x2F;服务器架构</h1><p>我们日常使用MySQL的情景一般是:</p>
+<ul>
+<li>启动 <code>MySQL服务器程序</code>；</li>
+<li>启动 <code>MySQL客户端程序</code> 并连接到 <code>MySQL服务器程序</code>；</li>
+<li>在 <code>MySQL客户端程序</code> 中输入一些 <code>命令语句</code> 作为请求发送到 <code>MySQL服务器程序</code>；</li>
+<li><code>MySQL服务器程序</code> 收到这些请求后，会根据请求的内容来操作具体的数据并向 <code>MySQL客户端程序</code> 返回操作结果。</li>
+</ul>
+<hr>
+<p><code>MySQL服务器程序</code> 和 <code>MySQL客户端程序</code> 本质上都算是计算机上的一个<code>进程</code>，代表 <code>MySQL服务器程序</code> 的进程也被称为 <code>MySQL数据库实例</code>(简称<code>数据库实例</code>)；</p>
+<ul>
+<li><p>每个进程都有一个唯一的编号，称为 <code>进程ID</code>，英文名叫<code>PID</code>， <em><strong>这个编号是在我们启动程序的时候由操作系统 <code>随机分配</code>的，操作系统会保证在某一时刻同一台机器上的进程号不重复</strong></em>。</p>
+<blockquote>
+<p>比如你打开了计算机中的QQ程序，那么操作系统会为它分配一个唯一的进程号；如果你把这个程序关掉了，那操作系统就会把这个进程号回收，之后可能会重新分配给别的进程。当我们下一次再启动QQ程序的时候分配的就可能是另一个编号。</p>
+</blockquote>
+</li>
+<li><p>每个进程都有一个名称，这个名称是编写程序的人自己定义的，比如我们启动的 <code>MySQL服务器进程</code> 的<strong>默认</strong>名称是  <code>mysqld</code>，而我们常用的<code>MySQL客户端进程</code>的<strong>默认</strong>名称为 <code>mysql</code>。</p>
+</li>
+</ul>
+<h1 id="MySQL安装-小须知"><a href="#MySQL安装-小须知" class="headerlink" title="MySQL安装 小须知"></a>MySQL安装 小须知</h1><p>首先你要知道：无论我们通过 <code>下载源代码自行编译安装的方式</code> 还是 <code>直接使用官方提供的安装包进行安装的方式</code>。之后，<code>MySQL的服务器程序</code>和<code>MySQL的客户端程序</code> 都会被安装到我们的机器上。</p>
+<blockquote>
+<p>Tips:<br>MySQL的大部分安装包都包含了服务器程序和客户端程序，不过在Linux下使用 RPM包 安装时会有单独的 服务器RPM包 和 客户端RPM包，需要分别安装。</p>
+</blockquote>
+<p>不论使用上述两者的哪种安装方式，一定要记住你的 <strong><code>MySQL的安装目录</code></strong> 。</p>
+<p>在 <code>MySQL的安装目录</code> 下有一个特别特别重要的目录 <strong><code>bin目录</code></strong> ，这个目录下存放着许多可执行文件。</p>
+<h1 id="启动MySQL服务器程序"><a href="#启动MySQL服务器程序" class="headerlink" title="启动MySQL服务器程序"></a>启动MySQL服务器程序</h1><p>在 <code>类UNIX系统</code> 中，用来 启动MySQL服务器程序 的<code>可执行文件</code>有很多，大多都在 <code>MySQL安装目录</code> 的 <code>bin目录</code> 下。</p>
+<h2 id="mysqld"><a href="#mysqld" class="headerlink" title="mysqld"></a><del><code>mysqld</code></del></h2><p><del><code>mysqld</code> 这个可执行文件就代表着 <code>MySQL服务器程序</code>，运行这个可执行文件就可以直接启动一个服务器进程。 但这个命令不常用，我们继续往下看更牛逼的启动命令。</del></p>
+<h2 id="mysqld-safe"><a href="#mysqld-safe" class="headerlink" title="mysqld_safe"></a><code>mysqld_safe</code></h2><p><code>mysqld_safe</code> 是一个启动脚本:</p>
+<ul>
+<li>它会间接的调用 <code>mysqld</code> ;</li>
+<li>而且还顺便启动了另外一个 <code>监控进程</code>；这个 <code>监控进程</code> 在服务器进程挂了的时候，可以帮助重启它;</li>
+<li>另外，它会将服务器程序的出错信息和其他诊断信息重定向到某个文件中，产生<code>错误日志</code>，方便我们找出发生错误的原因。</li>
+</ul>
+<h2 id="mysql-server"><a href="#mysql-server" class="headerlink" title="mysql.server"></a><code>mysql.server</code></h2><p><code>mysql.server</code> 也是一个启动脚本，它会间接的调用 <code>mysqld_safe</code>；</p>
+<p>命令用法如下：</p>
+<ul>
+<li>启动服务器程序 ：<code>mysq.server start</code></li>
+<li>停止服务器程序：<code>mysq.server stop</code></li>
+</ul>
+<blockquote>
+<p>需要注意的是，这个 <code>mysql.server</code> 文件其实是一个链接文件，它的实际文件是 <code>../support-files/mysql.server</code> 。</p>
+<p>我使用的macOS操作系统会帮我在bin目录下自动创建一个指向实际文件的链接文件，如果你的操作系统没有帮你自动创建这个链接文件，那就自己创建一个呗~</p>
+</blockquote>
+<h2 id="mysqld-multi"><a href="#mysqld-multi" class="headerlink" title="mysqld_multi"></a><del><code>mysqld_multi</code></del></h2><blockquote>
+<p><del>其实我们一台计算机上也可以运行多个MYSQL数据库实例。<code>mysql_multi可执行文件</code> 可以对每一个服务器进程的启动或停止进行监控。</del><br><del>这个命令的使用比较复杂，本书主要是为了讲清楚MySQL服务器和客户端运行的过程，不会对启动多个服务器程序进行过多唠叨。</del></p>
+</blockquote>
+<h1 id="启动MySQL客户端程序"><a href="#启动MySQL客户端程序" class="headerlink" title="启动MySQL客户端程序"></a>启动MySQL客户端程序</h1><blockquote>
+<p>在成功启动<code>MySQL服务器程序</code>后，就可以接着启动<code>MySQL客户端程序</code>来连接到这个服务器。</p>
+<p><code>bin目录</code>下有许多客户端程序，比方说 <code>mysqladmin</code>、<code>mysqldump</code>、<code>mysqlcheck</code> 等等 (好多呢，就不一一列举了)。</p>
+</blockquote>
+<hr>
+<p>这里我们重点要关注的是 <code>可执行文件 mysql</code>：</p>
+<blockquote>
+<p><strong>通过这个可执行文件可以让我们和服务器程序进程交互</strong>(也就是发送请求，接受服务器的处理结果)。</p>
+<p>命令用法：<br>&#x2F;&#x2F; 启动这个可执行文件时一般需要一些参数，格式如下:<br><code>mysql -h主机名 -u用户名 -p密码</code></p>
+<p>&#x2F;&#x2F; 如果我们想断开客户端与服务器的连接并且关闭客户端的话，&gt; 可以在 <code>mysql&gt; 提示符</code>后输入下边任意一个命令:</p>
+<ol>
+<li><code>quit</code></li>
+<li><code>exit</code></li>
+<li><code>\q</code></li>
+</ol>
+<p>Tips:<br>像 h、u、p 这样只有一个英文字母的参数称为 <code>短形式的参数</code>，使用时前边需要加单短划线;<br>而像 host、user、password 这样大于一个英文字母的参数称为<code>⻓形式的参数</code>，使用时前边需要加 <code>双短划线</code>。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>如果你愿意，你可以多打开几个终端窗口(每个黑框框都使用 <code>mysql -hlocalhost -uroot -p123456</code>)来运行多个 <code>客户端程序</code>，每个<code>客户端程序</code> 其实都是互不影响的。<br>如果你有多个电脑，也可以试试把它们用局域网连起来，在一个电脑上启动 <code>MySQL服务器程序</code>，在另一个电脑上执行 <code>mysql命令</code> 使用IP地址作为主机名来连接到服务器。</p>
+</blockquote>
+<h1 id="客户端与服务器连接的过程"><a href="#客户端与服务器连接的过程" class="headerlink" title="客户端与服务器连接的过程"></a>客户端与服务器连接的过程</h1><p>我们现在已经知道如何启动 <code>MySQL的服务器程序</code>，以及如何启动 <code>MySQL的客户端程序</code>来连接到这个服务器程序。</p>
+<p>运行着的服务器程序和客户端程序本质上都是计算机上的一个<code>进程</code>，所以客户端进程向服务器进程发送请求并得到回复的过程本质上是一个<code>进程间通信的过程</code>!</p>
+<p><strong><code>MySQL支持下边三种客户端进程和服务器进程的通信方式</code></strong>:</p>
+<h2 id="TCP-IP"><a href="#TCP-IP" class="headerlink" title="TCP&#x2F;IP"></a>TCP&#x2F;IP</h2><p><strong>真实环境中，<code>数据库服务器进程</code> 和 <code>客户端进程</code> 可能运行在不同的主机中，它们之间必须通过网络来进行通讯</strong>。</p>
+<p>MySQL采用 <code>TCP</code> 作为<code>服务器</code>和<code>客户端</code> 之间的网络通信协议:</p>
+<blockquote>
+<p>在网络环境下，每台计算机都有一个唯一的IP地址，如果某个进程有需要采用TCP协议进行网络通信方面的需求，可以向操作系统申请一个端口号，这是一个整数值，它的取值范围是0~65535。这样在网络中的其他进程就可以通过 <code>IP地址 + 端口号</code>的方式来与这个进程连接，这样进程之间就可以通过网络进行通信了。</p>
+<p> <code>MySQL服务器</code>启动时会默认申请3306端口号(即，MySQL服务器会默认监听3306端口)，之后就在这个端口号上等待客户端进程进行连接。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>&#x2F;&#x2F; 如果3306端口号已经被别的进程占用了或者我们单纯的想自定义该 数据库实例监听的端口号，那我们可以在启动服务器程序的命令行里添加 <code>-P参数</code> 来明确指定一下端口号，比如这样: <code>mysqld -P3307</code><br>&#x2F;&#x2F; 这样MySQL服务器在启动时就会去监听我们指定的端口号3307。</p>
+</blockquote>
+<h2 id="命名管道和共享内存"><a href="#命名管道和共享内存" class="headerlink" title="命名管道和共享内存"></a><del>命名管道和共享内存</del></h2><p><del>如果你是一个Windows用户，那么客户端进程和服务器进程之间可以考虑使用命名管道或共享内存进行通信。</del></p>
+<h2 id="Unix域套接字文件"><a href="#Unix域套接字文件" class="headerlink" title="Unix域套接字文件"></a>Unix域套接字文件</h2><p>如果我们的<code>服务器进程</code>和<code>客户端进程</code>都运行在 <strong><code>同一台</code></strong> 操作系统为 类Unix的机器上的话，我们可以使用<code>Unix域套接字文件</code>来进行进程间通信。</p>
+<p>如果我们在<code>启动客户端程序时</code>指定的主机名为<code>localhost</code>，或者指定了<code>--protocal=socket</code>的启动参数，那服务器程序和客户端程序之间就可以通过<code>Unix域套接字文件</code>来进行通信了。</p>
+<hr>
+<p>MySQL服务器程序默认监听的Unix域套接字文件路径为<code>/tmp/mysql.sock</code>，客户端程序也默认连接到这个Unix域套接字文件。</p>
+<ul>
+<li>如果我们想改变这个默认路径，可以在启动服务器程序时指定<code>socket参数</code>，就像这样: <code>mysqld --socket=/tmp/a.txt</code>，这样服务器启动后便会监听<code>/tmp/a.txt</code>。</li>
+<li>在服务器改变了默认的UNIX域套接字文件后，如果客户端程序想通过UNIX域套接字文件进行通信的话，也需要显式的指定连接到的UNIX域套接字文件路径，就像这样:<code>mysql -hlocalhost -uroot --socket=/tmp/a.txt -p</code></li>
+</ul>
+<p>这样该客户端进程和服务器进程就可以通过路径为<code>/tmp/a.txt</code>的Unix域套接字文件进行通信了。</p>
+<h1 id="服务器处理客户端请求"><a href="#服务器处理客户端请求" class="headerlink" title="服务器处理客户端请求"></a>服务器处理客户端请求</h1><blockquote>
+<p>其实不论<code>客户端进程</code>和<code>服务器进程</code>是采用哪种方式进行通信，最后实现的效果都是:客户端进程向服务器进程发送一段文本(MySQL语句)，服务器进程处理后再向客户端进程返回一段文本(处理结果)。</p>
+<p>那服务器进程对客户端进程发送的请求做了什么处理，才能产生最后的处理结果呢?</p>
+</blockquote>
+<blockquote>
+<p>客户端可以向服务器发送增删改查各类请求，我们这里以比较复杂的查询请求为例来画个图展示一下大致的过程:<br><img src="/images/MySQL/1/fsfasfsff23e2e.jpg"></p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出，服务器程序处理来自客户端的查询请求大致需要经过三个部分，分别是 <code>连接管理</code>、<code>解析与优化</code>、 <strong><code>存储引擎</code></strong> 。下边我们来详细看一下这三个部分都干了什么。</p>
+</blockquote>
+<h2 id="📌连接管理"><a href="#📌连接管理" class="headerlink" title="📌连接管理"></a>📌连接管理</h2><blockquote>
+<p><code>客户端进程</code> 可以采用我们上边介绍的 <code>TCP/IP</code>、<code>命名管道或共享内存</code>、<code>Unix域套接字</code> 这几种方式之一来与 <code>服务器进</code> 程建立连接。</p>
+<p><strong><code>每当有一个客户端进程连接到服务器进程时，服务器进程都会创建一个线程来专⻔处理与这个客户端的交互； 当该客户端退出时会与服务器断开连接，服务器并不会立即把与该客户端交互的线程销毁掉，而是把它缓存起来； 在另一个新的客户端再进行连接时，服务器会把这个缓存的线程重新分配给该新客户端。 这样就起到了不频繁创建和销毁线程的效果，从而节省开销</code></strong> 。</p>
+<p>从这一点大家也能看出， <strong><code>MySQL服务器会为每一个连接进来的客户端分配一个线程，但是线程分配的太多了会严重影响系统性能，所以我们也需要限制一下可以同时连接到服务器的客户端数量</code></strong> ，至于怎么限制我们后边再说哈~</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>在客户端程序发起连接的时候，需要携带 主机信息、用户名、密码，服务器程序会对客户端程序提供的这些信息进行认证，如果认证失败，服务器程序会拒绝连接。<br>另外，如果客户端程序和服务器程序不运行在一台计算机上，我们还可以采用使用了SSL(安全套接字)的网络连接进行通信，来保证数据传输的安全性。</p>
+<p>当连接建立后，<code>与该客户端关联的服务器线程</code>会一直等待客户端发送过来的请求，MySQL服务器接收到的请求只是一个文本消息，该文本消息还要经过各种处理，预知后事如何，继续往下看哈~</p>
+</blockquote>
+<h2 id="解析与优化"><a href="#解析与优化" class="headerlink" title="解析与优化"></a>解析与优化</h2><p>到现在为止，MySQL服务器已经获得了文本形式的请求，接着还要经过九九八十一难的处理，其中的几个比较重要的部分分别是 <code>查询缓存</code>、<code>语法解析</code> 和 <code>查询优化</code>，下边我们详细来看。</p>
+<h3 id="查询缓存"><a href="#查询缓存" class="headerlink" title="查询缓存"></a><del>查询缓存</del></h3><blockquote>
+<p>如果我问你 9+8×16-3×2×17 的值是多少，你可能会用计算器去算一下，或者牛逼一点用心算，最终得到了结果35，如果我再问你一遍 9+8×16-3×2×17 的值是多少，你还用再傻呵呵的算一遍么?我们 刚刚已经算过了，直接说答案就好了。</p>
+<p>MySQL服务器程序处理查询请求的过程也是这样，会把刚刚处理过的查询请求和结果缓存起来，如果下一次有一模一样的请求过来，直接从缓存中查找结果就好了，就 不用再傻呵呵的去底层的表中查找了。</p>
+<p>并且 <strong><code>这个查询缓存可以在不同客户端之间共享</code></strong> ，也就是说如果客户端A刚刚查询了一个语句，而客户端B之后发送了同样的查询请求，那么客户端B的这次查询就可以直接使用查询缓存中的数据。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>当然，MySQL服务器并没有人聪明:</p>
+<ul>
+<li><p>如果两个查询请求在任何字符上的不同(例如:空格、注释、大小写)，都会导致缓存不会命中。</p>
+</li>
+<li><p>另外，如果查询请求中包含某些<code>系统函数</code>、<code>用户自定义变量</code>和<code>函数</code>、一些<code>系统表</code>，如 mysql 、information_schema、 performance_schema 数据库中的表，那这个请求就不会被缓存。</p>
+<blockquote>
+<p>以某些系统函数举例，可能同样的函数的两次调用会产生不一样的结果，<strong>比如 <code>函数NOW</code>，每次调用都会产生最新的当前时间，如果在一个查询请求中调用了这个函数，那即使查询请求的文本信息都一样，那不同时间的两次查询也应该得到不同的结果，如果在第一次查询时就缓存了，那第二次查询的时候直接使用第一次查询的结果就是错误的!</strong></p>
+</blockquote>
+</li>
+<li><p>而且，既然是缓存，那就有它缓存失效的时候。MySQL的缓存系统会监测涉及到的每张表，只要该表的结构或者数据被修改，如对该表使用了INSERT、 UPDATE、DELETE、TRUNCATE TABLE、ALTER TABLE、DROP TABLE或 DROP DATABASE 语句，那使用该表的所有高速缓存查询都将变为无效并从高速缓存中删除!</p>
+</li>
+</ul>
+</blockquote>
+<hr>
+<p>所以，虽然查询缓存有时可以提升系统性能，但也不得不因维护这块缓存而造成一些开销，比如<code>每次都要去查询缓存中检索</code>，<code>查询请求处理完需要更新查询缓存</code>，<code>维护该查询缓存对应的内存区域</code>。从MySQL 5.7.20开始，不推荐使用查询缓存，并在MySQL 8.0中删除。</p>
+<h3 id="语法解析"><a href="#语法解析" class="headerlink" title="语法解析"></a>语法解析</h3><blockquote>
+<p>如果 <code>查询缓存</code> 没有命中，接下来就需要进入正式的 <code>查询阶段</code> 了。</p>
+<p>但由于<code>客户端程序</code> 发送过来的请求只是一段文本而已，所<code>以MySQL服务器程序</code>首先要对这段文本做分析，判断请求的语法是否正确，然后从文本中将 <code>要查询的表</code>、<code>各种查询条件</code> … 等信息都提取出来放到MySQL服务器内部使用的一些数据结构上来。<br>⚠️ Tips:<br>这个从指定的文本中提取出我们需要的信息本质上算是一个<code>编译过程</code>，涉及 <code>词法解析</code>、<code>语法分析</code>、<code>语义分析</code> 等阶段，这些问题不属于我们讨论的范畴，大家只要了解在处理请求的过程中需要这个步骤就好了。</p>
+</blockquote>
+<h3 id="📌-查询优化"><a href="#📌-查询优化" class="headerlink" title="📌 查询优化"></a>📌 查询优化</h3><blockquote>
+<p><code>语法解析</code>之后，服务器程序获得到了需要的信息，比如 <code>要查询的列是哪些</code>，<code>表是哪个</code>，<code>搜索条件是什么</code> 等等…，但光有这些是不够的，因为我们写的MySQL语句执行起来效率可能并不是很高，MySQL的优化程序会对我们的语句做一些优化，如外连接转换为内连接、表达式简化、子查询转为连接吧啦吧啦的一堆东⻄。</p>
+</blockquote>
+<blockquote>
+<p>优化的结果会 <strong>生成一个<code>执行计划</code></strong> ，这个执行计划表明了应该使用哪些索引进行查询，表之间的连接顺序是啥样的。<br><strong>我们可以使用<code>EXPLAIN语句</code>来查看某个语句的执行计划</strong>，关于查询优化这部分的详细内容我们后边会仔细唠叨，现在你只需要知道在MySQL服务器程序处理请求的过程中有这么一个步骤就好了。</p>
+</blockquote>
+<h2 id="📌-存储引擎"><a href="#📌-存储引擎" class="headerlink" title="📌 存储引擎"></a>📌 存储引擎</h2><p>截止到<code>服务器程序</code>完成了<code>查询优化</code>为止，还没有真正的去访问真实的数据表。 <strong><code>MySQL服务器把数据的存储和提取操作都封装到了一个叫 存储引擎 的模块里</code></strong> 。</p>
+<p>我们知道表是由一行一行的<code>记录</code>组成的， <strong><code>但这只是一个逻辑上的概念，物理上如何表示 记录，怎么从表中读取数据，怎么把数据写入具体的物理存储器上? </code></strong> 这都是 <code>存储引擎</code> 负责的事情。 <strong>为了实现不同的功能，MySQL提供了<code>各式各样</code>的存储引擎，<code>不同存储引擎管理的表具体的存储结构可能不同，采用的存取算法也可能不同</code></strong> 。</p>
+<hr>
+<p>为了管理方便，人们把 <code>连接管理</code>、<code>查询缓存</code>、<code>语法解析</code>、<code>查询优化</code> 这些并<strong>不涉及真实数据存储的功能</strong>划分为<code>MySQL server</code>的功能。 而把<strong>真实存取数据的功能</strong>划分为<code>存储引擎</code>的功能。（各种不同的 <code>存储引擎</code> 向上边的 <code>MySQL server层</code> 提供统一的调用接口(也就是存储引擎 API)，包含了几十个底层函数，像”读取索引第一条内容”、”读取索引下一条内容”、”插入记录”等等。<br>所以在<code>MySQL server</code>完成了<code>查询优化</code>后，只需按照生成的<code>执行计划</code> 调用 <code>底层存储引擎</code> 提供的API，获取到数据后返回给客户端就好了。</p>
+<h1 id="常用存储引擎"><a href="#常用存储引擎" class="headerlink" title="常用存储引擎"></a>常用存储引擎</h1><p>MySQL支持非常多种存储引擎，我这先列举一些:</p>
+<table>
+<thead>
+<tr>
+<th>存储引擎</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ARCHIVE</td>
+<td>用于数据存档(行被插入后不能再修改)</td>
+</tr>
+<tr>
+<td>BLACKHOLE</td>
+<td>丢弃写操作，读操作会返回空内容</td>
+</tr>
+<tr>
+<td>CSV</td>
+<td>在存储数据时，以逗号分隔各个数据项</td>
+</tr>
+<tr>
+<td>FEDERATED</td>
+<td>用来访问远程表</td>
+</tr>
+<tr>
+<td><strong><code>InnoDB</code></strong></td>
+<td><strong><code>具备外键支持功能的事务存储引擎</code></strong></td>
+</tr>
+<tr>
+<td>MEMORY</td>
+<td>置于内存的表</td>
+</tr>
+<tr>
+<td>MERGE</td>
+<td>用来管理多个MyISAM表构成的表集合</td>
+</tr>
+<tr>
+<td><strong><code>MyISAM</code></strong></td>
+<td><strong><code>主要的非事务处理存储引擎</code></strong></td>
+</tr>
+<tr>
+<td>NDB</td>
+<td>MySQL集群专用存储引</td>
+</tr>
+</tbody></table>
+<p>这么多我们怎么挑啊，哈哈，你多虑了，其实我们最常用的就是<code>InnoDB</code> 和 <code>MyISAM</code>，有时会提一下 <code>Memory</code>。其中<code>InnoDB是MySQL默认的存储引擎</code>，我们之后会详细唠叨这个存储引擎的各种功能。现在先看一下一些存储引擎对于某些功能的支持情况:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>MyISAM</th>
+<th>Memory</th>
+<th>InnoDB</th>
+<th>Archive</th>
+<th>NDB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>B-tree</code></strong> indexes</td>
+<td><strong><code>yes</code></strong></td>
+<td><strong><code>yes</code></strong></td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><strong><code>Clustered indexes</code></strong></td>
+<td>no</td>
+<td>no</td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>Full-text search indexes</td>
+<td>yes</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><strong><code>MVCC</code></strong></td>
+<td>no</td>
+<td>no</td>
+<td><strong><code>yes</code></strong></td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+<td>……</td>
+</tr>
+<tr>
+<td>Hash indexes</td>
+<td>no</td>
+<td>yes</td>
+<td>no</td>
+<td>no</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>密密麻麻列了这么多，看的头皮都发麻了，达到的效果就是告诉你: 这玩意儿很复杂。其实这些东⻄大家没必要立即就给记住，列出来的目的就是想让大家明白不同的存储引擎支持不同的功能，有些重要的功能我们会在后边的唠叨中慢慢让大家理解的~</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="查看、设置-存储引擎"><a href="#查看、设置-存储引擎" class="headerlink" title="查看、设置 存储引擎"></a>查看、设置 存储引擎</h1><blockquote>
+<p>我们可以用<code>SHOW ENGINES;</code>命令来查看当前服务器程序支持的存储引擎:<br><img src="/images/MySQL/1/1713156308289.jpg"></p>
+<ul>
+<li><code>Support列</code> 表示该存储引擎是否可用;</li>
+<li><code>DEFAULT值</code> 代表是当前服务器程序的默认存储引擎;</li>
+<li><code>Comment列</code> 是对存储引擎的一个描述;</li>
+<li><code>Transactions列</code> 代表该存储引擎是否支持事务处理;</li>
+<li><strong><code>XA列</code> 代表着该存储引擎是否支持分布式事务</strong>;<br>  (也许你并不知道什么是个事务、更别提分布式事务了，这些内容在后边的章节会详细唠叨，现在看个新鲜就得了)</li>
+<li><code>Savepoints列</code> 代表着该列是否支持部分事务回滚。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>设置表的存储引擎<br>前边说过，  <strong><code>存储引擎是负责对表中的数据进行提取和写入工作的</code></strong>  ，我们可以为不同的表设置不同的存储引擎，也就是说 <strong><code>不同的表可以有不同的物理存储结构，不同的提取和写入方式</code></strong> 。</p>
+<ul>
+<li><p>创建表时指定存储引擎<br>  我们之前创建表的语句都没有指定表的存储引擎，那就会使用默认的存储引擎InnoDB。(查看表结构可以使用:<code>show create tables 表名\G</code>)<br>如果我们想显式的指定一下表的存储引擎，那可以这么写:<br><code>CREATE TABLE 表名( 建表语句;</code><br><code>) ENGINE = 存储引擎名称;</code></p>
+</li>
+<li><p>如果表已经建好了，我们也可以使用 <code>ALTER TABLE 表名 ENGINE = 存储引擎名称;</code> 这个语句来修改表的存储引擎。</p>
+</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/0. 初阶需要重点关注 InnoDB存储引擎 存储结构 的相关知识" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">0. 重要知识点梳理</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-11T11:43:20.000Z" itemprop="datePublished">2021年09月11日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="InnoDB存储引擎-存储结构的相关知识"><a href="#InnoDB存储引擎-存储结构的相关知识" class="headerlink" title="InnoDB存储引擎 存储结构的相关知识"></a><code>InnoDB存储引擎 存储结构</code>的相关知识</h2><ul>
+<li><strong><code>记录结构</code></strong></li>
+<li><strong><code>⻚结构</code></strong></li>
+<li><strong><code>索引结构</code></strong></li>
+<li><strong><code>表空间结构</code></strong></li>
+</ul>
+<h2 id="索引优化-基于对索引结构的了解"><a href="#索引优化-基于对索引结构的了解" class="headerlink" title="索引优化(基于对索引结构的了解)"></a>索引优化(基于对<code>索引结构</code>的了解)</h2><h2 id="查询优化"><a href="#查询优化" class="headerlink" title="查询优化"></a>查询优化</h2><h2 id="Explain-执行计划分析"><a href="#Explain-执行计划分析" class="headerlink" title="Explain 执行计划分析"></a>Explain 执行计划分析</h2><h2 id="redolog"><a href="#redolog" class="headerlink" title="redolog"></a>redolog</h2><h2 id="undolog"><a href="#undolog" class="headerlink" title="undolog"></a>undolog</h2><h2 id="MVCC"><a href="#MVCC" class="headerlink" title="MVCC"></a>MVCC</h2><h2 id="锁"><a href="#锁" class="headerlink" title="锁"></a>锁</h2>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-HTTP/4. method" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/11/27/HTTP/4.%20method/">HTTP 之 method</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2017-11-27T11:43:20.000Z" itemprop="datePublished">2017年11月27日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+  </div>
+
+      
+      
+<a href="/2017/11/27/HTTP/4.%20method/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="PUT-vs-POST"><a href="#PUT-vs-POST" class="headerlink" title="PUT vs POST"></a>PUT vs POST</h2><ol>
+<li><p><code>PUT</code>: 替换资源;</p>
+</li>
+<li><p><code>PUT</code> 和 <code>POST</code>的区别: 在HTTP中, PUT被定义为 <a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.1.2"><code>idempotent(幂等性)</code></a> 的方法, POST则不是, <strong>这是一个很重要的区别</strong></p>
+</li>
+<li><p>应该用 <code>PUT</code> 还是 <code>POST</code>?</p>
+<ul>
+<li><p>取决于这个REST服务的行为是否是idempotent(幂等)的<br> 假如发送两个请求, 希望服务器端是产生两个新数据，那就说明这个服务不是idempotent的, 因为多次使用产生了副作用了, 那就应该使用 <code>POST</code> 方法;<br> 但如果是希望后一个请求把第一个请求覆盖掉(这不正是修改么), 那这个服务就是idempotent的, 那就应该使用 <code>PUT</code> 方法;</p>
+</li>
+<li><p>虽然 <code>POST</code> 和 <code>PUT</code> 差别不大, 用错了也没关系, 但是你的服务一放到internet上，如果不遵从HTTP协议的规范，就可能给自己带来麻烦;</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h2><ol>
+<li><p><code>POST</code>: 上面已经提过了, <strong>POST是非幂等的</strong>;</p>
+</li>
+<li><p><code>POST</code> 和 <code>PUT</code> 都可以上传文件或者创建新信息, 但主要看你的REST服务行为是否是幂等的;</p>
+</li>
+</ol>
+<h2 id="PATCH"><a href="#PATCH" class="headerlink" title="PATCH"></a>PATCH</h2><p><strong>PATCH不是HTTP标准方法的，服务端需要考虑客户端是否能够支持的问题</strong>;</p>
+<ol>
+<li><p>对已有资源的操作: 用于对资源的 <strong>部分内容</strong> 进行更新 (例如更新某一个字段, 具体比如说只更新用户信息的电话号码字段);   </p>
+</li>
+<li><p>而 <code>PUT</code> 则用于更新某个资源较完整的内容, 比如说用户要重填完整表单更新所有信息, 后台处理更新时可能只是保留内部记录ID不变;</p>
+</li>
+</ol>
+<h2 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h2><ol>
+<li>HEAD和 <code>GET</code> 本质是一样的, 区别在于如果使用HEAD, 响应体将不会被返回, 而仅仅返回HTTP头信息;<br>比如: 欲判断某个资源是否存在, 我们通常使用GET, <strong>但这里用HEAD则意义更加明确</strong>;</li>
+</ol>
+<h2 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h2><p>比较简单, 直接获取资源;</p>
+<h2 id="OPTIONS"><a href="#OPTIONS" class="headerlink" title="OPTIONS"></a>OPTIONS</h2><p>这个方法使用比较少, 它用于获取当前URL所支持的方法;<br>若请求成功, 则它会在HTTP头中包含一个名为 <code>Allow</code> 的头, 值是服务器所支持的方法, 如 GET, POST;<br>之前跨域相关博文 <a href="/2016/09/18/2016-09-18-sameoriginpolicy-06/">CORS方案 not-so-simple request</a> 中的”预检”请求用的请求方法就是 <code>OPTIONS</code>;</p>
+<h2 id="CONNECT"><a href="#CONNECT" class="headerlink" title="CONNECT"></a>CONNECT</h2><p>要求用隧道协议连接代理, 如使用SSL</p>
+<h2 id="TRACE"><a href="#TRACE" class="headerlink" title="TRACE"></a>TRACE</h2><p>~~未完待续</p>
+<h2 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h2><p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.7">参考</a></p>
+<h2 id="PURGE"><a href="#PURGE" class="headerlink" title="PURGE"></a>PURGE</h2><p>非规范中定义的方法</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-HTTP/3. 认证与授权" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/">认证与授权</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2017-11-25T13:12:54.000Z" itemprop="datePublished">2017年11月25日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+  </div>
+
+      
+      
+<a href="/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="认证-Authentication-和-授权-Authorization-的区别？"><a href="#认证-Authentication-和-授权-Authorization-的区别？" class="headerlink" title="认证 (Authentication)  和 授权 (Authorization) 的区别？"></a>认证 (Authentication)  和 授权 (Authorization) 的区别？</h3><p>这是一个绝大多数人都会混淆的问题。简单点说：</p>
+<h4 id="认证-Authentication-：-你是谁"><a href="#认证-Authentication-：-你是谁" class="headerlink" title="认证 (Authentication)： 你是谁"></a>认证 (Authentication)： 你是谁</h4><ul>
+<li><p>是验证您的身份的凭据（例如用户名&#x2F;用户ID和密码），通过这个凭据，系统得以知道你就是你，也就是说系统是否存在你这个用户。所以，Authentication 被称为身份&#x2F;用户验证。</p>
+</li>
+<li><p><strong>401 Unauthorized</strong> : 表示 认证(Authentication) 类型的错误<br>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</p>
+</li>
+</ul>
+<h4 id="授权-Authorization-：-你有权限干什么"><a href="#授权-Authorization-：-你有权限干什么" class="headerlink" title="授权 (Authorization)： 你有权限干什么"></a>授权 (Authorization)： 你有权限干什么</h4><ul>
+<li><p>Authorization（授权） 发生在 Authentication（认证） 之后。它主要掌管我们访问系统的权限。<br>比如有些特定资源只能具有特定权限的人才能访问比如admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。</p>
+</li>
+<li><p><strong>403 Forbidden</strong> : 经常和401状态码混淆; 其实403表示的是 授权(Authotization) 类型的错误, 授权和认证的不同之处是:</p>
+</li>
+</ul>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”<br>这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。</p>
+<h3 id="Cookie-Session-身份验证"><a href="#Cookie-Session-身份验证" class="headerlink" title="Cookie Session 身份验证"></a>Cookie Session 身份验证</h3><ol>
+<li><p>Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。</p>
+</li>
+<li><p>用户成功登陆系统，然后返回给客户端具有 SessionID 的 Cookie，只有用户向再后端发起请求的时候会把 SessionID 带上，这样后端就知道你的身份状态了。</p>
+</li>
+<li><p>使用 Session 的时候需要注意下面几个点：</p>
+</li>
+</ol>
+<ul>
+<li>依赖Session的关键业务一定要确保客户端开启了Cookie</li>
+<li>注意Session的过期时间</li>
+</ul>
+<ol start="4">
+<li>如果没有Cookie的话Session还能用吗？<br>一般是通过 Cookie 来保存 SessionID，假如你使用了 Cookie 保存 SessionID的方案的话，如果客户端禁用了Cookie，那么 Session就无法正常工作。但是，并不是没有 Cookie 之后就不能用 Session 了，比如你可以将SessionID放在请求的 url 里面 <a target="_blank" rel="noopener" href="https://javaguide.cn/?session_id=xxx">https://javaguide.cn/?session_id=xxx</a> 。这种方案可行，但是安全性和用户体验感降低。当然，你也可以对 SessionID 进行一次加密之后再传入后端。</li>
+</ol>
+<h3 id="Cookie-无法防止CSRF攻击，而token可以"><a href="#Cookie-无法防止CSRF攻击，而token可以" class="headerlink" title="Cookie 无法防止CSRF攻击，而token可以"></a>Cookie 无法防止CSRF攻击，而token可以</h3><p>CSRF（Cross Site Request Forgery）一般被翻译为 跨站请求伪造 。简单来说就是用你的身份去发送一些对你不友好的请求。举个简单的例子：</p>
+<blockquote>
+<p>小壮登录了某网上银行，他来到了网上银行的帖子区，看到一个帖子下面有一个链接写着“科学理财，年盈利率过万”，小壮好奇的点开了这个链接，结果发现自己的账户少了10000元。这是这么回事呢？原来黑客在链接中藏了一个请求，这个请求直接利用小壮的身份给银行发送了一个转账请求,也就是通过你的 Cookie 向银行发出请求。<br>&lt;a src&#x3D;<a target="_blank" rel="noopener" href="http://www.mybank.com/Transfer?bankId=11&money=10000%3E%E7%A7%91%E5%AD%A6%E7%90%86%E8%B4%A2%EF%BC%8C%E5%B9%B4%E7%9B%88%E5%88%A9%E7%8E%87%E8%BF%87%E4%B8%87">http://www.mybank.com/Transfer?bankId=11&amp;money=10000&gt;科学理财，年盈利率过万</a>&lt;&#x2F;&gt;<br>上面也提到过，进行Session 认证的时候，我们一般使用 Cookie 来存储 SessionId, 当我们登陆后，后端生成一个SessionId放在Cookie中返回给客户端，服务端通过Redis或者其他存储工具记录保存着这个Sessionid，客户端登录以后每次请求都会带上这个SessionId，服务端通过这个SessionId来标识你这个人。如果别人通过 cookie拿到了 SessionId ，那他就可以代替你的身份访问系统了。而 Session 认证中，Cookie 中的 SessionId是由浏览器发送到服务端的，借助这个特性，攻击者就可以通过让用户误点攻击链接，达到攻击效果。</p>
+</blockquote>
+<p>但是，我们使用 token 的话就不会存在这个问题，在我们登录成功获得 token 后，然后我们在前端通过某些方式会给每个发到后端的请求加上这个 token,这样就不会出现 CSRF 漏洞的问题。因为，<strong>即使你点击了某个非法链接发送请求到服务端，这个非法请求是无法自动携带 token 的</strong>，所以这个请求将是非法的。</p>
+<p>** 其实CSRF主要是利用浏览器会携带已登录的用户标识，来达到冒充用户的目的，从而对被攻击的网站执行某项操作。**</p>
+<h3 id="无论-Cookie-还是-token-都无法避免-跨站脚本攻击（Cross-Site-Scripting）XSS"><a href="#无论-Cookie-还是-token-都无法避免-跨站脚本攻击（Cross-Site-Scripting）XSS" class="headerlink" title="无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS"></a>无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS</h3><p>跨站脚本攻击（Cross Site Scripting）缩写为 CSS 但这会与层叠样式表（Cascading Style Sheets，CSS）的缩写混淆。因此，有人将跨站脚本攻击缩写为XSS。<br>XSS中攻击者会用各种方式将恶意代码注入到其他用户的页面中。就可以通过脚本盗用信息比如cookie。</p>
+<h3 id="推荐阅读：如何防止CSRF攻击？—美团技术团队"><a href="#推荐阅读：如何防止CSRF攻击？—美团技术团队" class="headerlink" title="推荐阅读：如何防止CSRF攻击？—美团技术团队"></a>推荐阅读：如何防止CSRF攻击？—美团技术团队</h3><p>CSRF的特点：</p>
+<ul>
+<li>攻击一般发起在第三方网站，而不是被攻击的网站。</li>
+<li>攻击利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；而不是直接窃取数据。</li>
+<li>整个过程攻击者并不能获取到受害者的登录凭证，仅仅是“冒用”。</li>
+<li>跨站请求可以用各种方式：图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。<br><strong>CSRF通常是跨域的，因为外域通常更容易被攻击者掌控</strong>(lant:也就是说，如果你的站点是跨域的，这个域最好有个一级域名的限制，否则其他网站都能钓鱼了)。但是<strong>如果本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险</strong>。</li>
+</ul>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-HTTP/2. status_code" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/11/25/HTTP/2.%20status_code/">03. HTTP状态码详解</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2017-11-25T05:30:12.000Z" itemprop="datePublished">2017年11月25日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+  </div>
+
+      
+      
+<a href="/2017/11/25/HTTP/2.%20status_code/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="1xx"><a href="#1xx" class="headerlink" title="1xx"></a>1xx</h2><ol>
+<li><code>101</code>: 参考博文<a href="/2017/10/28/WebSocket/2017-10-28-websocket-02/">WebSocket简单示例分析</a> (做协议升级, 还会响应: <code>Connection: Upgrade</code>)</li>
+</ol>
+<h2 id="2xx"><a href="#2xx" class="headerlink" title="2xx"></a>2xx</h2><blockquote>
+<p><strong>Web API的设计与开发 P109</strong></p>
+</blockquote>
+<p><strong>200 OK</strong> : 200码非常出名, 似乎没有对它进一步说明的必要;</p>
+<p><strong>201 Created</strong> : 当在服务器端创建数据成功时, 会返回201状态码;</p>
+<ul>
+<li>也就是使用 <code>POST</code> 请求方法的场景 (如:用户登录后添加了新用户, 上传了图片等新创建数据的场景)</li>
+</ul>
+<p><strong>202 Accepted</strong> : 在异步处理客户端请求时, 它用来表示服务器端已经接受了来自客户端的请求, 但处理尚未结束;</p>
+<ul>
+<li>在文件格式转换, 处理远程通知(Apple Push Notification等)这类很耗时的场景中, 如果等到所有处理都结束后才向客户端返回响应消息, 就会花费相当长的时间, 造成应用可用性不高; 这时采用的方法是服务器向客户端返回一次响应消息, 然后立刻开始异步处理。</li>
+<li>202状态码就被用于告知客户端服务器端已经开始处理请求, 但整个处理过程尚未结束;</li>
+<li>比如: 以LinkedIn的参与讨论的API为例<br>如果成功参与讨论并发表意见, 服务器端通常会返回201状态码;<br>但如果需要得到群主的确认, 那么所发表的意见就无法立即在页面显示出来, 这时服务器端就需要返回202状态码; 从广义上来看, 该场景也属于异步处理, 但和程序设计里的异步执行当然不同;</li>
+</ul>
+<p><strong><a target="_blank" rel="noopener" href="http://www.laruence.com/2011/01/20/1844.html">204 No Content</a></strong> : 正如其字面意思, 当响应消息为空时会返回该状态码。</p>
+<ul>
+<li>其实就是告诉浏览器, 服务端执行成功了, 但是没什么数据返回给你, 所以你不用刷新页面, 也不用导向新的页面; </li>
+<li>在用 <code>DELETE</code> 方法删除数据时, 服务器端通常会返回204状态码(阮一峰博文也提到过, 对<code>DELETE</code>适用);</li>
+<li>除此之外, 也有人认为在使用 <code>PUT</code>或<code>PATCH</code> 方法更新数据时, 因为只是更新已有数据, 所以返回204状态码更加自然;<br>书中建议 <code>DELETE</code> 返回204; <code>PUT</code>或<code>PATCH</code>返回200并返回该方法所操作的数据; </li>
+<li>关于204状态码的讨论可以参考 p111;</li>
+</ul>
+<p><strong>205 Reset Content</strong> : 告诉浏览器, 页面表单需要被重置; </p>
+<ul>
+<li>205的意思是服务端在接收了浏览器POST请求以后, 处理成功以后, 告诉浏览器, 执行成功了, 请清空用户填写的Form表单, 方便用户再次填写;</li>
+</ul>
+<p><strong>206 Partial Content</strong> : 成功执行了一个部分或Range(范围)的请求; </p>
+<ul>
+<li>206响应中, 必须包含 <code>Content-Range</code>, <code>Date</code> 以及 <code>ETag</code>或<code>Content-Location</code>首部;</li>
+</ul>
+<h2 id="3xx"><a href="#3xx" class="headerlink" title="3xx"></a>3xx</h2><p><strong>300 Multiple Choices</strong> : 客户端驱动方式进行内容协商时, 服务器可能返回多个连接供客户端进行选择 (比如多语言网站可能会出现);</p>
+<p><strong>301 Moved Permanently</strong> : 在请求的URL已经被移除时使用, 响应的Location首部中应该包含资源现在所处的URL; (比较适合永久重定向)</p>
+<ul>
+<li><p>比如你从 <a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a> 中location跳转到 <a target="_blank" rel="noopener" href="http://www.test.com/index.html">www.test.com/index.html</a> 时, 如果响应的是301;</p>
+</li>
+<li><p>则即便稍后取消了location.php中的跳转(或者修改了跳转地址), 由于浏览器还是会认为你之前的跳转是永久性的, 再次访问<a target="_blank" rel="noopener" href="http://www.test.com/location.php%E4%BB%8D%E7%84%B6%E4%BC%9A%E8%B7%B3%E8%BD%AC%E5%88%B0%E4%B9%8B%E5%89%8D%E7%9A%84%E8%B7%B3%E8%BD%AC%E9%93%BE%E6%8E%A5(%E9%99%A4%E9%9D%9E%E6%B8%85%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98)">www.test.com/location.php仍然会跳转到之前的跳转链接(除非清浏览器缓存)</a>;</p>
+</li>
+<li><p>另外, 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 会转成<strong>GET</strong>;</p>
+</li>
+</ul>
+<p><strong>302 Found</strong>: 与301类似, 但是客户端应该使用Location首部给出的URL来进行<strong>临时</strong>定位资源, 将来的请求仍应该使用老的URL;</p>
+<ul>
+<li><p>比如你从 <a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a> 中location跳转到 <a target="_blank" rel="noopener" href="http://www.test.com/index.html">www.test.com/index.html</a> 时, 如果响应的是302;</p>
+</li>
+<li><p>如果稍后取消了location.php中的跳转, 再次访问<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 会发现不会进行跳转, 而是访问到 location.php 修改后的代码 (不用清浏览器缓存);</p>
+</li>
+<li><p>另外, 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 会转成<strong>GET</strong>;</p>
+</li>
+</ul>
+<p><strong>303 See Other</strong> : HTTP&#x2F;1.1使用303来实现和302一样的<strong>临时</strong>重定向;</p>
+<p><strong>307 Temporary Redirect</strong></p>
+<ul>
+<li>HTTP&#x2F;1.1规范要求用307来取代302进行临时重定向; (302临时重定向留给HTTP&#x2F;1.0)</li>
+<li>所以他也具备302临时重定向的特点;</li>
+<li>但是, 与 302, 303 不同, 它会将客户端的POST请求, 发送给location的目标页; 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 仍然是<strong>POST</strong>;</li>
+</ul>
+<p><strong><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/draft-reschke-http-status-308-07">308 Permanent Redirect</a></strong></p>
+<ul>
+<li>貌似不是rfc2616的标准</li>
+<li>具备和301永久重定向的特点, 需要清除浏览器缓存才行;</li>
+<li>但是, 与 301 不同, 它会将客户端的POST请求, 发送给location的目标页; 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 仍然是<strong>POST</strong>;</li>
+</ul>
+<p><strong>304 Not Modified</strong> : 参考博文<a href="/2017/11/30/http/2017-11-30-HTTP-05/">缓存相关</a></p>
+<h2 id="4xx"><a href="#4xx" class="headerlink" title="4xx"></a>4xx</h2><blockquote>
+<p><strong>Web API的设计与开发 P113</strong><br>4字头状态码主要用于描述因客户端请求的问题而引发的错误。<br>也就是说, 服务器端不存在问题, 但服务器端无法理解客户端发送的请求, 或虽然服务器端能够理解但请求却没有被执行, 当遇到这些情况引发的错误时, 服务器端便会向客户端返回这一类别的状态码。<br>因此, 当服务器端返回4字头的状态码时, 就表示客户端的访问方式发生了问题, 用户需要检查一下客户端的访问方式或访问的目标资源等。</p>
+</blockquote>
+<p><strong>400 Bad Request</strong> : 表示其他错误的意思, 即其他4字头状态码都无法描述的错误类型;</p>
+<p><strong>401 Unauthorized</strong> : 表示<code>认证(Authentication)</code>类型的错误</p>
+<ul>
+<li>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</li>
+</ul>
+<p><strong>403 Forbidden</strong> : 和401状态码比较相似, 所以也经常被混淆; 其实403表示的是<code>授权(Authotization)</code>类型的错误, 授权和认证的不同之处是:</p>
+<ul>
+<li><code>认证</code>表示”识别前来访问的是谁”, 而<code>授权</code>则表示”赋予特定用户执行特定操作的权限”</li>
+<li>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”</li>
+</ul>
+<p><strong>404 Not Found</strong> : 表示访问的数据不存在, 但是</p>
+<ul>
+<li>例如当客户端湿度获取不存在的用户信息时, 或者试图访问原本就不存在的端点时, 服务器就会返回404状态码;</li>
+<li>所以, 如果客户端想要获取用户信息, 却得到服务器端返回的404状态码, 客户端仅凭”404 Not Found”将难以区分究竟是用户不存在, 还是端点URI错误导致访问了原本不存在的URI;</li>
+</ul>
+<p><strong>405 Method Not Allowed</strong> : 表示虽然访问的端点存在, 但客户端使用的HTTP方法不被服务器端允许;</p>
+<ul>
+<li>比如客户端使用了POST方法来访问只支持GET方法的信息检索专用的API;</li>
+<li>又比如客户端用了GET方法来访问更新数据专用的API等;</li>
+</ul>
+<p><strong>406 Not Acceptable</strong> : 服务器端API不支持客户端指定的数据格式时, 服务器端所返回的状态码; </p>
+<ul>
+<li>比如, 服务器端只支持JSON和XML输出的API被客户端指定返回YAML的数据格式时, 服务器端就会返回406状态码;</li>
+</ul>
+<p><strong>408 Request Timeout</strong> : 当客户端发送请求至服务器端所需的时间过长时, 就会触发服务器端的超时处理, 从而使服务器端返回该状态码;</p>
+<p><strong>409 Conflict</strong>: 用于表示资源发生冲突时的错误 (es中就会有该错误码)</p>
+<ul>
+<li>比如通过指定ID等唯一键值信息来调用注册功能的API时, 倘若已有相同ID的数据存在, 就会导致服务器端返回409状态码;</li>
+<li>在使用邮箱地址及Facebook ID等信息进行新用户注册时, 如果该邮箱地址或者ID已经被其他用户注册, 就会引起冲突, 这时服务器端就会返回409状态码告知客户端该邮箱地址或ID已被使用;</li>
+</ul>
+<p><strong>410 Gone</strong> : 和 404状态码 相同, 都表示访问资源不存在, 只是410状态码不单表示资源不存在, 还进一步告知<strong>资源曾经存在</strong>, 只是目前已经消失了;</p>
+<ul>
+<li>因此服务器端常在访问被删除的数据时返回该状态码, 但是为了返回该状态码, 服务器必须保存该数据已被删除的信息, 而且客户端也应该知晓服务器端保存了这样的信息;</li>
+<li>但是在通过邮箱地址搜索用户信息的API中, 从保护个人信息的角度来说, <strong>返回410状态码的做法也会受到质疑</strong>; (所以在此种资源不存在的情况下, 为了稍微安全一些, 返回410状态码需要慎重)</li>
+</ul>
+<p><strong>413 Request Entity Too Large</strong> : 413也是比较容易出现的一种状态码, 表示请求实体过大而引发的错误</p>
+<ul>
+<li>请求消息体过长是指, 比如在上传文件这样的API中, 如果发送的数据超过了所允许的最大值, 就会引发这样的错误;</li>
+</ul>
+<p><strong>414 Request-URI Too Large</strong> : 414是表示请求首部过长而引发的错误</p>
+<ul>
+<li>如果在进行GET请求时, 查询参数被指定了过长的数据, 就会导致服务器端返回414状态码</li>
+</ul>
+<p><strong>415 Unsupported Media Type</strong> : 和406比较相似</p>
+<ul>
+<li>406我们知道是表示服务器端不支持客户端想要接收的数据格式</li>
+<li>而415表示的是服务器端不支持客户端请求首部 <code>Content-Type</code> 里指定的数据格式, 也就是说, 当客户端通过POST,PUT,PATCH等方法发送的请求消息体的数据格式不被服务器支持时, 服务器端就会返回415状态码;</li>
+<li>例如在只接收JSON格式的API里, 如果客户端请求时发送的是XML格式的数据去请求服务器端, 或者在 <code>Content-Type</code> 首部指定 <code>application/xml</code>, 都会导致该类型错误;</li>
+</ul>
+<p><strong>429 Too Many Requests</strong> : 是2012年RFC6585文档中新定义的状态码, 表示访问次数超过了所允许的范围;</p>
+<ul>
+<li>例如某API存在一小时内只允许访问100次的访问限制, 这种情况下入股哦客户端视图进行第101次访问, 服务器便会返回该状态码;</li>
+<li>表示在一定的时间内用户发送了太多的请求, 即超出了”频次限制”, 在响应中，可以提供一个 <code>Retry-After</code> 首部来提示用户需要等待多长时间之后再发送新的请求;</li>
+</ul>
+<h2 id="5xx"><a href="#5xx" class="headerlink" title="5xx"></a>5xx</h2><blockquote>
+<p>5字头状态码表示错误不发生在客户端, 而是由服务器自身问题引发的。</p>
+</blockquote>
+<p><strong>500 Internal Server Error</strong> : 是web应用程序开发里非常常见的错误, 当服务器代码里存在bug, 输出错误信息并停止运行等情况下, 就会返回该类型的错误;</p>
+<ul>
+<li>因此, 不仅限于API, 对于5字头状态码的错误, 都要认真监视错误日志, 使系统在出错时及时告知管理员, 以便在错误发生时做好应对措施, 防止再次发生。</li>
+</ul>
+<p><strong>501 Not Implemented</strong> : ???</p>
+<p><strong>502 Bad GateWay</strong> : ???</p>
+<p><strong>503 Service Unavaliable</strong> : 用来表示服务器当前处于<strong>暂</strong>不可用状态</p>
+<ul>
+<li>可以回送:响应首部 <code>Retry-After</code> 表示多久恢复;</li>
+<li>不同的客户端与服务器端应用对于 Retry-After 首部的支持依然不太一致;</li>
+<li>不过，一些爬虫程序，比如谷歌的爬虫程序Googlebot, 会遵循Retry-After响应首部的规则, 将其与503(Service Unavailable,当前服务不存在)响应一起发送有助于互联网引擎做出判断,在宕机结束之后继续对网站构建索引。</li>
+<li>参考:<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Retry-After">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Retry-After</a></li>
+</ul>
+<p><strong>504 Gateway Time-out</strong>: 复现这个错误码比较简单, 让你的php程序模拟耗时请求, 如下代码<br>    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">sleep(70);//模拟耗时，睡70秒</span><br><span class="line">echo &quot;睡醒了&quot;;</span><br></pre></td></tr></table></figure><br>    就会返回<br>    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">504 Gateway Time-out</span><br><span class="line">nginx/1.11.4</span><br></pre></td></tr></table></figure><br><strong>505 HTTP Version Not Supported</strong>: 服务器收到的请求, 使用的是它无法支持的HTTP协议版本;</p>
+<p>参考:《HTTP权威指南》、《Web API的设计与开发》</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-HTTP/1. 同源策略" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/">HTTP 之 同源策略SOP</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2017-11-24T15:01:19.000Z" itemprop="datePublished">2017年11月24日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+  </div>
+
+      
+      
+<a href="/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="同源策略SOP"><a href="#同源策略SOP" class="headerlink" title="同源策略SOP"></a>同源策略SOP</h3><p><strong>浏览器安全的基石是”同源政策”（same-origin policy）</strong></p>
+<ol>
+<li><p>1995年，同源政策由 Netscape 公司引入浏览器。目前所有浏览器都实行这个政策;</p>
+</li>
+<li><p>简单来说，A站点设置的Cookie，B站点不能打开，除非这两个站点属同源，所谓<strong>同源</strong>指的是 <strong>“三个相同”</strong>:</p>
+</li>
+</ol>
+<ul>
+<li><p><strong>协议相同</strong><br><a target="_blank" rel="noopener" href="http://blog.renyimin.com/">http://blog.renyimin.com</a> 和 <a target="_blank" rel="noopener" href="https://blog.renyimin.com/">https://blog.renyimin.com</a> 就不是同一个源 ；</p>
+</li>
+<li><p><strong>域名完全相同</strong><br><a target="_blank" rel="noopener" href="http://blog.renyimin.com/test/index.php">http://blog.renyimin.com/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://blog.renyimin.com/welcome/index.html">http://blog.renyimin.com/welcome/index.html</a> 就是同一个源;<br>但是 <a target="_blank" rel="noopener" href="http://www.renyimin.com/test/index.php">http://www.renyimin.com/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://blog.renyimin.com/test/index.php">http://blog.renyimin.com/test/index.php</a> 就不是同一个源 ；<br>localhost 和 127.0.0.1 也不是同一个源 ;</p>
+</li>
+<li><p><strong>端口相同</strong><br><a target="_blank" rel="noopener" href="http://www.renyimin.com:8080/test/index.php">http://www.renyimin.com:8080/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://www.renyimin.com/test/index.php">http://www.renyimin.com:80/test/index.php</a> 就不是同一个源 ;</p>
+</li>
+</ul>
+<h3 id="同源策略的限制"><a href="#同源策略的限制" class="headerlink" title="同源策略的限制"></a>同源策略的限制</h3><p>随着互联网的发展, “同源政策”越来越严格, 目前, 如果非同源, 共有三种行为受到限制:</p>
+<ul>
+<li>Cookie、LocalStorage 和 IndexDB 无法读取</li>
+<li>DOM 无法获得 </li>
+<li>AJAX 请求不能发送</li>
+</ul>
+<h3 id="同源策略目的"><a href="#同源策略目的" class="headerlink" title="同源策略目的"></a>同源策略目的</h3><p>为了保证用户信息的安全，防止恶意的网站窃取并利用数据</p>
+<blockquote>
+<p>比如用户登录一家银行网站后，又去浏览其他站点, 如果没有同源策略限制, 其他站点就也能读取银行网站的 Cookie, 这样的话，如果 Cookie 包含用户的私密信息，泄漏给第三方站点就比较危险, 当然, Cookie中包含的敏感信息通常经过加密，很难将其反向破解, 但这并不意味着绝对安全;<br>虽然第三方无法通过解密获取cookie中的信息, 但它可以不解密,而是直接使用Cookie去骗取银行网站的信任;<br>由此可见，”同源政策” 是必需的，否则, 各站点的 Cookie 可以随便共享，那互联网就毫无安全可言了;</p>
+</blockquote>
+<h3 id="同源策略和CSRF安全问题"><a href="#同源策略和CSRF安全问题" class="headerlink" title="同源策略和CSRF安全问题"></a>同源策略和CSRF安全问题</h3><p>需要注意一点: 同源策略的限制, 并没有限制住<strong>CSRF攻击</strong></p>
+<blockquote>
+<p>假如你当前已经登录了邮箱，或bbs，同时你又访问了另外一个站点，假设这就是一个钓鱼网站(站点中伪装了很多诱导用户去点击的超链接, 而这些超链接都是其他站点的一些敏感操作, 就这样放好诱饵等待曾经登陆过那些站点的用户去点击, 等鱼儿上钩);<br>假设这个网站上面可能因为某个图片吸引你，你去点击一下，而这个点击正是去往你的bbs站点进行一个发帖操作，<br>由于当前你的浏览器状态已经是登陆了bbs站点，此时你点击这个钓鱼网站的连接是就会使用你之前登陆bbs站点在浏览器cookie罐中保存的信息, 就和正常的请求一样。<br>于是钓鱼站点就纯天然的利用了其他站点的登陆状态，让用户在不知情的情况下，帮“它们”发帖或干其他更多危险的事情; </p>
+</blockquote>
+<p>这也就是我们通常所说的CSRF攻击, CSRF攻击的主要目的是用户在不知情的情况下无辜使用自己在某个已登录系统的cookie信息，执行一个对自己有害的操作;</p>
+<h3 id="引出跨域问题"><a href="#引出跨域问题" class="headerlink" title="引出跨域问题"></a>引出跨域问题</h3><p>由于同源策略的这些限制都是为了安全考虑, 自然是必要的; 但是有时很不方便, 可能会导致合理的用途也受到影响, 接下来将详细介绍如何在需要的时候合理地去 规避”同源政策”的限制;</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html">https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html</a></p>
+<p>认证 (Authentication)  和 授权 (Authorization) 的区别？<br>这是一个绝大多数人都会混淆的问题。简单点说：<br>认证 (Authentication)： 你是谁<br>是验证您的身份的凭据（例如用户名&#x2F;用户ID和密码），通过这个凭据，系统得以知道你就是你，也就是说系统是否存在你这个用户。所以，Authentication 被称为身份&#x2F;用户验证。</p>
+<p>401 Unauthorized : 表示 认证(Authentication) 类型的错误<br>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</p>
+<p>授权 (Authorization)： 你有权限干什么<br>Authorization（授权） 发生在 Authentication（认证） 之后。它主要掌管我们访问系统的权限。比如有些特定资源只能具有特定权限的人才能访问比如admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。</p>
+<p>403 Forbidden : 经常和401状态码混淆; 其实403表示的是 授权(Authotization) 类型的错误, 授权和认证的不同之处是:<br>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”</p>
+<p>这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。</p>
+<p>Cookie Session 身份验证<br>Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。</p>
+<p>用户成功登陆系统，然后返回给客户端具有 SessionID 的 Cookie，只有用户向再后端发起请求的时候会把 SessionID 带上，这样后端就知道你的身份状态了。</p>
+<p>使用 Session 的时候需要注意下面几个点：<br>依赖Session的关键业务一定要确保客户端开启了Cookie<br>注意Session的过期时间</p>
+<p>如果没有Cookie的话Session还能用吗？<br>一般是通过 Cookie 来保存 SessionID，假如你使用了 Cookie 保存 SessionID的方案的话，如果客户端禁用了Cookie，那么 Session就无法正常工作。但是，并不是没有 Cookie 之后就不能用 Session 了，比如你可以将SessionID放在请求的 url 里面 <a target="_blank" rel="noopener" href="https://javaguide.cn/?session_id=xxx">https://javaguide.cn/?session_id=xxx</a> 。这种方案可行，但是安全性和用户体验感降低。当然，你也可以对 SessionID 进行一次加密之后再传入后端。</p>
+<p>Cookie 无法防止CSRF攻击，而token可以<br>CSRF（Cross Site Request Forgery）一般被翻译为 跨站请求伪造 。简单来说就是用你的身份去发送一些对你不友好的请求。举个简单的例子：<br>小壮登录了某网上银行，他来到了网上银行的帖子区，看到一个帖子下面有一个链接写着“科学理财，年盈利率过万”，小壮好奇的点开了这个链接，结果发现自己的账户少了10000元。这是这么回事呢？原来黑客在链接中藏了一个请求，这个请求直接利用小壮的身份给银行发送了一个转账请求,也就是通过你的 Cookie 向银行发出请求。<br>&lt;a src&#x3D;<a target="_blank" rel="noopener" href="http://www.mybank.com/Transfer?bankId=11&money=10000%3E%E7%A7%91%E5%AD%A6%E7%90%86%E8%B4%A2%EF%BC%8C%E5%B9%B4%E7%9B%88%E5%88%A9%E7%8E%87%E8%BF%87%E4%B8%87">http://www.mybank.com/Transfer?bankId=11&amp;money=10000&gt;科学理财，年盈利率过万</a>&lt;&#x2F;&gt;<br>上面也提到过，进行Session 认证的时候，我们一般使用 Cookie 来存储 SessionId, 当我们登陆后后端生成一个SessionId放在Cookie中返回给客户端，服务端通过Redis或者其他存储工具记录保存着这个Sessionid，客户端登录以后每次请求都会带上这个SessionId，服务端通过这个SessionId来标识你这个人。如果别人通过 cookie拿到了 SessionId ，那他就可以代替你的身份访问系统了。而 Session 认证中，Cookie 中的 SessionId是由浏览器发送到服务端的，借助这个特性，攻击者就可以通过让用户误点攻击链接，达到攻击效果。</p>
+<p>但是，我们使用 token 的话就不会存在这个问题，在我们登录成功获得 token 之后，一般会选择存放在 local storage 中。然后我们在前端通过某些方式会给每个发到后端的请求加上这个 token,这样就不会出现 CSRF 漏洞的问题。因为，即使你点击了某个非法链接发送请求到服务端，这个非法请求是无法自动携带 token 的，所以这个请求将是非法的。</p>
+<p>其实CSRF主要是利用浏览器会携带已登录的用户标识，来达到冒充用户的目的，从而对被攻击的网站执行某项操作。</p>
+<p>无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS<br>跨站脚本攻击（Cross Site Scripting）缩写为 CSS 但这会与层叠样式表（Cascading Style Sheets，CSS）的缩写混淆。因此，有人将跨站脚本攻击缩写为XSS。<br>XSS中攻击者会用各种方式将恶意代码注入到其他用户的页面中。就可以通过脚本盗用信息比如cookie。</p>
+<p>推荐阅读：如何防止CSRF攻击？—美团技术团队<br>CSRF的特点：</p>
+<ul>
+<li>攻击一般发起在第三方网站，而不是被攻击的网站。被攻击的网站无法防止攻击发生。</li>
+<li>攻击利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；而不是直接窃取数据。</li>
+<li>整个过程攻击者并不能获取到受害者的登录凭证，仅仅是“冒用”。</li>
+<li>跨站请求可以用各种方式：图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。<br>CSRF通常是跨域的，因为外域通常更容易被攻击者掌控。但是如果本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险。</li>
+</ul>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+
+    <nav id="page-nav">
+
+<a class="extend prev" rel="prev" href="/page/6/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span>
+</nav>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

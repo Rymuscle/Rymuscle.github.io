@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>21.2 redo日志后续知识点 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/21.2 redo日志 后续知识点" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      21.2 redo日志后续知识点
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-12-13T05:10:27.000Z" itemprop="datePublished">2021年12月13日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/12/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.2%20redo%E6%97%A5%E5%BF%97%20%E5%90%8E%E7%BB%AD%E7%9F%A5%E8%AF%86%E7%82%B9/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="checkpoint"><a href="#checkpoint" class="headerlink" title="checkpoint"></a>checkpoint</h1><p>有一个很不幸的事实就是我们的<code>redo日志文件组</code>容量是有限的，我们不得不选择循环使用<code>redo日志文件组</code>中的文件，但是这会造成<span style="font-weight:600;color:#FF416C">最后写的redo日志与最开始写的redo日志追尾</span>。</p>
+<p>这时应该想到: redo日志只是为了在系统奔溃后恢复脏⻚用的，如果对应的脏⻚已经刷新到了磁盘，那么即使现在系统奔溃，那么在重启后也用不着使用redo日志恢复该⻚面了，所以该redo日志也就没有存在的必要了，那么它占用的磁盘空间就可以被后续的redo日志所重用。也就是说: 判断某些redo日志占用的磁盘空间是否可以覆盖的依据就是<code>它对应的脏⻚是否已经刷新到磁盘里</code>。</p>
+<p>我们看一下前边一直唠叨的那个例子:</p>
+<blockquote>
+<img src="/images/MySQL/21/17.png" width="550" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+如图，虽然mtr_1和mtr_2生成的redo日志都已经被写到了磁盘上，但是它们修改的脏⻚仍然留在Buffer Pool中，所以它们生成的redo日志在磁盘上的空间是不可以被覆盖的。
+
+<p>之后随着系统的运行，如果⻚a被刷新到了磁盘，那么它对应的控制块就会从flush链表中移除，就像这样子:<br><img src="/images/MySQL/21/18.png" width="550" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>这样mtr_1生成的redo日志就没有用了，这些redo日志占用的磁盘空间就可以被覆盖掉了。</p>
+<p>设计InnoDB的大叔提出了一个<code>全局变量 checkpoint_lsn</code> 来代表当前系统中可以被覆盖的redo日志总量是多少，这个变量初始值也是8704。<br>比方说现在⻚a被刷新到了磁盘，mtr_1生成的redo日志就可以被覆盖了，所以我们需要进行一个增加<code>checkpoint_lsn</code>的操作，我们把这个过程称为<code>执行一次checkpoint</code>。<br>执行一次checkpoint其实可 以分为两个步骤:</p>
+<ul>
+<li>步骤一:计算一下当前系统中可以被覆盖的redo日志对应的lsn值最大是多少。<br>redo日志可以被覆盖，意味着它对应的脏⻚被刷到了磁盘，只要我们计算出当前系统中被最早修改的脏⻚对应的 oldest_modification 值，那凡是在系统lsn值小于该节点的oldest_modification值时产生的redo日志都是可以被覆盖掉的，我们就把该脏⻚的oldest_modification赋值给 checkpoint_lsn。<br>比方说当前系统中⻚a已经被刷新到磁盘，那么flush链表的尾节点就是⻚c，该节点就是当前系统中最早修改的脏⻚了， 它的oldest_modification值为8404，我们就把8404赋值给checkpoint_lsn(也就是说在redo日志对应的lsn值小于8404时就可以被覆盖掉)。</li>
+<li>步骤二:将checkpoint_lsn和对应的redo日志文件组偏移量以及此次checkpint的编号写到日志文件的管理信息(就是checkpoint1或者checkpoint2)中。<br>设计InnoDB的大叔维护了一个目前系统做了多少次checkpoint的变量checkpoint_no，每做一次checkpoint，该变量的值就加1。我们前边说过计算一个lsn值对应的redo日志文件组偏移量是很容易的，所以可以计算得到该checkpoint_lsn在redo日志文件组中对应的偏移量checkpoint_offset，然后把这三个值都写到redo日志文件组的管理信息中。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>我们说过，每一个redo日志文件都有2048个字节的管理信息，但是上述关于checkpoint的信息只会被写到日志文件组的第一个日志文件的管理信息中。<br>不过它们应该存储到checkpoint1中还是checkpoint2中呢? 设计InnoDB的大叔规定，当checkpoint_no的值是偶数时，就写到checkpoint1中，是奇数时，就写到checkpoint2中。</p>
+</blockquote>
+<blockquote>
+<p>记录完checkpoint的信息之后，redo日志文件组中各个lsn值的关系就像这样:<br><img src="/images/MySQL/21/19.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+</blockquote>
+<h1 id="批量从flush链表中刷出脏⻚"><a href="#批量从flush链表中刷出脏⻚" class="headerlink" title="批量从flush链表中刷出脏⻚"></a>批量从flush链表中刷出脏⻚</h1><p>我们在介绍Buffer Pool的时候说过，一般情况下都是后台的线程在对<code>LRU链表</code>和<code>flush链表</code>进行刷脏操作，这主要因为刷脏操作比较慢，不想影响用户线程处理请求。<br>但是如果当前系统修改⻚面的操作十分频繁，这样就导致写日志操作十分频繁，系统lsn值增⻓过快。 如果后台的刷脏操作不能将脏⻚刷出，那么系统无法及时做checkpoint，可能就需要用户线程同步的从flush链表中把那些最早修改的脏⻚(oldest_modification最小的脏⻚)刷新到磁盘，这样这些脏⻚对应的redo日志就没用了，然后就可以去做checkpoint了。</p>
+<h1 id="查看系统中的各种LSN值"><a href="#查看系统中的各种LSN值" class="headerlink" title="查看系统中的各种LSN值"></a>查看系统中的各种LSN值</h1><p>我们可以使用<code>SHOW ENGINE INNODB STATUS</code>命令查看当前InnoDB存储引擎中的各种LSN值的情况，比如:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; SHOW ENGINE INNODB STATUS\G</span><br><span class="line">(...省略前边的许多状态)</span><br><span class="line">LOG</span><br><span class="line">---</span><br><span class="line">Log sequence number 124476971</span><br><span class="line">Log flushed up to 124099769</span><br><span class="line">Pages flushed up to 124052503</span><br><span class="line">Last checkpoint at 124052494</span><br><span class="line">0 pending log flushes, 0 pending chkp writes 24 log i/o&#x27;s done, 2.00 log i/o&#x27;s/second ----------------------</span><br><span class="line">(...省略后边的许多状态)</span><br></pre></td></tr></table></figure>
+<p>其中:<br>Log sequence number: 代表系统中的lsn值，也就是当前 系统已经写入的redo日志量，包括写入log buffer中的日 志。<br>Log flushed up to: 代表flushed_to_disk_lsn的 值，也就是当前系统已经写入磁盘的redo日志量。<br>Pages flushed up to: 代表flush链表中被最早修改的那 个⻚面对应的oldest_modification属性值。<br>Last checkpoint at: 当前系统的checkpoint_lsn值。</p>
+<h1 id="innodb-flush-log-at-trx-commit的用法"><a href="#innodb-flush-log-at-trx-commit的用法" class="headerlink" title="innodb_flush_log_at_trx_commit的用法"></a>innodb_flush_log_at_trx_commit的用法</h1><p>我们前边说为了保证事务的持久性，用户线程在事务提交时需要将该事务执行过程中产生的所有redo日志都刷新到磁盘上。这一条要求太狠了，会很明显的降低数据库性能。</p>
+<p>如果有的同学对事务的持久性要求不是那么强烈的话，可以选择修改一个名为<code>innodb_flush_log_at_trx_commit</code>的系统变量的值，该变量有3个可选的值:</p>
+<ul>
+<li>0: 当该系统变量值为0时，表示在事务提交时不立即向磁盘中同步redo日志，这个任务是交给后台线程做的。<br>这样很明显会加快请求处理速度，但是如果事务提交后服务器挂了，后台线程没有及时将redo日志刷新到磁盘，那么该事务对⻚面的修改会丢失。</li>
+<li>1: 当该系统变量值为0时，表示在事务提交时需要将redo日志同步到磁盘，可以保证事务的持久性。1也是默认值。</li>
+<li>2: 当该系统变量值为0时，表示在事务提交时需要将redo日志写到操作系统的缓冲区中，但并不需要保证将日志真正的刷新到磁盘。<br>这种情况下如果数据库挂了，操作系统没挂的话，事务的持久性还是可以保证的，但是操作系统也挂了的话，那就不能保证持久性了。</li>
+</ul>
+<h1 id="崩溃恢复"><a href="#崩溃恢复" class="headerlink" title="崩溃恢复"></a>崩溃恢复</h1><p>在服务器不挂的情况下，redo日志简直就是个大累赘，不仅没用，反而让性能变得更差。<br>但是万一数据库挂了，那redo日志可是个宝了，我们就可以在重启时根据redo日志中的记录就可以将⻚面恢复到系统奔溃前的状态。<br>接下来大致看一下恢复过程是个啥样。</p>
+<h2 id="确定恢复的起点"><a href="#确定恢复的起点" class="headerlink" title="确定恢复的起点"></a>确定恢复的起点</h2><p>我们前边说过，<code>checkpoint_lsn</code>之前的redo日志都可以被覆盖， 也就是说这些redo日志对应的脏⻚都已经被刷新到磁盘中了，既然它们已经被刷盘，我们就没必要恢复它们了。<br>对于 <code>checkpoint_lsn</code> 之后的redo日志，它们对应的脏⻚可能没被刷盘，也可能被刷盘了，我们不能确定，所以需要从 <code>checkpoint_lsn</code> 开始读取redo日志来恢复⻚面。<br>当然，redo日志文件组的第一个文件的管理信息中有两个block都存储了checkpoint_lsn的信息，我们当然是要选取最近发生的那次checkpoint的信息。衡量checkpoint发生时间早晚的信息就是所谓的<code>checkpoint_no</code>，我们只要把checkpoint1和checkpoint2这两个block中的checkpoint_no值读出来比一下大小，哪个的 checkpoint_no值更大，说明哪个block存储的就是最近的一次checkpoint信息。这样我们就能拿到最近发生的checkpoint对应的checkpoint_lsn值以及它在redo日志文件组中的偏移量 checkpoint_offset。</p>
+<h2 id="确定恢复的终点"><a href="#确定恢复的终点" class="headerlink" title="确定恢复的终点"></a>确定恢复的终点</h2><p>redo日志恢复的起点确定了，那终点是哪个呢?这个还得从block的结构说起。我们说在写redo日志的时候都是顺序写的，写满了一个 block之后会再往下一个block中写:</p>
+<blockquote>
+<img src="/images/MySQL/21/20.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+普通block的`log block header`部分有一个名为`LOG_BLOCK_HDR_DATA_LEN`的属性，该属性值记录了当前block里使用了多少字节的空间。对于被填满的block来说，该值永远为512。如果该属性的值不为512，那么就是它了，它就是此次奔溃恢复中需要扫描的最后一个block。
+</blockquote>
+<h2 id="怎么恢复"><a href="#怎么恢复" class="headerlink" title="怎么恢复"></a>怎么恢复</h2><p>确定了需要扫描哪些redo日志进行奔溃恢复之后，接下来就是怎么进行恢复了。假设现在的redo日志文件中有5条redo日志，如图:</p>
+<blockquote>
+<img src="/images/MySQL/21/21.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</blockquote>
+<p>由于redo 0在checkpoint_lsn后边，恢复时可以不管它。我们现在可以按照redo日志的顺序依次扫描checkpoint_lsn之后的各条redo日志，按照日志中记载的内容将对应的⻚面恢复出来。这样没什么问题，不过设计InnoDB的大叔还是想了一些办法加快这个恢复的过程:</p>
+<ul>
+<li><p>使用哈希表<br>根据redo日志的space ID和page number属性计算出散列值，把space ID和page number相同的redo日志放到哈希表的同一个槽里，如果有多个space ID和page number都相同的redo日志，那么它们之间使用链表连接起来，按照生成的先后顺序链接起来的，如图所示:</p>
+<blockquote>
+<img src="/images/MySQL/21/22.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+之后就可以遍历哈希表，因为对同一个⻚面进行修改的redo日志都放在了一个槽里，所以可以一次性将一个⻚面修复好(避免了很多读取⻚面的随机IO)，这样可以加快恢复速度。另外需要注意一点的是，同一个⻚面的redo日志是按照生成时间顺序进行排序的，所以恢复的时候也是按照这个顺序进行恢复， 如果不按照生成时间顺序进行排序的话，那么可能出现错误。 比如原先的修改操作是先插入一条记录，再删除该条记录，如果恢复时不按照这个顺序来，就可能变成先删除一条记录，再插入一条记录，这显然是错误的。
+</blockquote>
+</li>
+<li><p>跳过已经刷新到磁盘的⻚面<br>我们前边说过，checkpoint_lsn之前的redo日志对应的脏⻚确定都已经刷到磁盘了，但是checkpoint_lsn之后的redo日志我们不能确定是否已经刷到磁盘，主要是因为在最近做的一次checkpoint后，可能后台线程又不断的从LRU链表和flush链表中将一些脏⻚刷出Buffer Pool。这些在checkpoint_lsn之后的redo日志，如果它们对应的脏⻚在奔溃发生时已经刷新到磁盘，那在恢复时也就没有必要根据redo日志的内容修改该⻚面了。</p>
+</li>
+</ul>
+<p>那在恢复时怎么知道某个redo日志对应的脏⻚是否在奔溃发生时已经刷新到磁盘了呢?这还得从⻚面的结构说起，我们前边说过每个⻚面都有一个称之为File Header的部分，在File Header里有一个称之为FIL_PAGE_LSN的属性，该属性记载了最近一次修改⻚面时对应的lsn值(其实就是⻚面控制块中 的newest_modification值)。如果在做了某次checkpoint之后有脏⻚被刷新到磁盘中，那么该⻚对应的 FIL_PAGE_LSN代表的lsn值肯定大于checkpoint_lsn的值，凡是符合这种情况的⻚面就不需要做恢复操作了，所以更进一步提升了奔溃恢复的速度。</p>
+<h1 id="遗漏的问题-LOG-BLOCK-HDR-NO是如何计算的"><a href="#遗漏的问题-LOG-BLOCK-HDR-NO是如何计算的" class="headerlink" title="遗漏的问题:LOG_BLOCK_HDR_NO是如何计算的"></a>遗漏的问题:LOG_BLOCK_HDR_NO是如何计算的</h1><p>我们前边说过，对于实际存储redo日志的普通的log block来说， 在log block header处有一个称之为LOG_BLOCK_HDR_NO的属 性(忘记了的话回头再看看哈)，我们说这个属性代表一个唯一的标 号。这个属性是初次使用该block时分配的，跟当时的系统lsn值有 关。使用下边的公式计算该block的LOG_BLOCK_HDR_NO值:<br><code>((lsn / 512) &amp; 0x3FFFFFFFUL) + 1</code></p>
+<p>这个公式里的0x3FFFFFFFUL可能让大家有点困惑，其实它的二进 制表示可能更亲切一点:</p>
+<blockquote>
+<img src="/images/MySQL/21/23.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+从图中可以看出，0x3FFFFFFFUL对应的二进制数的前2位为0，后 30位的值都为1。我们刚开始学计算机的时候就学过，一个二进制位 与0做与运算(&)的结果肯定是0，一个二进制位与1做与运算 (&)的结果就是原值。让一个数和0x3FFFFFFFUL做与运算的意思 就是要将该值的前2个比特位的值置为0，这样该值就肯定小于或等 于0x3FFFFFFFUL了。这也就说明了，不论lsn多大，((lsn / 512) & 0x3FFFFFFFUL)的值肯定在0~0x3FFFFFFFUL之间，再 加1的话肯定在1~0x40000000UL之间。而0x40000000UL这个值 大家应该很熟悉，这个值就代表着1GB。也就是说系统最多能产生不 重复的LOG_BLOCK_HDR_NO值只有1GB个。设计InnoDB的大叔规定 redo日志文件组中包含的所有文件大小总和不得超过512GB，一个 block大小是512字节，也就是说redo日志文件组中包含的block块 最多为1GB个，所以有1GB个不重复的编号值也就够用了。
+另外，LOG_BLOCK_HDR_NO值的第一个比特位比较特殊，称之 为flush bit，如果该值为1，代表着本block是在某次将log buffer中的block刷新到磁盘的操作中的第一个被刷入的block。
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#checkpoint"><span class="toc-text">checkpoint</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%89%B9%E9%87%8F%E4%BB%8Eflush%E9%93%BE%E8%A1%A8%E4%B8%AD%E5%88%B7%E5%87%BA%E8%84%8F%E2%BB%9A"><span class="toc-text">批量从flush链表中刷出脏⻚</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E5%90%84%E7%A7%8DLSN%E5%80%BC"><span class="toc-text">查看系统中的各种LSN值</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#innodb-flush-log-at-trx-commit%E7%9A%84%E7%94%A8%E6%B3%95"><span class="toc-text">innodb_flush_log_at_trx_commit的用法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B4%A9%E6%BA%83%E6%81%A2%E5%A4%8D"><span class="toc-text">崩溃恢复</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E6%81%A2%E5%A4%8D%E7%9A%84%E8%B5%B7%E7%82%B9"><span class="toc-text">确定恢复的起点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%A1%AE%E5%AE%9A%E6%81%A2%E5%A4%8D%E7%9A%84%E7%BB%88%E7%82%B9"><span class="toc-text">确定恢复的终点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D"><span class="toc-text">怎么恢复</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%81%97%E6%BC%8F%E7%9A%84%E9%97%AE%E9%A2%98-LOG-BLOCK-HDR-NO%E6%98%AF%E5%A6%82%E4%BD%95%E8%AE%A1%E7%AE%97%E7%9A%84"><span class="toc-text">遗漏的问题:LOG_BLOCK_HDR_NO是如何计算的</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/12/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.1%20Log%20Sequeue%20Number/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          21.1 Log Sequeue Number
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/12/15/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/22.undo%E6%97%A5%E5%BF%97(%E4%B8%8B)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          22. undo日志
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

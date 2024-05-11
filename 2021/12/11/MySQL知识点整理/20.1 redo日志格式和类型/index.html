@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>20.1 redo日志格式 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/20.1 redo日志格式和类型" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      20.1 redo日志格式
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-12-11T14:16:41.000Z" itemprop="datePublished">2021年12月11日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.1%20redo%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F%E5%92%8C%E7%B1%BB%E5%9E%8B/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="redo-日志格式"><a href="#redo-日志格式" class="headerlink" title="redo 日志格式"></a>redo 日志格式</h1><p>通过上边的内容我们知道，redo日志本质上只是记录了一下事务对数据库做了哪些修改。 </p>
+<blockquote>
+<p>设计InnoDB的大叔们针对 事务对数据库的不同修改场景 定义了多种类型的redo日志，但大部分类型都有下边这种通用的结构:<br><img src="/images/MySQL/20/1.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br><code>type</code>: 该条redo日志的类型 (在MySQL 5.7.21中，设计InnoDB的大叔一共为redo日志设计了53种不同的类型，稍后会详细介绍不同类型的redo日志。)<br><code>space ID</code>: 表空间ID<br><code>page number</code>: ⻚号<br><code>data</code>: 该条redo日志的具体内容</p>
+</blockquote>
+<h1 id="简单的redo日志类型"><a href="#简单的redo日志类型" class="headerlink" title="简单的redo日志类型"></a>简单的redo日志类型</h1><blockquote>
+<p>前边介绍InnoDB的<code>记录行格式</code>时说过，如果我们没有为某个表显式的定义主键，并且表中也没有定义Unique键，InnoDB会自动的为表添加一个称之为<code>row_id</code>的隐藏列作为主键。</p>
+<p>这个<code>row_id隐藏列</code>的赋值方式如下:</p>
+<ul>
+<li>服务器会在内存中维护一个<code>全局变量</code>，每当向某个包含隐藏的row_id列的表中插入一条记录时，就会把该<code>全局变量</code>的值当作新记录的row_id列的值，并且把该<code>全局变量</code>自增1。</li>
+<li>每当这个变量的值为256的倍数时，就会将该变量的值刷新到系统表空间的⻚号为7的⻚面中一个称之为<code>Max Row ID</code>的属性处(前边介绍表空间结构时详细说过)。</li>
+<li>当系统启动时，会将上边提到的<code>Max Row ID</code>属性加载到内存中，将该值加上256之后赋值给我们前边提到的全局变量(因为在上次关机时该<code>全局变量</code>的值可能大于<code>Max Row ID</code>属性值(lant: 关机时，全局变量可能会没即时刷到表空间的⻚号为7的⻚面中的Max Row ID属性 😝))。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这个<code>Max Row ID</code>属性占用的存储空间是8个字节，当某个事务向某个包含row_id隐藏列的表插入一条记录，并且为该记录分配的row_id值为256的倍数时，就会向系统表空间⻚号为7的⻚面的相应偏移量处写入8个字节的值。<br>但是我们要知道，这个写入实际上是在 <code>Buffer Pool</code> 中完成的，我们需要为这个⻚面的修改记录一条redo日志，以便在系统奔溃后能将已经提交的该事务对该⻚面所做的修改恢复出来。<br>这种情况下对⻚面的修改是极其简单的，redo日志中只需要记录一下在某个⻚面的某个偏移量处修改了几个字节的值，具体被修改的内容是啥就好了，设计InnoDB的大叔把这种极其简单的redo日志称之为 <code>物理日志</code>，并且根据在⻚面中写入数据的多少划分了几种不同的redo日志类型:</p>
+<ul>
+<li><code>MLOG_1BYTE</code>(type字段对应的十进制数字为1): 表示在⻚面的某个偏移量处写入1个字节的redo日志类型。</li>
+<li><code>MLOG_2BYTE</code>(type字段对应的十进制数字为2): 表示在⻚面的某个偏移量处写入2个字节的redo日志类型。</li>
+<li><code>MLOG_4BYTE</code>(type字段对应的十进制数字为4): 表示在⻚面的某个偏移量处写入4个字节的redo日志类型。</li>
+<li><code>MLOG_8BYTE</code>(type字段对应的十进制数字为8): 表示在⻚面的某个偏移量处写入8个字节的redo日志类型。</li>
+<li><code>MLOG_WRITE_STRING</code>(type字段对应的十进制数字 为30): 表示在⻚面的某个偏移量处写入一串数据。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>我们上边提到的 <code>Max Row ID</code> 属性实际占用8个字节的存储空间，所以在修改⻚面中的该属性时，会记录一条类型为 <code>MLOG_8BYTE</code> 的redo日志，MLOG_8BYTE的redo日志结构如下所示:<br><img src="/images/MySQL/20/2.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其余 MLOG_1BYTE、MLOG_2BYTE、MLOG_4BYTE类型的redo日志结构和MLOG_8BYTE的类似，只不过具体数据中包含对应个字节的数据罢了。</p>
+<p>MLOG_WRITE_STRING类型的redo日志表示写入一串数据，但是因为不能确定写入的具体数据占用多少字节，所以需要在日志结构中添加一个<code>len</code>字段:<br><img src="/images/MySQL/20/3.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+</blockquote>
+<h1 id="复杂一些的redo日志类型"><a href="#复杂一些的redo日志类型" class="headerlink" title="复杂一些的redo日志类型"></a>复杂一些的redo日志类型</h1><blockquote>
+<p>有时候执行一条语句会修改非常多的⻚面，包括<code>系统数据⻚面</code>和<code>用户数据⻚面</code>(用户数据指的就是聚簇索引和二级索引对应的B+树)。<br>以一条INSERT语句为例，它除了要向B+树的⻚面中插入数据，也可能更新系统数据<code>Max Row ID</code>的值，不过对于我们用户来说，平时更关心的是语句对B+树所做更新:</p>
+<ul>
+<li>表中包含多少个索引，一条INSERT语句就可能更新多少棵B+树。</li>
+<li>针对某一棵B+树来说，既可能更新<code>叶子节点⻚面</code>，也可能更新<code>内节点⻚面</code>，也可能创建新的⻚面(<strong>在该记录插入的叶子节点的剩余空间比较少，不足以存放该记录时，会进行⻚面的分裂，在内节点⻚面中添加目录项记录</strong>)。</li>
+</ul>
+</blockquote>
+<hr>
+<blockquote>
+<p>在语句执行过程中，INSERT语句对所有⻚面的修改都得保存到 <code>redo日志</code> 中去。<br>这句话说的比较轻巧，做起来可就比较麻烦了，比方说将记录插入到聚簇索引中时，如果定位到的叶子节点的剩余空间足够存储该记录时，那么只更新该叶子节点⻚面就好，那么只记录一条<code>MLOG_WRITE_STRING</code>类型的redo日志，表明在⻚面的某个偏移量处增加了哪些数据就好了么? 那就too young too naive了<br>别忘了一个数据⻚中除了存储实际的记录之后，还有什么 File Header、Page Header、Page Directory 等等部分(在唠叨数据⻚的章节有详细讲解)，所以每往叶子节点代表的数据⻚里插入一条记录时，还有其他很多地方会跟着更新，比如说:</p>
+<ul>
+<li>可能更新 <code>Page Directory</code> 中的<code>槽</code>信息</li>
+<li>Page Header中的各种⻚面统计信息，比如 PAGE_N_DIR_SLOTS表示的槽数量可能会更改，PAGE_HEAP_TOP代表的还未使用的空间最小地址可能会更改，PAGE_N_HEAP代表的本⻚面中的记录数量可能会更改，吧啦吧啦，各种信息都可能会被修改。</li>
+<li>我们知道在数据⻚里的记录是按照索引列从小到大的顺序组成一个单向链表的，每插入一条记录，还需要更新上一条记录的记录头信息中的next_record属性来维护这个单向链表。</li>
+<li>还有别的吧啦吧啦的更新的地方，就不一一唠叨了…</li>
+</ul>
+<p>画一个简易的示意图就像是这样:<br><img src="/images/MySQL/20/4.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+</blockquote>
+<hr>
+<blockquote>
+<p>说了这么多，就是想表达: <strong>把一条记录插入到一个⻚面时需要更改的地方非常多</strong>。<br>这时我们如果使用上边介绍的简单的物理redo日志来记录这些修改时，可以有两种解决方案:</p>
+<ul>
+<li>方案一:在每个修改的地方都记录一条redo日志。<blockquote>
+<p>也就是如上图所示，有多少个加粗的块，就写多少条物理redo日志。<br>这样子记录redo日志的缺点是显而易⻅的，因为被修改的地方是在太多了，可能记录的redo日志占用的空间都比整个⻚面占用的空间都多了 😓</p>
+</blockquote>
+</li>
+<li>方案二:将整个⻚面的第一个被修改的字节到最后一个修改的字节之间所有的数据当成是一条物理redo日志中的具体数据。<blockquote>
+<p>从图中也可以看出来，第一个被修改的字节到最后一个修改的字节之间仍然有许多没有修改过的数据，我们把这些没有修改的数据也加入到redo日志中去岂不是太浪费了 😓</p>
+</blockquote>
+</li>
+</ul>
+</blockquote>
+<hr>
+<blockquote>
+<p>正因为上述两种使用<code>物理redo日志</code>的方式来记录某个⻚面中做了哪些修改比较浪费，设计InnoDB的大叔本着勤俭节约的初心，提出了一些新的redo日志类型，比如:</p>
+<ul>
+<li><code>MLOG_REC_INSERT</code>(对应的十进制数字为9): 表示插入一条使用非紧凑行格式的记录时的redo日志类型。</li>
+<li><code>MLOG_COMP_REC_INSERT</code>(对应的十进制数字为38): 表示插入一条使用紧凑行格式的记录时的redo日志类型。<blockquote>
+<p>Tips:<br>Redundant是一种比较原始的行格式，它就是非紧凑的。而 Compact、Dynamic以及Compressed行格式是较新的行格式，它们是紧凑的(占用更小的存储空间)。</p>
+</blockquote>
+</li>
+<li><code>MLOG_COMP_PAGE_CREATE</code>(type字段对应的十进制数字为58): 表示创建一个存储紧凑行格式记录的⻚面的redo日志类型。</li>
+<li><code>MLOG_COMP_REC_DELETE</code>(type字段对应的十进制数字为42): 表示删除一条使用紧凑行格式记录的redo日志类型。</li>
+<li><code>MLOG_COMP_LIST_START_DELETE</code>(type字段对应的十进制数字为44): 表示从某条给定记录开始删除⻚面中的一系列使用紧凑行格式记录的redo日志类型。</li>
+<li><code>MLOG_COMP_LIST_END_DELETE</code>(type字段对应的十进制数字为43): 与MLOG_COMP_LIST_START_DELETE类型的redo日志呼应，表示删除一系列记录直到MLOG_COMP_LIST_END_DELETE类型的redo日志对应的记录为止。<blockquote>
+<p>小贴士:<br>我们前边唠叨InnoDB数据⻚格式的时候重点强调过，数据⻚中的记录是按照索引列大小的顺序组成单向链表的。有时候我们会有删除索引列的值在某个区间范围内的所有记录的需求，这时候如果我们每删除一条记录就写一条redo日志的话，效率可能有点低，所以提出 <code>MLOG_COMP_LIST_START_DELETE</code> 和 <code>MLOG_COMP_LIST_END_DELETE</code> 类型的redo日志，<strong>可以很大程度上减少redo日志的条数</strong> 。</p>
+</blockquote>
+</li>
+<li><code>MLOG_ZIP_PAGE_COMPRESS</code>(type字段对应的十进制数字为51): 表示压缩一个数据⻚的redo日志类型。<br>······还有很多很多种类型，这就不列举了，等用到再说哈~</li>
+</ul>
+</blockquote>
+<hr>
+<blockquote>
+<p>这些类型的redo日志既包含<code>物理层面</code>的意思，也包含<code>逻辑层面</code>的意思，具体指:</p>
+<ul>
+<li>物理层面看，这些日志都指明了对哪个表空间的哪个⻚进行了修改。</li>
+<li>逻辑层面看，在系统奔溃重启时，并不能直接根据这些日志里的记载，将⻚面内的某个偏移量处恢复成某个数据，而是需要调用一些事先准备好的函数，执行完这些函数后才可以将⻚面恢复成系统奔溃前的样子。</li>
+</ul>
+<p>大家看到这可能有些懵逼，我们还是以类型为 <code>MLOG_COMP_REC_INSERT</code> 这个代表插入一条使用紧凑行格式的记录时的redo日志为例来理解一下我们上边所说的物理层面和逻辑层面到底是个啥意思。废话少说，直接看一下这个类型为 <code>MLOG_COMP_REC_INSERT</code> 的redo日志的结构(由于字段太多了，我们把它们竖着看效果好些):<br><img src="/images/MySQL/20/5.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>这个类型为<code>MLOG_COMP_REC_INSERT</code>的redo日志结构有几个地方需要大家注意:</p>
+<ul>
+<li>我们前边在唠叨索引的时候说过，在一个数据⻚里，不论是<code>叶子节点</code>还是<code>非叶子节点</code>，记录都是按照索引列从小到大的顺序排序的。对于二级索引来说，当索引列的值相同时，记录还需要按照主键值进行排序。<br>图中<code>n_uniques</code>的值的含义是在一条记录中，需要几个字段的值才能确保记录的唯一性，这样当插入一条记录时就可以按照记录的前<code>n_uniques</code>个字段进行排序。<br>对于<code>聚簇索引</code>来说，n_uniques的值为主键的列数，对于其他二级索引来说，该值为<code>索引列数+主键列数</code>。这里需要注意的是，唯一二级索引的值可能为NULL，所以该值仍然为 <code>索引列数+主键列数</code>。</li>
+<li>field1_len ~ fieldn_len 代表着该记录若干个字段占用存储空间的大小，需要注意的是，这里不管该字段的类型是固定⻓度大小的(比如INT)，还是可变⻓度大小(比如 VARCHAR(M))的，该字段占用的大小始终要写入redo日志中。</li>
+<li>offset 代表的是该记录的前一条记录在⻚面中的地址。为啥要记录前一条记录的地址呢? 这是因为每向数据⻚插入一条记录，都需要修改该⻚面中维护的记录链表，每条记录的记录头信息中都包含一个称为next_record的属性，所以在插入新记录时，需要修改前一条记录的next_record属性。</li>
+<li>我们知道一条记录其实由<code>额外信息</code>和<code>真实数据</code>这两部分组成，这两个部分的总大小就是一条记录占用存储空间的总大小。通过<code>end_seg_len</code>的值可以间接的计算出一条记录占用存储空间的总大小，为啥不直接存储一条记录占用存储空间的总大小呢?<br>这是因为写redo日志是一个非常频繁的操作，设计InnoDB的大叔想方设法想减小redo日志本身占用的存储空间大小，所以想了一些弯弯绕的算法来实现这个目标，<code>end_seg_len</code>这个字段就是为了节省redo日志存储空间而提出来的。<br>至于具体设计InnoDB的大叔到底是用了什么神奇魔法减小redo日志大小的，我们这就不多唠叨了，因为的确有那么一丢丢小复杂，说清楚还是有一点点麻烦的，而且说明白了也没啥用。</li>
+<li><code>mismatch_index</code>的值也是为了节省redo日志的大小而设立的，大家可以忽略。</li>
+</ul>
+<p>很显然这个类型为<code>MLOG_COMP_REC_INSERT</code>的redo日志并没有记录<code>PAGE_N_DIR_SLOTS</code>的值修改为了啥，PAGE_HEAP_TOP的值修改为了啥，PAGE_N_HEAP的值修改为了啥等等这些信息，而只是把在本⻚面中插入一条记录所有必备的要素记了下来，之后系统奔溃重启时，服务器会调用相关向某个⻚面插入一条记录的那个函数，而redo日志中的那些数据就可以被当成是调用这个函数所需的参数，在调用完该函数后，⻚面中的 PAGE_N_DIR_SLOTS、PAGE_HEAP_TOP、PAGE_N_HEAP等等的值也就都被恢复到系统奔溃前的样子了。这就是所谓的<code>逻辑日志</code>的意思。</p>
+</blockquote>
+<h1 id="redo日志格式小结"><a href="#redo日志格式小结" class="headerlink" title="redo日志格式小结"></a>redo日志格式小结</h1><p>虽然上边说了一大堆关于redo日志格式的内容，但是如果你不是为了写一个解析redo日志的工具或者自己开发一套redo日志系统的话，那就没必要把InnoDB中的各种类型的redo日志格式都研究的透透的，没那个必要。<br>上边只是象征性的介绍了几种类型的redo日志格式，目的还是想让大家明白: redo日志会把事务在执行过程中对数据库所做的所有修改都记录下来，在之后系统奔溃重启后可以把事务所做的任何修改都恢复出来。</p>
+<p>Tips: 为了节省redo日志占用的存储空间大小，设计InnoDB的大叔对redo日志中的某些数据还可能进行压缩处理，比方说spacd ID和 page number一般占用4个字节来存储，但是经过压缩后，可能使用更小的空间来存储。具体压缩算法就不唠叨了。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#redo-%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F"><span class="toc-text">redo 日志格式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84redo%E6%97%A5%E5%BF%97%E7%B1%BB%E5%9E%8B"><span class="toc-text">简单的redo日志类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%8D%E6%9D%82%E4%B8%80%E4%BA%9B%E7%9A%84redo%E6%97%A5%E5%BF%97%E7%B1%BB%E5%9E%8B"><span class="toc-text">复杂一些的redo日志类型</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#redo%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F%E5%B0%8F%E7%BB%93"><span class="toc-text">redo日志格式小结</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.0%20redo%E6%97%A5%E5%BF%97/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          20.0 redo日志是个啥
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.2%20Mini-Transcation/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          20.2 Mini-Transcation
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

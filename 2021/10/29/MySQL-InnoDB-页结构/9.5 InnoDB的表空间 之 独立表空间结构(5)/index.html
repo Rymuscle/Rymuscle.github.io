@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL-InnoDB-页结构/9.5 InnoDB的表空间 之 独立表空间结构(5)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-29T14:11:32.000Z" itemprop="datePublished">2021年10月29日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/29/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>到现在为止我们已经大概清楚了<code>表空间</code>、<code>段</code>、<code>区</code>、<code>XDES Entry</code>、 <code>各种以XDES Enty为节点的链表</code>、<code>List Base Node</code>、<code>INODE Entry</code> 等概念了。<br>可是总有一种不踏实的感觉：</p>
+<ul>
+<li>每个区对应的 <code>XDES Entry结构</code> 到底存储在<code>表空间</code>的什么地方? </li>
+<li><strong>直属于</strong> <code>表空间</code>的 <code>FREE</code>、<code>FREE_FRAG</code>、<code>FULL_FRAG</code> 链表的<code>基节点</code>到底存储在<code>表空间</code>的什么地方? (其实上一篇我们已经知道 <code>段</code>的3种链表的基节点都在INODE Entry结构中，只不过不知道 INODE Entry到底在表空间哪个位置罢了)</li>
+<li>每个段对应的<code>INODE Entry结构</code>到底存在表空间的什么地方?</li>
+</ul>
+<p>我们前边介绍了每256个连续的区算是一个组，想解决刚才提出来的这些个疑问还得从每个组开头的一些类型相同的⻚面说起，接下来我们一个⻚面一个⻚面的分析，真相⻢上就要浮出水面了。</p>
+<h1 id="FSP-HDR类型的页"><a href="#FSP-HDR类型的页" class="headerlink" title="FSP_HDR类型的页"></a><code>FSP_HDR</code>类型的页</h1><p>首先看<code>表空间</code>-&gt;<code>第一个组</code>-&gt;<code>第一个区</code>-&gt;<code>第一个⻚面</code>(⻚号为0)，这个⻚面的类型是<code>FSP_HDR</code>，它存储了表空间的一些整体属性以及第一个组内256个区的对应的XDES Entry结构，直接看这个类型的⻚面的示意图:<br><img src="/images/MySQL/9.0/10.png" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>从图中可以看出，一个完整的FSP_HDR类型的⻚面大致由5个部分组成，各个部分的具体释义如下表:<br><code>File Header</code> ： 文件头部； 38字节； ⻚的一些通用信息；<br><code>File Space Header</code>： 表空间头部；112字节； 表空间的一些整体属性信息；<br><code>XDES Entry</code>：区描述信息；10240字节；存储本组256个区对应的属性信息；<br><code>Empty Space</code>：尚未使用空间；5986字节；用于⻚结构的填充，没啥实际意义；<br><code>File Trailer</code>：文件尾部；8字节； 校验⻚是否完整；</p>
+<p>File Header和File Trailer就不再强调了，另外的几个部分中，Empty Space是尚未使用的空间，我们不用管它，重点来看看<code>File Space Header</code>和<code>XDES Entry</code>这两个部分。</p>
+<h2 id="File-Space-Header部分"><a href="#File-Space-Header部分" class="headerlink" title="File Space Header部分"></a>File Space Header部分</h2><p>从名字就可以看出来，这个部分是用来存储表空间的一些整体属性的:<br><img src="/images/MySQL/9.0/11.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<blockquote>
+<p>Space ID : 4字节；表空间ID；<br><del>Not Used : 4字节；这四个字节未被使用，可以忽略；</del><br>Size : 4字节；当前表空间占有的页面数；<br>FREE Limit : 4字节；尚未被初始化的最小页号，大于或等于这个页号的区对应的XDES Entry结构都没有被加入FREE链表；<br>Space Flags : 4字节；表空间的一些占用存储空间比较小的属性；<br>FRAG_N_USED : 4字节；FREE_FRAG链表中已使用的⻚面数量；<br><strong>List Base Node for <code>Free</code> List: 16字节；FREE链表的基节点；</strong><br><strong>List Base Node for <code>FREE_FRAG</code> List : 16字节；FREE_FRAG链表的基节点；</strong><br><strong>List Base Node for <code>FULL_FRAG</code> List : 415字节；FULL_FRAG链表的基节点；</strong><br>Next Unused Segment ID: 8字节； 当前表空间中下一个未使用的 Segment ID;<br>List Base Node for SEG_INNODES_FULL List：16字节；SEG_INODES_FULL链表的基节点；<br>List Base Node for SEG_INNODES_FREE List：16字节；SEG_INODES_FREE链表的基节点；</p>
+</blockquote>
+<blockquote>
+<p>这里头的<code>Space ID</code>、<code>Not Used</code>、<code>Size</code> 这三个字段大家肯定一看就懂，其他的字段我们再详细瞅瞅。</p>
+</blockquote>
+<blockquote>
+<ul>
+<li><p>📌 <code>List Base Node for FREE List</code>、<code>List Base Node for FREE_FRAG List</code>、<code>List Base Node for FULL_FRAG List</code><br>这三个大家看着太亲切了，分别是<strong>直属于</strong><code>表空间</code>的<code>FREE链表的基节点</code>、<code>FREE_FRAG链表的基节点</code>、<code>FULL_FRAG链表的基节点</code>， <strong>这三个链表的基节点在表空间的位置是固定的，就在表空间的第一个⻚面</strong> (也就是FSP_HDR类型的⻚面)的File Space Header部分。所以之后定位这几个链表就so easy 啦。</p>
+</li>
+<li><p>📌 <code>FRAG_N_USED</code><br>这个字段表明在 <code>FREE_FRAG链表</code> 中已经使用的⻚面数量，方便之后在链表中查找空闲的⻚面。</p>
+</li>
+<li><p><code>FREE Limit 我们知道表空间都对应着具体的磁盘文件，一开始我们创建表空间的时候对应的磁盘文件中都没有数据，所以我们需要对表空间完成一个初始化操作，包括为表空间中的区建立</code>XDES Entry结构<code>，为各个段建立</code>INODE Entry结构<code>，建立各种</code>链表&#96;吧啦吧啦的各种操作。<br>我们可以一开始就为表空间申请一个特别大的空间，但是实际上有绝大部分的区是空闲的，我们可以选择把所有的这些空闲区对应的XDES Entry结构加入FREE链表，也可以选择只把一部分的空闲区加入FREE链表，等啥时候空闲链表中的XDES Entry结构对应的区不够使了，再把之前没有加入FREE链表的空闲区对应的XDES Entry结构加入FREE链表，中心思想就是啥时候用到啥时候初始化，设计InnoDB的大叔采用的就是后者，他们为表空间定义了FREE Limit这个字段，在该字段表示的⻚号之前的区都被初始化了，之后的区尚未被初始化。</p>
+</li>
+<li><p><code>Next Unused Segment ID</code><br>表中每个索引都对应2个段，每个段都有一个唯一的ID，那当我们为某个表新创建一个索引的时候，就意味着要创建两个新的段。那怎么为这个新创建的段找一个唯一的ID呢?去遍历现在表空间中所有的段么?我们说过，遍历是不可能遍历的，这辈子都不可能遍历，所以设计InnoDB的大叔们提出了这个名叫Next Unused Segment ID的字段，该字段表明当前表空间中最大的段ID的下一个ID，这样在创建新段的时候赋予新段一个唯一的ID值就so easy啦，直接使用这个字段的值就好了。</p>
+</li>
+<li><p>Space Flags<br>表空间对于一些布尔类型的属性，或者只需要寥寥几个比特位搞定的属性都放在了这个Space Flags中存储，虽然它只有4个字节，32个比特位大小，却存储了好多表空间的属性，详细情况如下表:</p>
+<img src="/images/MySQL/9.0/12.png" width="450px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+Tips: 不同MySQL版本里 SPACE_FLAGS 代表的属性可能有些差异，这里列举的是5.7.21版本。不过大家现在不必深究它们的意思，因为我们一旦把这些概念展开，就需要非常大的篇幅，主要怕大家受不了。我们还是先挑重要的看，把主要的表空间结构了解完，这些 SPACE_FLAGS 里的属性的细节就暂时不深究了。
+</li>
+<li><p><code>List Base Node for SEG_INODES_FULL List</code> 和 <code>List Base Node for SEG_INODES_FREE List</code><br>每个<code>段</code>对应的<code>INODE Entry结构</code>会集中存放到一个类型为<code>INODE的⻚</code>中，如果表空间中的段特别多，则会有多个INODE Entry结构，可能一个⻚放不下，这些INODE类型的⻚会组成两种列表:<br><code>SEG_INODES_FULL链表</code>，该链表中的INODE类型的⻚面都已经被INODE Entry结构填充满了，没空闲空间存放额外的INODE Entry了。<br><code>SEG_INODES_FREE链表</code>，该链表中的INODE类型的⻚面都已经仍有空闲空间来存放INODE Entry结构。<br>由于我们现在还没有详细唠叨INODE类型⻚，所以等会说过INODE类型的⻚之后再回过头来看这两个链表。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="XDES-Entry部分"><a href="#XDES-Entry部分" class="headerlink" title="XDES Entry部分"></a>XDES Entry部分</h2><p>紧接着 <code>File Space Header部分</code> 的就是 <code>XDES Entry部分</code>。我们唠叨过无数次但却一直未见真身的<code>XDES Entry</code>就存储在表空间的第一个页面中。<br>一个XDES Entry结构的大小是 40字节，<span style="color:#f8b500;font-weight:500;">由于一个⻚面的大小有限，只能存放有限个XDES Entry 结构，所以我们才把256个区划分成一组，在每组的第一个⻚面中存放256个XDES Entry结构</span>。<br>大家回看那个<code>FSP_HDR类型⻚面</code>的示意图，XDES Entry 0就对应着extent 0，XDES Entry 1就对 应着extent 1… 依此类推，XDES Entry255就对应着extent 255。</p>
+<p>因为每个区对应的XDES Entry结构的地址是固定的，所以我们可以很轻松地访问它们。</p>
+<h1 id="XDES类型的页面"><a href="#XDES类型的页面" class="headerlink" title="XDES类型的页面"></a><code>XDES类型</code>的页面</h1><p>我们说过，每一个<code>XDES Entry结构</code>对应<code>表空间</code>的一个<code>区</code>，虽然一个XDES Entry结构只占用40字节，但抵不住表空间<code>区</code>的数量也多啊。</p>
+<p><strong>在区的数量非常多时，一个单独的⻚可能就不够存放足够多的XDES Entry结构，所以我们把表空间的区分为了若干个组，每组开头的一个⻚面记录着本组内所有的区对应的XDES Entry结构。</strong></p>
+<p>由于第一个组的第一个⻚面有些特殊，因为它也是整个表空间的第一个⻚面，所以除了记录本组中的所有区对应的XDES Entry结构以外， 还记录着表空间的一些整体属性，这个⻚面的类型就是我们刚刚说完的FSP_HDR类型，整个表空间里只有一个这个类型的⻚面。</p>
+<p>除去第一个分组以外，之后的每个分组的第一个⻚面只需要记录本组内所有的区对应的XDES Entry结构即可，不需要再记录表空间的属性了， 为了和FSP_HDR类型做区别，我们把之后每个分组的第一个⻚面的类型定义为XDES，它的结构和FSP_HDR类型是非常相似的:<br><img src="/images/MySQL/9.0/13.png" width="margin-left:0px;width:550px" style="border: 1px solid #ccc;border-radius: 5px;"/><br>与FSP_HDR类型的⻚面对比，除了少了File Space Header部分之外(少了记录表空间整体属性的部分)，其余的部分是一样一样的。由于上边唠叨FSP_HDR类型的页面时已经够仔细了，对于XDES类型的⻚面也就不重复唠叨了。</p>
+<h1 id="IBUF-BITMAP类型的页面"><a href="#IBUF-BITMAP类型的页面" class="headerlink" title="IBUF_BITMAP类型的页面"></a>IBUF_BITMAP类型的页面</h1><p>对比前边介绍<code>表空间</code>的图，每个分组的第二个⻚面的类型都是<code>IBUF_BITMAP</code>，这种类型的⻚里边记录了一些有关Change Buffer的东东。<br><img src="/images/MySQL/9.1/n1.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<h1 id="INODE类型的页面"><a href="#INODE类型的页面" class="headerlink" title="INODE类型的页面"></a>INODE类型的页面</h1><p>再次对比前边介绍<code>表空间</code>的图，第一个分组的第三个⻚面的类型是<code>INODE</code>。<br>我们前边说过设计InnoDB的大叔为每个索引定义了两个段，而且为某些特殊功能定义了些特殊的段。<br>为了方便管理，他们又为每个段设计了一个INODE Entry结构，这个结构中记录了关于这个段的相关属性。<br>我们将要介绍的这个<code>INODE类型的⻚</code>就是为了存储<code>INODE Entry结构</code>而存在的。 直接看图:<br><img src="/images/MySQL/9.0/14.png" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>从图中可以看出，一个INODE类型的⻚面是由这几部分构成的:<br><img src="/images/MySQL/9.0/15.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+<blockquote>
+<p>除了File Header、Empty Space、File Trailer这几个老朋友外，我们重点关注 <code>List Node for INODE Page List</code> 和 <code>INODE Entry</code> 这两个部分。</p>
+</blockquote>
+<h2 id="INODE-Entry部分"><a href="#INODE-Entry部分" class="headerlink" title="INODE Entry部分"></a><code>INODE Entry部分</code></h2><p>我们前边已经详细介绍过这个结构的组成了，主要包括对应的段内零散⻚面的地址以及附属于该段的FREE、NOT_FULL和FULL链表的基节点。<br>每个INODE Entry结构占用192字节，一个⻚面里可以存储84个这样的结构。</p>
+<h2 id="List-Node-for-INODE-Page-List结构"><a href="#List-Node-for-INODE-Page-List结构" class="headerlink" title="List Node for INODE Page List结构"></a><code>List Node for INODE Page List</code>结构</h2><p>重点看一下这个，因为一个表空间中可能存在超过84个段，所以可能一个INODE类型的⻚面不足以存储所有的段对应的INODE Entry结构，所以就需要额外的INODE类型的⻚面来存储这些结构。<br>还是为了方便管理这些INODE类型的⻚面，设计InnoDB的大叔们将这些INODE类型的⻚面串联成两个不同的链表:</p>
+<ul>
+<li><code>SEG_INODES_FULL链表</code>: 该链表中的INODE类型的⻚面中已经没有空闲空间来存储额外的INODE Entry结构了。</li>
+<li><code>SEG_INODES_FREE链表</code>: 该链表中的INODE类型的⻚面中还有空闲空间来存储额外的INODE Entry结构了。</li>
+</ul>
+<p>想必大家已经认出这两个链表了，我们前边提到过这两个链表的基节点就存储在<code>File Space Header</code>里边，也就是说这两个链表的基节点的位置是固定的，所以我们可以很轻松的访问到这两个链表。</p>
+<p>以后每当我们新创建一个段(创建索引时就会创建段)时，都会创建一个INODE Entry结构与之对应，存储INODE Entry的大致过程就是这样的:</p>
+<ul>
+<li>先看看<code>SEG_INODES_FREE链表</code>是否为空，如果不为空，直接从该链表中获取一个节点，也就相当于获取到一个仍有空闲空间的INODE类型的⻚面，然后把该INODE Entry结构放到该⻚面中。当该⻚面中无剩余空间时，就把该⻚放到SEG_INODES_FULL链表中。</li>
+<li>如果<code>SEG_INODES_FREE链表</code>为空，则需要从表空间的FREE_FRAG链表中申请一个⻚面，修改该⻚面的类型为INODE，把该⻚面放到SEG_INODES_FREE链表中，与此同时把该INODE Entry结构放入该⻚面。</li>
+</ul>
+<h2 id="Segment-Header-结构"><a href="#Segment-Header-结构" class="headerlink" title="Segment Header 结构"></a>Segment Header 结构</h2><p>我们知道一个索引会产生两个段，分别是<code>叶子节点段</code>和<code>非叶子节点段</code>，而<code>每个段</code>都会对应一个<code>INODE Entry结构</code>，那我们怎么知道某个段对应哪个INODE Entry结构呢? 所以得找个地方记下来这个对应关系。<br>希望你还记得我们在唠叨<code>数据⻚</code>，也就是<code>INDEX类型的⻚</code>时有一个<code>Page Header</code>部分，当然我不能指望你记住，所以把Page Header部分再抄一遍给你看:<br><img src="/images/MySQL/9.0/16.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>其中的PAGE_BTR_SEG_LEAF和PAGE_BTR_SEG_TOP都占用10个字 节，它们其实对应一个叫Segment Header的结构，该结构图示如 下:<br><img src="/images/MySQL/9.0/17.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>各个部分的具体释义如下:<br><img src="/images/MySQL/9.0/18.png" width="550px" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>这样子就很清晰了，PAGE_BTR_SEG_LEAF记录着叶子节点段对应的INODE Entry结构的地址是哪个表空间的哪个⻚面的哪个偏移量；<br>PAGE_BTR_SEG_TOP记录着非叶子节点段对应的INODE Entry结构的地址是哪个表空间的哪个⻚面的哪个偏移量。<br>这样子索引和其对应的段的关系就建立起来了。<br>不过需要注意的一点是，<strong>因为一个索引只对应两个段，所以只需要在索引的根⻚面中记录这两个结构即可。</strong></p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#FSP-HDR%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%A1%B5"><span class="toc-text">FSP_HDR类型的页</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#File-Space-Header%E9%83%A8%E5%88%86"><span class="toc-text">File Space Header部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#XDES-Entry%E9%83%A8%E5%88%86"><span class="toc-text">XDES Entry部分</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#XDES%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%A1%B5%E9%9D%A2"><span class="toc-text">XDES类型的页面</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#IBUF-BITMAP%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%A1%B5%E9%9D%A2"><span class="toc-text">IBUF_BITMAP类型的页面</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#INODE%E7%B1%BB%E5%9E%8B%E7%9A%84%E9%A1%B5%E9%9D%A2"><span class="toc-text">INODE类型的页面</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#INODE-Entry%E9%83%A8%E5%88%86"><span class="toc-text">INODE Entry部分</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#List-Node-for-INODE-Page-List%E7%BB%93%E6%9E%84"><span class="toc-text">List Node for INODE Page List结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Segment-Header-%E7%BB%93%E6%9E%84"><span class="toc-text">Segment Header 结构</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/28/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          9.4 InnoDB的表空间 之 独立表空间结构(4)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20InnoDB%20%E7%B3%BB%E7%BB%9F%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E7%BB%93%E6%9E%84/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          9.6 InnoDB 系统表空间的结构
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>12. 基于成本的优化 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/12. TODO 基于成本的优化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      12. 基于成本的优化
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-11-13T05:27:25.000Z" itemprop="datePublished">2021年11月13日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/11/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/12.%20TODO%20%E5%9F%BA%E4%BA%8E%E6%88%90%E6%9C%AC%E7%9A%84%E4%BC%98%E5%8C%96/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="什么是成本"><a href="#什么是成本" class="headerlink" title="什么是成本"></a>什么是成本</h1><p>我们之前老说MySQL执行一个查询可以有不同的执行方案，它会选择其中成本最低，或者说代价最低的那种方案去真正的执行查询。</p>
+<p>不过我们之前对成本的描述是非常模糊的，其实在MySQL中一条查询语句的执行成本是由下边这两个方面组成的:</p>
+<ul>
+<li><p><strong><code>I/O成本</code></strong><br>我们的表经常使用的MyISAM、InnoDB存储引擎都是将数据和索引存储到磁盘上的，当我们想查询表中的记录时，需要先把数据或者索引加载到内存中然后再操作。<br>这个<code>从磁盘到内存</code>这个加载的过程损耗的时间称之为<code>I/O成本</code>。</p>
+</li>
+<li><p><strong><code>CPU成本</code></strong><br>读取以及检测记录是否满足对应的搜索条件、对结果集进行排序等这些操作损耗的时间称之为<code>CPU成本</code>。</p>
+</li>
+</ul>
+<p>对于InnoDB存储引擎来说，**<code>⻚</code>是磁盘和内存之间交互的基本单位** ，设计MySQL的大叔规定读取一个⻚面花费的成本默认是1.0，读取以及检测一条记录是否符合搜索条件的成本默认是0.2。<br>1.0、0.2这些数字称之为<code>成本常数</code>，这两个成本常数我们最常用到，其余的成本常数我们后边再说哈。<br>(需要注意的是，不管读取记录时需不需要检测是否满足搜索条件， 其成本都算是0.2)</p>
+<h1 id="单表查询的成本"><a href="#单表查询的成本" class="headerlink" title="单表查询的成本"></a>单表查询的成本</h1><h2 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h2><p>为了故事的顺利发展，我们还得把之前用到的single_table表搬来:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE single_table (</span><br><span class="line">    id INT NOT NULL AUTO_INCREMENT,</span><br><span class="line">    key1 VARCHAR(100),</span><br><span class="line">    key2 INT,</span><br><span class="line">    key3 VARCHAR(100),</span><br><span class="line">    key_part1 VARCHAR(100),</span><br><span class="line">    key_part2 VARCHAR(100),</span><br><span class="line">    key_part3 VARCHAR(100),</span><br><span class="line">    common_field VARCHAR(100),</span><br><span class="line">    PRIMARY KEY (id),</span><br><span class="line">    KEY idx_key1 (key1),</span><br><span class="line">    UNIQUE KEY idx_key2 (key2),</span><br><span class="line">    KEY idx_key3 (key3),</span><br><span class="line">    KEY idx_key_part(key_part1, key_part2,</span><br><span class="line">    key_part3)</span><br><span class="line">) Engine=InnoDB CHARSET=utf8;</span><br></pre></td></tr></table></figure>
+<p>还是假设这个表里有10000条记录，除id列外其余的列都插入随机值。下边正式开始我们的表演。</p>
+<h2 id="基于成本的优化步骤"><a href="#基于成本的优化步骤" class="headerlink" title="基于成本的优化步骤"></a>基于成本的优化步骤</h2><p>在一条单表查询语句真正执行之前，<strong>MySQL的<code>查询优化器</code>会找出执行该语句所有可能使用的方案</strong> ，对比之后找出成本最低的方案，<strong>这个成本最低的方案就是所谓的<code>执行计划</code></strong> ，之后才会调用<code>存储引擎提供的接口</code>真正的执行查询，这个过程总结一下就是这样:</p>
+<ol>
+<li>根据搜索条件，找出所有可能使用的索引</li>
+<li>计算全表扫描的代价</li>
+<li>计算使用不同索引执行查询的代价</li>
+<li>对比各种执行方案的代价，找出成本最低的那一个</li>
+</ol>
+<hr>
+<p>下边我们就以一个实例来分析一下这些步骤，单表查询语句如下:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM single_table WHERE </span><br><span class="line">    key1 IN (&#x27;a&#x27;, &#x27;b&#x27;, &#x27;c&#x27;) AND </span><br><span class="line">    key2 &gt; 10 AND </span><br><span class="line">    key2 &lt; 1000 AND </span><br><span class="line">    key3 &gt; key2 AND</span><br><span class="line">    key_part1 LIKE &#x27;%hello%&#x27; AND </span><br><span class="line">    common_field = &#x27;123&#x27;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>根据搜索条件，找出所有可能使用的索引<br>我们前边说过，对于B+树索引来说，只要索引列和常数使用 &#x3D;、&lt;&#x3D;&gt;、IN、NOT IN、IS NULL、IS NOT NULL、&gt;、&lt;、&gt;&#x3D;、&lt;&#x3D;、BETWEEN、!&#x3D;(不等于也可以写成&lt;&gt;)或者LIKE操作符连接起来，就可以产生一个所谓的范围区间(LIKE匹配字符串前缀也行)，也就是说这些搜索条件都可能使用到索引，设计MySQL的大叔把一个查询中可能使用到的索引称之为 <code>possible keys</code>。</li>
+</ol>
+<p>我们分析一下上边查询中涉及到的几个搜索条件:</p>
+<ul>
+<li>key1 IN (‘a’, ‘b’, ‘c’)，这个搜索条件可以使用二级索引idx_key1。</li>
+<li>key2 &gt; 10 AND key2 &lt; 1000，这个搜索条件可以使用二级索引idx_key2。</li>
+<li>key3 &gt; key2，这个搜索条件的索引列由于<code>没有和常数比较</code>，所以并不能使用到索引。</li>
+<li>key_part1 LIKE ‘%hello%’，key_part1通过LIKE操作符和以通配符开头的字符串做比较，不可以使用索引。</li>
+<li>common_field &#x3D; ‘123’，由于该列上压根儿没有索引，所以不会用到索引。</li>
+</ul>
+<p>综上所述，上边的查询语句可能用到的索引，也就是<code>possible keys</code>只有<code>idx_key1</code>和<code>idx_key2</code>。</p>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>计算全表扫描的代价</li>
+</ol>
+<p>对于InnoDB存储引擎来说，<code>全表扫描</code>的意思就是把聚簇索引中的记录都依次和给定的搜索条件做一下比较，把符合搜索条件的记录加入到结果集，所以需要将聚簇索引对应的⻚面加载到内存中，然后再检测记录是否符合搜索条件。<br>由于 <code>查询成本=I/O成本+CPU成本</code>，所以计算全表扫描的代价需要两个信息:</p>
+<ul>
+<li>聚簇索引占用的⻚面数</li>
+<li>该表中的记录数</li>
+</ul>
+<p>这两个信息从哪来呢?设计MySQL的大叔为每个表维护了一系列的<code>统计信息</code>，关于这些统计信息是如何收集起来的我们放在本章后边详细唠叨，现在看看怎么查看这些统计信息。<br>设计MySQL的大叔给我们提供了 <code>SHOW TABLE STATUS</code> 语句来查看表的统计信息，如果要看指定的某个表的统计信息，在该语句后加对应的LIKE语句就好了，比方说我们要查看<code>order_by_demo</code>这个表的统计信息可以这么写:<br><img src="/images/MySQL/12/1.png" width="400" style="border: 1px solid #ccc;border-radius: 5px;"/><br>虽然出现了很多统计选项，但我们目前只关心两个:</p>
+<ul>
+<li><code>Rows</code><br>本选项表示表中的记录条数。<br><strong>对于使用MyISAM存储引擎的表来说，该值是准确的，对于使用InnoDB存储引擎的表来说，该值是一个估计值。</strong><br>从查询结果我们也可以看出来，由于我们的 single_table表 是使用InnoDB存储引擎的，所以虽然实际上表中有10000条记录，但是<code>SHOW TABLE STATUS</code>显示的Rows值只有9693条记录。</li>
+<li><code>Data_length</code><br>本选项表示表占用的存储空间字节数。<br>使用MyISAM存储引擎的表来说，该值就是数据文件的大小，对于使用InnoDB存储引擎的表来说，该值就相当于聚簇索引占用的存储空间大小，也就是说可以这样计算该值的大小:<br><code>Data_length = 聚簇索引的⻚面数量 x 每个⻚面的大小</code><br>我们的single_table使用默认16KB的⻚面大小，而上边查询结果显示Data_length的值是1589248，所以我们可以反向来推导出聚簇索引的⻚面数量:<br><code>聚簇索引的⻚面数量 = 1589248 ÷ 16 ÷ 1024 = 97</code><br>我们现在已经得到了聚簇索引占用的⻚面数量以及该表记录数的估计值，所以就可以计算全表扫描成本了，但是设计MySQL的大叔在真实计算成本时会进行一些微调，这些微调的值是直接硬编码到代码里的，由于没有注释，我也不知道这些微调值是个啥子意思，但是由于这些微调的值十分的小，并不影响我们分析，所以我们也没有必要在这些微调值上纠结了。</li>
+</ul>
+<p>现在可以看一下全表扫描成本的计算过程:</p>
+<ul>
+<li>I&#x2F;O成本: <code>97 x 1.0 + 1.1 = 98.1</code><br>97指的是聚簇索引占用的⻚面数，1.0指的是加载一个⻚面的成本常数，后边的1.1是一个微调值，我们不用在意。</li>
+<li>CPU成本: <code>9639 x 0.2 + 1.0 = 1939.6</code><br>9639指的是统计数据中表的记录数，对于InnoDB存储引擎来说是一个估计值，0.2指的是访问一条记录所需的成本常数，后边的1.0是一个微调值，我们不用在意。</li>
+</ul>
+<p>总成本: <code>98.1 + 1939.6 = 2037.7</code><br>综上所述，对于single_table的全表扫描所需的总成本就是2037.7。</p>
+</blockquote>
+<p>Tips:<br>我们前边说过表中的记录其实都存储在聚簇索引对应B+树的<code>叶子节点</code>中，所以只要我们通过根节点获得了最左边的叶子节点，就可以沿着叶子节点组成的双向链表把所有记录都查看一遍。<br><span style="color:#33b045; font-weight:600;"><br>也就是说<code>全表扫描</code>这个过程其实有的B+树内节点是不需要访问的，但是设计MySQL的大叔们在计算全表扫描成本时直接使用聚簇索引占用的⻚面数作为计算I&#x2F;O成本的依据，是不区分内节点和叶子节点的，有点儿简单暴力，大家注意一下就好了。<br></span></p>
+<hr>
+<blockquote>
+<ol start="3">
+<li>计算使用不同索引执行查询的代价</li>
+</ol>
+<p>从第1步分析我们得到，上述查询可能使用到 idx_key1和 idx_key2这两个索引，我们需要分别分析单独使用这些索引执行查询的成本，最后还要分析是否可能使用到索引合并。<br>这里需要提一点的是，MySQL查询优化器先分析使用<code>唯一二级索引</code>的成本，再分析使用<code>普通索引</code>的成本，所以我们也先分析idx_key2的成本，然后再看使用idx_key1的成本。</p>
+<ul>
+<li>使用idx_key2执行查询的成本分析<br>idx_key2对应的搜索条件是: key2 &gt; 10 AND key2 &lt; 1000， 即对应的范围区间就是:(10, 1000)，使用idx_key2搜索的示意图就是这样子:<img src="/images/MySQL/12/2.png" width="400" style="border: 1px solid #ccc;border-radius: 5px;"/>
+对于使用 `二级索引 + 回表` 方式的查询，设计MySQL的大叔计算这种查询的成本依赖两个方面的数据:</li>
+</ul>
+<ol>
+<li>范围区间数量<br>不论某个范围区间的二级索引到底占用了多少⻚面，<code>查询优化器</code> <strong>粗暴</strong> 的认为<code>读取索引的一个范围区间的I/O成本</code>和<code>读取一个⻚面</code>是相同的。<br>本例中使用idx_key2的范围区间只有一 个:(10, 1000)，所以相当于访问这个范围区间的二级索引付出的I&#x2F;O成本就是: <code>1 x 1.0 = 1.0</code></li>
+<li>需要回表的记录数<br>优化器需要计算二级索引的某个范围区间到底包含多少条记录，对于本例来说就是要计算idx_key2在(10, 1000)这个范围区间中包含多少二级索引记录，计算过程是这样的:<br>步骤1:先 根据key2 &gt; 10这个条件访问一下idx_key2对应的B+树索引，找到满足key2 &gt; 10这个条件的第一条记录，我们把这条记录称之为区间最左记录。我们前头说过在B+数树中定位一条记录的过程是贼快的，是常数级别的，所以这个过程的性能消耗是可以忽略不计的。<br>步骤2:然后再根据key2 &lt; 1000这个条件继续从idx_key2对应的B+树索引中找出第一条满足这个条件的记录，我们把这条记录称之为区间最右记录，这个过程的性能消耗也可以忽略不计的。<br>步骤3:如果区间最左记录和区间最右记录相隔不太远 (在MySQL 5.7.21这个版本里，只要相隔不大于10个⻚面即可)，那就可以精确统计出满足key2 &gt; 10 AND key2 &lt; 1000条件的二级索引记录条数。否则只沿着区间最左记录向右读10个⻚面，计算平均每个⻚面中包含多少记录，然后用这个平均值乘以区间最左记录和区间最右记录之间的⻚面数量就可以了。</li>
+</ol>
+<p>那么问题又来了，怎么 估计区间最左记录和区间最右记录之间有多少个⻚面呢? 解决这个问题还得回到B+树索引的结构中来:<br><img src="/images/MySQL/12/3.png" width="400" style="border: 1px solid #ccc;border-radius: 5px;"/><br>如图，我们假设区间最左记录在⻚b中，区间最右记录在⻚c中，那么我们想计算区间最左记录和区间最右记录之间的⻚面数量就相当于计算⻚b和⻚c之间有多少⻚面，而每一条目录项记录都对应一个数据⻚，所以计算⻚b和⻚c之间有多少⻚面就相当于计算它们父节点(也就是⻚ a)中对应的目录项记录之间隔着几条记录。 在一个⻚面中统计两条记录之间有几条记录的成本就贼小了。<br>不过还有问题，如果⻚b和⻚c之间的⻚面实在太多，以至于⻚b和⻚c对应的目录项记录都不在一个⻚面中该咋办? 继续递归啊，也就是再统计⻚b和⻚c对应的目录项记录所在⻚之间有多少个⻚面。之前我们说过一个B+树有4层高已经很了不得了，所以这个统计过程也不是很耗费性能。</p>
+<p>知道了如何统计二级索引某个范围区间的记录数之后，就需要回到现实问题中来，根据上述算法测得idx_key2在区间(10, 1000)之间大约有95条记录。读取这95条二级索引记录需要付出的CPU成本就是:<br><code>95 x 0.2 + 0.01 = 19.01</code><br>其中95是需要读取的二级索引记录条数，0.2是读取一条记录成本常数，0.01是微调。</p>
+</blockquote>
+<blockquote>
+<p>在通过二级索引获取到记录之后，还需要干两件事儿:</p>
+<ul>
+<li>根据这些记录里的主键值到聚簇索引中做回表操作<br>这里需要大家使劲儿睁大自己滴溜溜的大眼睛仔细瞧，设计MySQL的大叔评估回表操作的I&#x2F;O成本依旧很豪放，他们认为每次回表操作都相当于访问一个⻚面，也就是说二级索引范围区间有多少记录，就需要进行多少次回表操作，也就是需要进行多少次⻚面I&#x2F;O。<br>我们上边统计了使用idx_key2二级索引执行查询时，预计有95条二级索引记录需要进行回表操作，所以回表操作带来的I&#x2F;O成本就是: <code>95 x 1.0 = 95.0</code><br>其中95是预计的二级索引记录数，1.0是一个⻚面的I&#x2F;O成本常数。</li>
+<li>回表操作后得到的完整用户记录，然后再检测其他搜索条件是否成立<br>回表操作的本质就是通过二级索引记录的主键值到聚簇索引中找到完整的用户记录，然后再检测除 <code>key2 &gt; 10 AND key2 &lt; 1000</code> 这个搜索条件以外的搜索条件是否成立。<br>因为我们通过范围区间获取到二级索引记录共95条，也就对应着聚簇索引中95条完整的用户记录，读取并检测这些完整的用户记录是否符合其余的搜索条件的 CPU成本如下:<blockquote>
+<p>设计<code>MySQL</code>的大叔只计算这个查找过程所需的<code>I/O</code>成本， 也就是我们上一步骤中得到的<code>95.0</code>，在内存中的定位完整用户记录的过程的成本是忽略不计的。在定位到这些完整的用户记录后， 需要检测除 <code>key2 &gt; 10 AND key2 &lt; 1000</code>这个搜索条件以外的搜索条件是否成立，这个比较过程花费的<code>CPU</code>成本就是:<br><code>95 x 0.2 = 19.0</code>，其中<code>95</code>是待检测记录的条数，<code>0.2</code>是检测一条记录是否符合给定的搜索条件的成本常数。</p>
+</blockquote>
+</li>
+</ul>
+<p>所以本例中使用idx_key2执行查询的成本就如下所示:</p>
+<ul>
+<li>I&#x2F;O成本: 1.0 + 95 x 1.0 &#x3D; 96.0 (范围区间的数量 + 预估的二级索引记录条数)</li>
+<li>CPU成本: 95x0.2+0.01+95x0.2&#x3D;38.01 (读取二级索 引记录的成本 + 读取并检测回表后聚簇索引记录的成本)</li>
+</ul>
+<p>综上所述，使用idx_key2执行查询的总成本就是: 96.0 + 38.01 &#x3D; 134.01</p>
+<ul>
+<li>使用idx_key1执行查询的成本分析<br>idx_key1对应的搜索条件是: key1 IN (‘a’, ‘b’, ‘c’)，也就是说相当于3个单点区间，使用idx_key1搜索的示意图就是这样子:<img src="/images/MySQL/12/4.png" width="400" style="border: 1px solid #ccc;border-radius: 5px;"/>
+与使用idx_key2的情况类似，我们也需要计算使用idx_key1时需要访问的范围区间数量以及需要回表的记录数:</li>
+</ul>
+<p>范围区间数量<br>使用idx_key1执行查询时很显然有3个单点区间，所以访问这3个范围区间的二级索引付出的I&#x2F;O成本就是: 3 x 1.0 &#x3D; 3.0</p>
+<p>需要回表的记录数<br>由于使用idx_key1时有3个单点区间，所以每个单点区间都需要查找一遍对应的二级索引记录数:<br>查找单点区间[‘a’, ‘a’]对应的二级索引记录数</p>
+<blockquote>
+<p>计算单点区间对应的二级索引记录数和计算连续范围区间对应的二级索引记录数是一样的，都是先计算区间最左记录和区间最右记录，然后再计算它们之间的记录数，具体算法上边都唠叨过了，就不赘述了。<br>最后计算得到单点区 间[‘a’, ‘a’]对应的二级索引记录数是:35。<br>查找单点区间[‘b’, ‘b’]对应的二级索引记录数与上同理，计算得到本单点区间对应的记录数是:44。<br>查找单点区间[‘c’, ‘c’]对应的二级索引记录数与上同理，计算得到本单点区间对应的记录数是:39。</p>
+</blockquote>
+<p>所以，这三个单点区间总共需要回表的记录数就是: <code>35 + 44 + 39 = 118</code><br>读取这些二级索引记录的CPU成本就是: <code>118 x 0.2 + 0.01 = 23.61</code></p>
+<p>得到总共需要回表的记录数之后，就要考虑:<br>根据这些记录里的主键值到聚簇索引中做回表操作所需的I&#x2F;O成本就是:<code>118 x 1.0 = 118.0</code><br>回表操作后得到的完整用户记录，然后再比较其他搜索条件是否成立。 此步骤对应的CPU成本就是:<code>118 x 0.2 = 23.6</code><br>所以本例中使用idx_key1执行查询的成本就如下所示:<br>I&#x2F;O成本: 3.0 + 118 x 1.0 &#x3D; 121.0 (范围区间的数量 + 预估的二级索引记录条数)<br>CPU成本: 118x0.2+0.01+118x0.2&#x3D;47.21 (读取二级 索引记录的成本 + 读取并检测回表后聚簇索引记录的成本)<br>综上所述，使用idx_key1执行查询的总成本就是: 121.0 + 47.21 &#x3D; 168.21</p>
+<p>是否有可能使用索引合并(Index Merge)<br>本例中有关key1和key2的搜索条件是使用AND连接起来的，而对于 idx_key1和idx_key2都是范围查询，也就是说查找到的二级索引记录并不是按照主键值进行排序的，并不满足使用Intersection索引合并的条件，所以并不会使用索引合并。<br>Tips: MySQL查询优化器计算索引合并成本的算法也比较麻烦，所以我们 这也就不展开唠叨了。</p>
+</blockquote>
+<blockquote>
+<ol start="4">
+<li>对比各种执行方案的代价，找出成本最低的那一个<br>下边把执行本例中的查询的各种可执行方案以及它们对应的成本列出来:<br>全表扫描的成本:2037.7<br>使用idx_key2的成本:134.01<br>使用idx_key1的成本:168.21<br>很显然，使用idx_key2的成本最低，所以当然选择idx_key2来执行查询喽。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>Tips:小贴士:<br>考虑到大家的阅读体验，为了最大限度的减少大家在理解优化器工作原理的过程中遇到的懵逼情况，这里对优化器在单表查询中对比各种执行方案的代价的方式稍稍的做了简化，不过毕竟大部分同学不需要去看MySQL的源码，把大致的精神传递正确就好了哈。</p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%88%90%E6%9C%AC"><span class="toc-text">什么是成本</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%95%E8%A1%A8%E6%9F%A5%E8%AF%A2%E7%9A%84%E6%88%90%E6%9C%AC"><span class="toc-text">单表查询的成本</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%88%90%E6%9C%AC%E7%9A%84%E4%BC%98%E5%8C%96%E6%AD%A5%E9%AA%A4"><span class="toc-text">基于成本的优化步骤</span></a></li></ol></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          11. 连接的原理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/11/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/14.%20%E5%9F%BA%E4%BA%8E%E8%A7%84%E5%88%99%E7%9A%84%E4%BC%98%E5%8C%96/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          14. 基于规则的优化
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

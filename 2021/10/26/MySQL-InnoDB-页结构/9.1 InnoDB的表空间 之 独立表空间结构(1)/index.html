@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>9.1 InnoDB的表空间 之 独立表空间结构(1) | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL-InnoDB-页结构/9.1 InnoDB的表空间 之 独立表空间结构(1)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      9.1 InnoDB的表空间 之 独立表空间结构(1)
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-26T05:19:37.000Z" itemprop="datePublished">2021年10月26日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.1%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(1)/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>我们知道InnoDB支持许多种类型的表空间，本章重点关注 <code>独立表空间</code> 和 <code>系统表空间</code> 的结构。<br>它们的结构比较相似，但是由于 <code>系统表空间</code> 中额外包含了一些关于整个系统的信息，所以我们先挑简单一点的 <code>独立表空间</code> 来聊，稍后再说<code>系统表空间</code>的结构。</p>
+</blockquote>
+<h1 id="区-extent-的概念：为了顺序IO"><a href="#区-extent-的概念：为了顺序IO" class="headerlink" title="区(extent)的概念：为了顺序IO"></a>区(extent)的概念：为了<code>顺序IO</code></h1><blockquote>
+<p>表空间 中的 ⻚ 实在是太多了，为了更好的管理这些⻚，设计InnoDB的大叔们提出了<code>区(extent)</code>的概念。<br>对于16KB的⻚来说，<strong>连续的64个⻚</strong> 就是一个区，也就是说一个区默认占用1MB空间大小。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>为啥好端端地提出一个<code>区</code>的概念呢？</strong></p>
+<p>我们以前学到的<code>InnoDB存储结构</code>的相关知识大致是:<br>表中的记录存储到⻚里，然后⻚作为节点组成B+树，这个B+树就是索引，然后吧啦吧啦一堆聚簇索引和二级索引的区别。这套路也没啥不妥的呀~</p>
+<p>是的，如果我们表中数据量很少的话，比如说你的表中只有几十条、几百条数据的话，的确用不到<code>区</code>的概念，因为简单的几个⻚就能把对应的数据存储起来。但是你架不住表里的记录越来越多呀。</p>
+<p>我们每向表中插入一条记录，本质上就是向该表的<code>聚簇索引</code>以及<code>所有二级索引</code>代表的B+树的节点中插入数据。<br>而 B+树的每一层中的⻚都会形成一个双向链表 ，<span style="color:#f8b500 ;"> <strong>如果是以⻚为单位来分配存储空间的话， 双向链表相邻的两个⻚之间的物理位置可能离得非常远</strong></span> 。</p>
+<p>我们介绍B+树索引的适用场景的时候特别提到 <strong>范围查询只需要定位到最左边的记录和最右边的记录，然后沿着双向链表一直扫描就可以了</strong> 。 <span style="color:#FF416C ;">而如果双向链表中相邻的两个⻚的物理位置不连续，对于传统机械硬盘来说，需要重新定位磁头的位置，就是所谓的随机I&#x2F;O，这样会影响磁盘的性能。<code>随机I/O</code>是非常慢的。</span> 所以 <strong>我们应该尽量让链表中相邻的⻚的物理位置也相邻</strong> ，这样进行范围查询时，扫描叶子节点中大量记录时才可以使用<code>顺序I/O</code>。</p>
+</blockquote>
+<p>所以才引入了<code>区(extent)</code>的概念，<strong>一个区就是在物理位置上连续的64个⻚</strong>。<br><strong>在表中数据量大的时候，为某个索引分配空间的时候就 <code>不再按照⻚为单位分配了</code> ，而是 <code>按照区为单位分配</code>，甚至在表中的数据十分非常特别多的时候，可以 <code>一次性分配多个连续的区</code>。</strong><br>虽然可能造成一点点空间的浪费(数据不足填充满整个区)，但是从性能⻆度看，可以消除很多的<code>随机I/O</code>，功大于过嘛!</p>
+<hr>
+<h1 id="独立表空间的结构"><a href="#独立表空间的结构" class="headerlink" title="独立表空间的结构"></a><code>独立表空间</code>的结构</h1><p>不论是<code>系统表空间</code>还是<code>独立表空间</code>，都可以看成是由若干个<code>区</code>组成的，<strong>每256个区被划分成一组</strong> , 示意图如下：<br><img src="/images/MySQL/9.0/1.png" alt="独立表空间结构图" width="400px" style="margin-left:0; border: 1px solid #ccc;border-radius: 5px;"/></p>
+<hr>
+<p>每个<code>组</code>里的头几个⻚面(lant:自然也是位于该组的<code>第一个区</code>里)的类型都是类似的:<br><img src="/images/MySQL/9.0/2.png" width="550px" style="margin-left:0; border: 1px solid #ccc;border-radius: 5px;"/></p>
+<blockquote>
+<p>第一个组中的最开始的3个⻚面(也就是说extent 0这个区最开始的3个⻚面)的类型是固定的，分别是:</p>
+<ul>
+<li><code>FSP_HDR类型的页</code>: 这个类型的⻚面是用来登记 <code>整个表空间的一些整体属性</code> 以及 <code>本组256个区的属性</code>，稍后详细唠叨。 需要注意的一点是，<strong>整个表空间只有一个<code>FSP_HDR类型</code>的⻚面</strong>。</li>
+<li><code>IBUF_BITMAP类型的页</code>: 这个类型的⻚面是存储本组所有区的所有⻚面关于 <code>INSERT BUFFER</code> 的信息。当然，你现在不用知道啥是个INSERT BUFFER。</li>
+<li><code>INODE类型的页</code>: 这个类型的⻚面存储了许多称为INODE的数据结构，还是那句话，现在你不需要知道啥是个INODE， 后边儿会说到你吐。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>其余各组最开始的2个⻚面的类型是固定的，分别是:</p>
+<ul>
+<li><code>XDES类型</code>:全称是extent descriptor，用来登记<code>本组256个区</code>的属性;<br><strong>上边介绍的<code>FSP_HDR类型</code>的⻚面其实和<code>XDES类型</code>的⻚面的作用类似，只不过<code>FSP_HDR类型</code>的⻚面还会额外存储一些表空间的属性。</strong></li>
+<li>❓<code>IBUF_BITMAP类型</code>:上边介绍过了。</li>
+</ul>
+</blockquote>
+<hr>
+<p>好了，宏观的结构介绍完了，里边儿的名词大家也不用记清楚，只要大致记得:</p>
+<ul>
+<li><code>表空间</code>被划分为许多连续的<code>区</code>，每个区默认由<code>64个</code>⻚组成</li>
+<li>每<code>256个区</code>又被划分为<code>一组</code>，每个组的最开始的几个⻚面类型是固定的就好了。</li>
+</ul>
+<h1 id="段-segment-的概念：还是为了顺序IO-😁"><a href="#段-segment-的概念：还是为了顺序IO-😁" class="headerlink" title="段(segment) 的概念：还是为了顺序IO 😁"></a>段(segment) 的概念：还是为了<code>顺序IO</code> 😁</h1><p>然而事情到这里并没有结束，因为我们之前提到的范围查询<strong>是对B+树<code>叶子节点</code>中的记录进行顺序扫描</strong> 。<br><strong>而如果你在以页为单位存储记录时，如果不区分<code>普通记录页</code>和<code>目录页</code>(也就是不区分<code>叶子节点</code>和<code>非叶子节点</code>) ，无论什么类型的节点都统统放到申请到的区中的话，那范围扫描的效果就大打折扣了。</strong></p>
+<p>(lant: 提出<code>区</code>的概念本来就是为了让<code>存放叶子节点的页</code>在物理上尽量连续，减少随机IO，结果现在<code>存放叶子节点的页</code>和<code>存放非叶子节点的页</code>是混在一起在存到申请的<code>区</code>中的，这样<code>存放叶子节点的页</code>在物理上又不是顺序了)。</p>
+<p>所以设计InnoDB的大叔们对B+树的<code>叶子节点</code>和<code>非叶子节点</code>进行了区别对待，也就是说 <strong><code>叶子节点</code>有自己独有的区</strong> ， <strong><code>非叶子节点</code>也有自己独有的区</strong> 。(lant: 这样，<code>存放叶子节点的页</code>在物理上就会尽量被连续存放起来，毕竟申请的<code>区</code>里的页都会用来存储<code>叶子节点</code>)。<br>存放叶子节点的<code>区的集合</code> 和 存放非叶子节点的<code>区的集合</code> 都被称为 <code>段</code>。 </p>
+<p><strong>也就是说一个索引会生成2个段，一个<code>叶子节点段</code>，一个<code>非叶子节点段</code></strong> 。</p>
+<h1 id="碎片区-的概念"><a href="#碎片区-的概念" class="headerlink" title="碎片区 的概念"></a>碎片区 的概念</h1><p>默认情况下，InnoDB引擎的表只有一个<code>聚簇索引</code>，会生成2个段。<br>而<code>段</code>是以<code>区</code>为单位申请存储空间的，一个区默认占用1M存储空间，所以默认情况下一个只存了几条记录的小表也需要2M的存储空间么? 以后每次添加一个索引都要申请2M的存储空间么? 这对于存储记录比较少的表简直是天大的浪费。</p>
+<hr>
+<p>设计InnoDB 的大叔们都挺节俭的，当然也考虑到了这种情况。<br>这个问题的症结在于 到现在为止我们都是认为 <code>区</code>是被整个分配给某一个<code>段</code> 的(即使<code>段</code>的数据填不满<code>区</code>中所有的<code>⻚面</code>)。</p>
+<p>但是为了考虑 <code>以完整的区为单位分配给某个段</code> 对于数据量较小的表太浪费存储空间的这种情况，设计InnoDB的大叔们提出了一个<code>碎片(fragment)区</code>的概念。<br><strong>在一个碎片区中的⻚，不一定会全部分配给某个段；碎片区中的⻚可以用于不同的目的，比如有些⻚用于段A，有些⻚用于段B，有些⻚甚至哪个段都不属于</strong> 。</p>
+<hr>
+<div style="font-weight:500;border: 1px solid #33b045;border-radius: 5px;padding:20px 0 0 25px;">
+<span style="color:#f8b500;">碎片区` 直属于 `表空间`，并不属于任何一个`段`。</span>所以此后为某个`段`分配存储空间的策略是这样的:
+<li style="color:#f8b500;">在刚开始向表中插入数据的时候，`段`是从某个`碎片区`以`单个⻚面为单位`来分配存储空间的；</li>
+<li style="color:#f8b500;">当某个段已经占用了32个碎片区⻚面之后，就会以完整的区为单位来分配存储空间；</li>
+
+<p>所以现在 <code>段</code> 不能仅定义为是 <code>某些区的集合</code>，更精确的应该是 <code>某些零散的⻚面</code>以及 <code>一些完整的区</code> 的集合。</p>
+</div>
+
+<p>另外，除了索引的<code>叶子节点段</code>和<code>非叶子节点段</code>之外，InnoDB中还有为存储一些特殊的数据而定义的段，比如 <code>回滚段</code>，当然我们现在并不关心别的类型的段，现在只需要知道段是一些零散的⻚面以及一些完整的区的集合就好了。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8C%BA-extent-%E7%9A%84%E6%A6%82%E5%BF%B5%EF%BC%9A%E4%B8%BA%E4%BA%86%E9%A1%BA%E5%BA%8FIO"><span class="toc-text">区(extent)的概念：为了顺序IO</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E7%BB%93%E6%9E%84"><span class="toc-text">独立表空间的结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%AE%B5-segment-%E7%9A%84%E6%A6%82%E5%BF%B5%EF%BC%9A%E8%BF%98%E6%98%AF%E4%B8%BA%E4%BA%86%E9%A1%BA%E5%BA%8FIO-%F0%9F%98%81"><span class="toc-text">段(segment) 的概念：还是为了顺序IO 😁</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A2%8E%E7%89%87%E5%8C%BA-%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-text">碎片区 的概念</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.0%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E9%A1%B5%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86%E5%9B%9E%E9%A1%BE/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          9.0 InnoDB的表空间 之 页相关知识回顾
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/10/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/9.2%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(2)/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          9.2 InnoDB的表空间 之 独立表空间结构(2)
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

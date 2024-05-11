@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>20.2 Mini-Transcation | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/20.2 Mini-Transcation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      20.2 Mini-Transcation
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-12-11T14:46:19.000Z" itemprop="datePublished">2021年12月11日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.2%20Mini-Transcation/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="以组的形式写入redo日志"><a href="#以组的形式写入redo日志" class="headerlink" title="以组的形式写入redo日志"></a>以组的形式写入redo日志</h1><p>语句在执行过程中可能修改若干个⻚面。比如我们前边说的一条INSERT语句可能修改 <code>系统表空间⻚号为7的⻚面的Max Row ID 属性</code> (当然也可能更新别的系统⻚面，只不过我们没有都列举出来而已)，还会更新<code>聚簇索引</code>和<code>二级索引</code>对应B+树中的⻚面。</p>
+<p>由于对这些⻚面的更改都发生在<code>Buffer Pool</code>中，所以在修改完⻚面之后，需要记录一下相应的redo日志。</p>
+<p>在执行语句的过程中产生的redo日志被设计InnoDB的大叔人为的划分成了若干个不可分割的组，比如:</p>
+<blockquote>
+<ul>
+<li>更新<code>Max Row ID属性</code>时产生的redo日志是不可分割的。 </li>
+<li>向聚簇索引对应B+树的⻚面中插入一条记录时产生的redo日志是不可分割的。 </li>
+<li>向某个二级索引对应B+树的⻚面中插入一条记录时产生的redo日志是不可分割的。 </li>
+<li>还有其他的一些对⻚面的访问操作时产生的redo日志是不可分割的。。。</li>
+</ul>
+</blockquote>
+<p>怎么理解这个不可分割的意思呢? </p>
+<blockquote>
+<p>我们以向某个索引对应的B+树插入一条记录为例，在向B+树中插入这条记录之前，需要先定位到这条记录应该被插入到哪个叶子节点代表的数据⻚中，定位到具体的数据⻚之后，有两种可能的情况:</p>
+<ul>
+<li>情况一: 该数据⻚的剩余的空闲空间充足，足够容纳这一条待插入记录，那么事情很简单，直接把记录插入到这个数据⻚中，记录一条类型为MLOG_COMP_REC_INSERT的redo日志就好了，我们把这种情况称之为<code>乐观插入</code>。</li>
+<li>情况二: 该数据⻚剩余的空闲空间不足，那么事情就悲剧了， 我们前边说过，遇到这种情况要进行所谓的<code>⻚分裂</code>操作，也就是新建一个叶子节点，然后把原先数据⻚中的一部分记录复制到这个新的数据⻚中，然后再把记录插入进去，把这个叶子节点插入到叶子节点链表中，最后还要在内节点中添加一条目录项记录指向这个新创建的⻚面。<br>很显然，这个过程要对多个⻚面进行修改，也就意味着会产生多条redo日志，我们把这种情况称之为<code>悲观插入</code>。<br>如果作为<code>内节点</code>的⻚a的剩余空闲空间也不足以容纳增加一条<code>目录项记录</code>，那需要继续做<code>内节点⻚a的分裂操作</code>，也就意味 着会修改更多的⻚面，从而产生更多的redo日志。<br>另外，对于 <code>悲观插入</code> 来说，由于需要新申请数据⻚，还需要改动一些系统⻚面，比方说要修改各种段、区的统计信息信息，各种链表的统计信息(比如什么FREE链表、FSP_FREE_FRAG链表吧啦吧啦，我们在唠叨表空间那一章中介绍过的各种东东)等等等等， 反正总共需要记录的redo日志有二、三十条。</li>
+</ul>
+</blockquote>
+<p>设计InnoDB的大叔们认为向某个索引对应的B+树中插入一条记录的这个过程必须是原子的，不能说插了一半之后就停止了。</p>
+<blockquote>
+<p>比方说在<code>悲观插入</code>过程中，新的⻚面已经分配好了，数据也复制过去了，新的记录也插入到⻚面中了，可是没有向内节点中插入一条目录项记录，这个插入过程就是不完整的，这样会形成一棵不正确的B+树。</p>
+<p>而redo日志是为了在系统奔溃重启时恢复崩溃前的状态，<strong>如果在悲观插入的过程中只记录了一部分redo日志，那么在系统奔溃重启时会将索引对应的B+树恢复成一种不正确的状态</strong> ，这是设计InnoDB的大叔们所不能忍受的。</p>
+<p>所以他们规定在执行这些<code>需要保证原子性的操作</code>时必须以<code>组</code>的形式来记录的redo日志，在进行系统奔溃重启恢复时，针对某个<code>组</code>中的redo日志，要么把全部的日志都恢复掉，要么一条也不恢复。</p>
+</blockquote>
+<p>怎么做到的呢? 这得分情况讨论:</p>
+<blockquote>
+<ul>
+<li><p>有的需要保证原子性的操作会生成多条redo日志，比如向某个索引对应的B+树中进行一次<code>悲观插入</code>就需要生成许多条redo日志。<br>如何把这些redo日志划分到一个组里边儿呢? 设计InnoDB的大叔做了一个很简单的小把戏，就是在该组中的最后一条redo日志后边加上一条特殊类型的redo日志，该类型名称为 <code>MLOG_MULTI_REC_END</code>，type字段对应的十进制数字为31，该类型的redo日志结构很简单，只有一个<code>type</code>字段。<br>所以某个需要保证原子性的操作产生的一系列redo日志必须要以一个类型为MLOG_MULTI_REC_END结尾，就像这样:</p>
+<img src="/images/MySQL/20/6.png" width="400" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+这样在系统奔溃重启进行恢复时，只有当解析到类型为 `MLOG_MULTI_REC_END` 的redo日志，才认为解析到了一组完整的redo日志，才会进行恢复。否则的话直接放弃前边解析到的redo日志。
+</li>
+<li><p>有的需要保证原子性的操作只生成一条redo日志，比如更新 Max Row ID属性的操作就只会生成一条redo日志。<br>其实在一条日志后边跟一个类型为<code>MLOG_MULTI_REC_END</code>的redo日志也是可以的，不过设计InnoDB的大叔比较勤俭节约，它们不想浪费一个比特位。别忘了虽然redo日志的类型比较多，但撑死了也就是几十种，是小于127这个数字的，也就是说我们用7个比特位就足以包括所有的redo日志类型，而type字段其实是占用1个字节的，也就是说我们可以省出来一个比特位用来表示该需要保证原子性的操作只产生单一的一条redo日志，示意图如下:</p>
+<img src="/images/MySQL/20/7.png" width="400" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+如果type字段的第一个比特为为1，代表该需要保证原子性的操作只产生了单一的一条redo日志，否则表示该需要保证原子性的操作产生了一系列的redo日志。</li>
+</ul>
+</blockquote>
+<h1 id="Mini-Transaction的概念"><a href="#Mini-Transaction的概念" class="headerlink" title="Mini-Transaction的概念"></a>Mini-Transaction的概念</h1><p>设计MySQL的大叔把对底层⻚面中的一次<code>原子访问</code>的过程称之为一个<code>Mini-Transaction</code>，简称<code>mtr</code>，比如上边所说的修改一次Max Row ID的值算是一个Mini-Transaction，向某个索引对应的B+树中插入一条记录的过程也算是一个Mini-Transaction。</p>
+<p>通过上边的叙述我们也知道，<strong>一个所谓的mtr可以包含一组redo日志 ， 在进行奔溃恢复时这一组redo日志作为一个不可分割的整体。</strong> </p>
+<p>一个事务可以包含若干条语句，<strong>每一条语句其实是由若干个mtr组成</strong> ，<strong>每一个mtr又可以包含若干条redo日志</strong> ，画个图表示它们的关系就是这样:<br><img src="/images/MySQL/20/8.png" width="400" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A5%E7%BB%84%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%86%99%E5%85%A5redo%E6%97%A5%E5%BF%97"><span class="toc-text">以组的形式写入redo日志</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Mini-Transaction%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-text">Mini-Transaction的概念</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.1%20redo%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F%E5%92%8C%E7%B1%BB%E5%9E%8B/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          20.1 redo日志格式
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/12/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/20.3%20redo%E6%97%A5%E5%BF%97%E7%9A%84%E5%86%99%E5%85%A5%E8%BF%87%E7%A8%8B/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          20.3 redo日志的写入过程
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

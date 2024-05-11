@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>5.3 `数据页`结构 之 Page Directory(⻚目录) 部分 | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL-InnoDB-页结构/5.3 数据页结构 之 Page Directory(⻚目录) 部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      5.3 `数据页`结构 之 Page Directory(⻚目录) 部分
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-25T06:36:09.000Z" itemprop="datePublished">2021年09月25日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/09/25/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="数据页结构-之-Page-Directory-⻚目录-部分"><a href="#数据页结构-之-Page-Directory-⻚目录-部分" class="headerlink" title="数据页结构 之 Page Directory&#96;(⻚目录) 部分"></a>数据页<code>结构 之 </code>Page Directory&#96;(⻚目录) 部分</h1><h1 id="单链表存储数据记录的低效问题"><a href="#单链表存储数据记录的低效问题" class="headerlink" title="单链表存储数据记录的低效问题"></a>单链表存储数据记录的低效问题</h1><p>现在我们已经知道， <strong><code>记录在⻚中是按照主键值由小到大顺序串联成一个单链表放在 UserRecords 部分的</code></strong> 。</p>
+<p>那如果我们想根据主键值查找⻚中的某条记录该咋办?</p>
+<blockquote>
+<p>最笨的办法: 从 Infimum记录(最小记录)开始，沿着链表一直往后找，总有一天会找到(或者找不到)，在找的时候还能投机取巧，因为链表中各个记录的值是按照从小到大顺序排列的，所以当链表的某个节点代表的记录的主键值大于你想要查找的主键值时，你就可以停止查找了。</p>
+<p>这个方法在⻚中存储的记录数量比较少的情况用起来也没啥问题，但是如果一个⻚中存储了非常多的记录，这么查找对性能来说还是有损耗的，所以我们说这种遍历查找这是一个笨办法。（ 时间复杂度很显然是 <code>O(n)</code> ）</p>
+</blockquote>
+<h1 id="索引页结构-之-Page-Directory"><a href="#索引页结构-之-Page-Directory" class="headerlink" title="索引页结构 之 Page Directory"></a>索引页结构 之 Page Directory</h1><blockquote>
+<p>设计InnoDB的大叔们自然不会用上面那种笨办法，他们从现实中的书籍目录中找到了灵感。他们为我们的记录也制作了一个类似的目录，他们的制作过程是这样的:</p>
+<ul>
+<li>将所有正常的记录(包括页内的最大和最小记录，不包括标记为已删除的记录) <strong><code>划分为几个组</code></strong> ；</li>
+<li><strong>每个组的最后一条记录(也就是组内最大的那条记录)的头信息中的<code>n_owned属性</code>表示该组内共有几条记录</strong>；</li>
+<li>将每个组内<code>最后一条记录的地址偏移量单独提取出来并且还按主键顺序存储到靠近⻚的尾部的地方</code>，这个地方就是所谓的 <code>Page Directory</code>，也就是<code>⻚目录</code>。⻚目录中的这些地址偏移量被称为<code>槽</code>(英文 名:Slot)，所以这个<code>⻚目录就是由槽组成的</code>。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>比方说现在的page_demo表中正常的记录共有6条，InnoDB会把它们分成两组，第一组中只有一个最小记录，第二组中是剩余的5条记录，看下边的示意图:<br><img src="/images/MySQL/5.3/1.jpg"><br><code>现在⻚目录部分中有两个槽，也就意味着我们的记录被分成了两个组</code>:<br>槽1中的值是112，代表最大记录(组内最后一条记录)的地址偏移量(就是从⻚面的0字节开始数，数112个字节);<br>槽0中的值是99，代表最小记录(组内最后一条记录)的地址偏移量。</p>
+</blockquote>
+<blockquote>
+<p>注意上面两个分组中最后一条记录的头信息中的 <code>n_owned</code> 属性：<br>在第一个分组中，只有<code>最小记录</code>这一条记录，它的<code>记录头信息</code>的<code>n_owned</code>属性值为1，这就代表着<code>以最小记录结尾的这个分组中只有1条记录</code>；<br>在第二个分组中，最后一条记录(此处是<code>最大记录</code>)的n_owned值为5，这就代表着以最大记录结尾的这个分组中有5条记录。</p>
+</blockquote>
+<blockquote>
+<p>99和112这样的地址偏移量很不直观，我们用箭头指向的方式替代数字，这样更易于我们理解，所以修改后的示意图就是这样:<br><img src="/images/MySQL/5.3/2.jpg"><br>不过上面的图看上去还是怪不好看的，我们就单纯从逻辑上对图做点改动:<br><img src="/images/MySQL/5.3/3.jpg"><br>这样看就顺眼多了。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>还有个问题，那就是为什么最小记录的n_owned值为1，而最大记录的n_owned值为5呢，这里头有什么猫腻么?<br>这是因为，设计InnoDB的大叔们对每个分组中的记录条数是有规定的:</p>
+<ul>
+<li>对于最小记录所在的分组只能有 1 条记录；</li>
+<li>最大记录所在的分组拥有的记录条数只能在 1~8 条之间；</li>
+<li>其他的分组中记录的条数范围只能在是 4~8 条之间。</li>
+</ul>
+<p>所以分组是按照下边的步骤进行的:</p>
+<ul>
+<li>初始情况下一个数据⻚里只有<code>最小记录</code>和<code>最大记录</code>两条记录，它们分属于两个分组。</li>
+<li>之后每插入一条记录，都会从⻚目录中找到主键值比本记录的主键值大并且差值最小的槽（页目录中哪儿有主键值？页目录中不是 <code>每个分组的最后一条记录的偏移量 即 槽</code> 么？ <strong><code>这是因为从本质上来说，通过槽就可以直接找到某个组内最后一条记录的主键</code></strong> ），然后把该槽对应的记录的n_owned值加1，表示本组内又添加了一条记录，直到该组中的记录数等于8个。</li>
+<li>在一个组中的记录数等于8个后再插入一条记录时，会将组中的记录拆分成两个组，一个组中4条记录，另一个5条记录。这个过程会在⻚目录中新增一个槽来记录这个新增分组中最大的那条记录的偏移量。<br>  <img src="/images/MySQL/5.3/4.jpg"></li>
+</ul>
+</blockquote>
+<blockquote>
+<p>由于现在page_demo表中的记录太少，无法演示添加了<code>⻚目录</code>之后加快查找速度的过程，所以我们一口气又往表中添加了12条记录，现在⻚里边就一共有18 条记录了(包括最小和最大记录)，这些记录被分成了5个组，如图 所示:<br><img src="/images/MySQL/5.3/5.jpg"><br>因为把16条记录的全部信息都画在一张图里太占地方，图中只保留了用户<code>记录头信息</code>中的<code>n_owned</code>和<code>next_record</code>属性，也省略了各个记录之间的箭头!</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>现在看怎么使用<code>⻚目录</code>来查找记录</strong><br>因为各个<code>槽</code>代表的是每个分组中最后一条记录的主键值，也就是说 <code>槽</code> 代表的主键当然也是从小到大排序的(分组内的记录不必多说，肯定是按照主键从小到大排序的)，<strong>所以我们可以在<code>页目录</code>中使用<code>二分法</code>快速定位我们要查找的记录的主键在哪个分组中</strong>。</p>
+<p>4个槽的编号分别是:0、1、2、3、4，所以初始情况下最低的槽就是low&#x3D;0，最高的槽就是high&#x3D;4。<br>比方说我们想找主键值为6的记录，过程是这样的:</p>
+<ul>
+<li>计算中间槽的位置:(0+4)&#x2F;2&#x3D;2，所以查看槽2对应记录的主键值为8，又因为8 &gt; 6，所以设置high&#x3D;2，low保持不变。</li>
+<li>重新计算中间槽的位置:(0+2)&#x2F;2&#x3D;1，所以查看槽1对应的主键值为4，又因为4 &lt; 6，所以设置low&#x3D;1，high保持不变。</li>
+<li>因为high - low的值为1，所以确定主键值为5的记录在槽2对应的组中。</li>
+</ul>
+<p>此刻我们需要找到槽2中主键值最小的那条记录，然后沿着单向链表遍历槽2中的记录。<br>但是我们前边又说过，每个槽对应的记录都是该组中主键值最大的记录，这里槽2对应的记录是主键值为8的记录，怎么定位一个组中最小的记录呢?<br><code>别忘了各个槽都是挨着的，我们可以很轻易的拿到槽1对应的记录(主键值为4)</code>，<code>该条记录的下一条记录就是槽2中主键值最小的记录</code>，该记录的主键值为5。所以我们可以从这条主键值为5的记录出发，遍历槽2中的各条记录，直到找到主键值为6的那条记录即可。<code>由于一个组中包含的记录条数只能是1~8条，所以遍历一个组中的记录的代价是很小的</code>。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>所以在一个数据⻚中查找指定主键值的记录的过程分为两步:<br>**<code>通过二分法确定该记录所在的槽，并找到该槽中主键值最小的那条记录</code>**。(时间复杂度是 <code>O(log n)</code>)<br><strong><code>通过记录的 记录头信息中的next_record属性遍历该槽所在的组中的各个记录</code></strong> （<code>每个分组中的记录数比较少，属于常量级别，所以时间复杂度是 O(1)</code> ）。</p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84-%E4%B9%8B-Page-Directory-%E2%BB%9A%E7%9B%AE%E5%BD%95-%E9%83%A8%E5%88%86"><span class="toc-text">数据页结构 之 Page Directory&#96;(⻚目录) 部分</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%95%E9%93%BE%E8%A1%A8%E5%AD%98%E5%82%A8%E6%95%B0%E6%8D%AE%E8%AE%B0%E5%BD%95%E7%9A%84%E4%BD%8E%E6%95%88%E9%97%AE%E9%A2%98"><span class="toc-text">单链表存储数据记录的低效问题</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%B4%A2%E5%BC%95%E9%A1%B5%E7%BB%93%E6%9E%84-%E4%B9%8B-Page-Directory"><span class="toc-text">索引页结构 之 Page Directory</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          5.2 回顾 行格式 之 记录头信息 的秘密
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/09/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          5.4 `数据页`结构 之 Page Header(页面头部)部分
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

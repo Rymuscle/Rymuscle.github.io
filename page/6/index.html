@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  <article id="post-MySQL-InnoDB-页结构/5.3 数据页结构 之 Page Directory(⻚目录) 部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/25/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/">5.3 `数据页`结构 之 Page Directory(⻚目录) 部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-25T06:36:09.000Z" itemprop="datePublished">2021年09月25日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/25/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.3%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Directory(%E2%BB%9A%E7%9B%AE%E5%BD%95)%20%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="数据页结构-之-Page-Directory-⻚目录-部分"><a href="#数据页结构-之-Page-Directory-⻚目录-部分" class="headerlink" title="数据页结构 之 Page Directory&#96;(⻚目录) 部分"></a>数据页<code>结构 之 </code>Page Directory&#96;(⻚目录) 部分</h1><h1 id="单链表存储数据记录的低效问题"><a href="#单链表存储数据记录的低效问题" class="headerlink" title="单链表存储数据记录的低效问题"></a>单链表存储数据记录的低效问题</h1><p>现在我们已经知道， <strong><code>记录在⻚中是按照主键值由小到大顺序串联成一个单链表放在 UserRecords 部分的</code></strong> 。</p>
+<p>那如果我们想根据主键值查找⻚中的某条记录该咋办?</p>
+<blockquote>
+<p>最笨的办法: 从 Infimum记录(最小记录)开始，沿着链表一直往后找，总有一天会找到(或者找不到)，在找的时候还能投机取巧，因为链表中各个记录的值是按照从小到大顺序排列的，所以当链表的某个节点代表的记录的主键值大于你想要查找的主键值时，你就可以停止查找了。</p>
+<p>这个方法在⻚中存储的记录数量比较少的情况用起来也没啥问题，但是如果一个⻚中存储了非常多的记录，这么查找对性能来说还是有损耗的，所以我们说这种遍历查找这是一个笨办法。（ 时间复杂度很显然是 <code>O(n)</code> ）</p>
+</blockquote>
+<h1 id="索引页结构-之-Page-Directory"><a href="#索引页结构-之-Page-Directory" class="headerlink" title="索引页结构 之 Page Directory"></a>索引页结构 之 Page Directory</h1><blockquote>
+<p>设计InnoDB的大叔们自然不会用上面那种笨办法，他们从现实中的书籍目录中找到了灵感。他们为我们的记录也制作了一个类似的目录，他们的制作过程是这样的:</p>
+<ul>
+<li>将所有正常的记录(包括页内的最大和最小记录，不包括标记为已删除的记录) <strong><code>划分为几个组</code></strong> ；</li>
+<li><strong>每个组的最后一条记录(也就是组内最大的那条记录)的头信息中的<code>n_owned属性</code>表示该组内共有几条记录</strong>；</li>
+<li>将每个组内<code>最后一条记录的地址偏移量单独提取出来并且还按主键顺序存储到靠近⻚的尾部的地方</code>，这个地方就是所谓的 <code>Page Directory</code>，也就是<code>⻚目录</code>。⻚目录中的这些地址偏移量被称为<code>槽</code>(英文 名:Slot)，所以这个<code>⻚目录就是由槽组成的</code>。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>比方说现在的page_demo表中正常的记录共有6条，InnoDB会把它们分成两组，第一组中只有一个最小记录，第二组中是剩余的5条记录，看下边的示意图:<br><img src="/images/MySQL/5.3/1.jpg"><br><code>现在⻚目录部分中有两个槽，也就意味着我们的记录被分成了两个组</code>:<br>槽1中的值是112，代表最大记录(组内最后一条记录)的地址偏移量(就是从⻚面的0字节开始数，数112个字节);<br>槽0中的值是99，代表最小记录(组内最后一条记录)的地址偏移量。</p>
+</blockquote>
+<blockquote>
+<p>注意上面两个分组中最后一条记录的头信息中的 <code>n_owned</code> 属性：<br>在第一个分组中，只有<code>最小记录</code>这一条记录，它的<code>记录头信息</code>的<code>n_owned</code>属性值为1，这就代表着<code>以最小记录结尾的这个分组中只有1条记录</code>；<br>在第二个分组中，最后一条记录(此处是<code>最大记录</code>)的n_owned值为5，这就代表着以最大记录结尾的这个分组中有5条记录。</p>
+</blockquote>
+<blockquote>
+<p>99和112这样的地址偏移量很不直观，我们用箭头指向的方式替代数字，这样更易于我们理解，所以修改后的示意图就是这样:<br><img src="/images/MySQL/5.3/2.jpg"><br>不过上面的图看上去还是怪不好看的，我们就单纯从逻辑上对图做点改动:<br><img src="/images/MySQL/5.3/3.jpg"><br>这样看就顺眼多了。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>还有个问题，那就是为什么最小记录的n_owned值为1，而最大记录的n_owned值为5呢，这里头有什么猫腻么?<br>这是因为，设计InnoDB的大叔们对每个分组中的记录条数是有规定的:</p>
+<ul>
+<li>对于最小记录所在的分组只能有 1 条记录；</li>
+<li>最大记录所在的分组拥有的记录条数只能在 1~8 条之间；</li>
+<li>其他的分组中记录的条数范围只能在是 4~8 条之间。</li>
+</ul>
+<p>所以分组是按照下边的步骤进行的:</p>
+<ul>
+<li>初始情况下一个数据⻚里只有<code>最小记录</code>和<code>最大记录</code>两条记录，它们分属于两个分组。</li>
+<li>之后每插入一条记录，都会从⻚目录中找到主键值比本记录的主键值大并且差值最小的槽（页目录中哪儿有主键值？页目录中不是 <code>每个分组的最后一条记录的偏移量 即 槽</code> 么？ <strong><code>这是因为从本质上来说，通过槽就可以直接找到某个组内最后一条记录的主键</code></strong> ），然后把该槽对应的记录的n_owned值加1，表示本组内又添加了一条记录，直到该组中的记录数等于8个。</li>
+<li>在一个组中的记录数等于8个后再插入一条记录时，会将组中的记录拆分成两个组，一个组中4条记录，另一个5条记录。这个过程会在⻚目录中新增一个槽来记录这个新增分组中最大的那条记录的偏移量。<br>  <img src="/images/MySQL/5.3/4.jpg"></li>
+</ul>
+</blockquote>
+<blockquote>
+<p>由于现在page_demo表中的记录太少，无法演示添加了<code>⻚目录</code>之后加快查找速度的过程，所以我们一口气又往表中添加了12条记录，现在⻚里边就一共有18 条记录了(包括最小和最大记录)，这些记录被分成了5个组，如图 所示:<br><img src="/images/MySQL/5.3/5.jpg"><br>因为把16条记录的全部信息都画在一张图里太占地方，图中只保留了用户<code>记录头信息</code>中的<code>n_owned</code>和<code>next_record</code>属性，也省略了各个记录之间的箭头!</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>现在看怎么使用<code>⻚目录</code>来查找记录</strong><br>因为各个<code>槽</code>代表的是每个分组中最后一条记录的主键值，也就是说 <code>槽</code> 代表的主键当然也是从小到大排序的(分组内的记录不必多说，肯定是按照主键从小到大排序的)，<strong>所以我们可以在<code>页目录</code>中使用<code>二分法</code>快速定位我们要查找的记录的主键在哪个分组中</strong>。</p>
+<p>4个槽的编号分别是:0、1、2、3、4，所以初始情况下最低的槽就是low&#x3D;0，最高的槽就是high&#x3D;4。<br>比方说我们想找主键值为6的记录，过程是这样的:</p>
+<ul>
+<li>计算中间槽的位置:(0+4)&#x2F;2&#x3D;2，所以查看槽2对应记录的主键值为8，又因为8 &gt; 6，所以设置high&#x3D;2，low保持不变。</li>
+<li>重新计算中间槽的位置:(0+2)&#x2F;2&#x3D;1，所以查看槽1对应的主键值为4，又因为4 &lt; 6，所以设置low&#x3D;1，high保持不变。</li>
+<li>因为high - low的值为1，所以确定主键值为5的记录在槽2对应的组中。</li>
+</ul>
+<p>此刻我们需要找到槽2中主键值最小的那条记录，然后沿着单向链表遍历槽2中的记录。<br>但是我们前边又说过，每个槽对应的记录都是该组中主键值最大的记录，这里槽2对应的记录是主键值为8的记录，怎么定位一个组中最小的记录呢?<br><code>别忘了各个槽都是挨着的，我们可以很轻易的拿到槽1对应的记录(主键值为4)</code>，<code>该条记录的下一条记录就是槽2中主键值最小的记录</code>，该记录的主键值为5。所以我们可以从这条主键值为5的记录出发，遍历槽2中的各条记录，直到找到主键值为6的那条记录即可。<code>由于一个组中包含的记录条数只能是1~8条，所以遍历一个组中的记录的代价是很小的</code>。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>所以在一个数据⻚中查找指定主键值的记录的过程分为两步:<br>**<code>通过二分法确定该记录所在的槽，并找到该槽中主键值最小的那条记录</code>**。(时间复杂度是 <code>O(log n)</code>)<br><strong><code>通过记录的 记录头信息中的next_record属性遍历该槽所在的组中的各个记录</code></strong> （<code>每个分组中的记录数比较少，属于常量级别，所以时间复杂度是 O(1)</code> ）。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/5.2 回顾: 行格式 之 记录头信息 的秘密" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/">5.2 回顾 行格式 之 记录头信息 的秘密</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-24T05:31:16.000Z" itemprop="datePublished">2021年09月24日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>为了故事的顺利发展，我们先创建一个表:<br><code>mysql&gt; CREATE TABLE page_demo(</code><br>  <code>-&gt; c1 INT,</code><br>  <code>-&gt; c2 INT,</code><br>  <code>-&gt; c3 VARCHAR(10000),</code><br>  <code>-&gt; PRIMARY KEY (c1)</code><br>  <code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact; </code><br><code>Query OK, 0 rows affected (0.03 sec)</code></p>
+<p>这个新创建的page_demo表有3个列，其中c1和c2列是用来存储整数的，c3列是用来存储字符串的。<br>需要注意的是，我们把 c1 列指定为主键，所以在具体的行格式中InnoDB就没必要为我们去创建那个所谓的 row_id 隐藏列了。<br>而且我们为这个表指定了ascii字符集以及Compact的行格式。<br>所以这个表中记录的行格式示意图就是这样的:<br><img src="/images/MySQL/5.2/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>我们再次先把这些记录头信息中各个属性的大体意思浏览一下(这里仍然使用Compact行格式进行演示):<br><img src="/images/MySQL/5.2/2.jpg"><br><img src="/images/MySQL/5.2/3.jpg"></p>
+</blockquote>
+<blockquote>
+<p>为了进一步方便大家分析这些记录在⻚的User Records部分中是怎么表示的，我把记录中头信息和实际的列数据都用十进制表示出来了(其实是一堆二进制位)，这些记录的示意图如下:<br><img src="/images/MySQL/5.2/4.jpg"><br>我们对照着这个图来看看记录头信息中的各个属性是啥意思。</p>
+</blockquote>
+<h1 id="delete-mask"><a href="#delete-mask" class="headerlink" title="delete_mask"></a>delete_mask</h1><blockquote>
+<p>这个属性标记着当前记录是否被删除，占用1个二进制位，值为0的时候代表记录并没有被删除，为1的时候代表记录被删除掉了。</p>
+</blockquote>
+<blockquote>
+<p>这些被删除的记录之所以不立即从磁盘上移除，是因为<code>移除它们之后把其他的记录在磁盘上重新排列需要性能消耗</code>，所以只是打一个删除标记，所有被删除的记录会组成一个所谓的垃圾链表，在这个链表中的记录占用的空间称之为<code>可重用空间</code>，之后如果有新记录插入到表中的话，可能把这些被删除的记录占用的存储空间覆盖掉。</p>
+<p>Tips：<br>将这个delete_mask位设置为1 和 将被删除的记录加入到垃圾 链表中 其实是两个阶段，我们后边在介绍事务的时候会详细唠叨删除操作的详细过程，稍安勿躁。</p>
+</blockquote>
+<h1 id="min-rec-mask"><a href="#min-rec-mask" class="headerlink" title="min_rec_mask"></a>min_rec_mask</h1><blockquote>
+<p><code>B+树</code>的每层<code>非叶子节点</code>中的<code>最小记录</code>都会添加该标记。</p>
+<p>什么是个B+树? 什么是个非叶子节点?<br>好吧，别着急，等会儿再聊这个问题。</p>
+<p>反正我们自己插入的四条记录的min_rec_mask值都是0，意味着它们都不是B+树的非叶子节点中的最小记录。</p>
+</blockquote>
+<h1 id="n-owned"><a href="#n-owned" class="headerlink" title="n_owned"></a>n_owned</h1><p>这个暂时保密，稍后它是主⻆~</p>
+<h1 id="heap-no"><a href="#heap-no" class="headerlink" title="heap_no"></a>heap_no</h1><blockquote>
+<p>这个属性表示当前记录在本⻚中的位置。</p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出来， 我们插入的4条记录在本⻚中的位置分别是: 2、3、4、5。可怎么不⻅heap_no值为0和1的记录呢?<br>这其实是设计InnoDB的大叔们玩的一个小把戏，<code>他们自动给每个⻚里加了两个记录</code>，由于这两个记录并不是我们自己插入的，所以有时候也称为<code>伪记录</code>或者<code>虚拟记录</code>。这两个伪记录一个代表<code>最小记录</code>，一个代表<code>最大记录</code>。</p>
+</blockquote>
+<blockquote>
+<p>等一下哈~，记录可以比大小么?<br>是的，记录也可以比大小，对于<code>一条完整的记录</code>来说，<code>比较记录的大小就是比较主键的大小</code>。比方说我们插入的4行记录的主键值分别是:1、2、3、4，这也就意味着这4条记录是从小到大依次递增。</p>
+</blockquote>
+<blockquote>
+<p>但是不管我们向⻚中插入了多少自己的记录，设计InnoDB的大叔们都规定他们定义的两条伪记录分别为最小记录与最大记录。<br>这两条记录的构造十分简单，都是由5字节大小的记录头信息和8字节大小的一个固定的部分组成的，如图所示：<br><img src="/images/MySQL/5.2/5.jpg"></p>
+</blockquote>
+<blockquote>
+<p>由于这两条记录不是我们自己定义的记录，所以<code>它们并不存放在⻚的User Records部分</code>，<code>他们被单独放在一个称为 Infimum + Supremum的部分</code>，如下图所示:<br><img src="/images/MySQL/5.2/6.jpg"></p>
+</blockquote>
+<h1 id="record-type"><a href="#record-type" class="headerlink" title="record_type"></a>record_type</h1><blockquote>
+<p>这个属性表示当前记录的类型，一共有4种类型的记录：<br>0表示：普通记录<br><strong><code>1表示：B+树非叶节点记录</code></strong><br>2表示：最小记录<br>3表示：最大记录</p>
+</blockquote>
+<blockquote>
+<p>从图中我们也可以看出来，我们自己插入的记录就是<code>普通记录</code>，它们的record_type值都是0，而最小记录和最大记录的record_type值分别为2和3。<br>至于record_type为1的情况，我们之后在说索引的时候会重点强调的。</p>
+</blockquote>
+<h1 id="next-record"><a href="#next-record" class="headerlink" title="next_record"></a>next_record</h1><blockquote>
+<p>这玩意儿非常重要，它表示从当前记录的真实数据到下一条记录的真实数据的地址偏移量。<br>比方说第一条记录的 <code>next_record</code> 值为32，意味着从第一条记录的真实数据的地址处向后找32个字节便是下一条记录的真实数据。<br><code>如果你熟悉数据结构的话，就立即明白了，这其实是个链表，可以通过一条记录找到它的下一条记录</code>。</p>
+</blockquote>
+<blockquote>
+<p>但是需要注意注意再注意的一点是，下一条记录指得并不是按照我们插入顺序的下一条记录，而是按照主键值由小到大的顺序的下一条记录。而且规定Infimum记录(也就是最小记录) 的下一条记录就是本⻚中主键值最小的用户记录，而本⻚中主键值最大的用户记录的下一条记录就是 Supremum记录(也就是最大记录) 。<br>为了更形象的表示一下这个next_record起到的作用，我们用箭头来替代一下next_record中的地址偏移量:</p>
+<blockquote>
+<p><img src="/images/MySQL/5.2/7.jpg"><br>从图中可以看出来，我们的记录按照主键从小到大的顺序形成了一个<code>单链表</code>。最大记录的next_record的值为0，这也就是说最大记录是没有下一条记录了，它是这个单链表中的最后一个节点。</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>如果从中删除掉一条记录，这个链表也是会跟着变化的，比如我们把第2条记录删掉后的示意图就是:<br><img src="/images/MySQL/5.2/8.jpg"><br>从图中可以看出来，删除第2条记录前后主要发生了这些变化:</p>
+<ul>
+<li>第2条记录并没有从存储空间中移除，而是把该条记录的delete_mask值设置为1。</li>
+<li>第2条记录的next_record值变为了0，意味着该记录没有下一条记录了。</li>
+<li>第1条记录的next_record指向了第3条记录。</li>
+<li>还有一点你可能忽略了，就是<code>最大记录的n_owned值从5变成了4</code>，关于这一点的变化我们稍后会详细说明的。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>再来看一个有意思的事儿，因为主键值为2的记录被我们删掉了，但是存储空间却没有回收，如果我们再次把这条记录插入到表中，会发生什么事呢?</p>
+<blockquote>
+<p><img src="/images/MySQL/5.2/9.jpg"><br>InnoDB并没有因为新记录的插入而为它申请新的存储空间，而是<code>直接复用了原来被删除记录的存储空间</code>。</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>所以，不论我们怎么对⻚中的记录做增删改操作，InnoDB始终会维护一条 <code>由记录组成的单链表</code>，<code>链表中的各个节点是按照主键值由小到大的顺序连接起来的</code>。</strong></p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.1 数据页结构 之 User Records、Free Space 部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/">5.1 `数据页` 结构 之 User Records、Free Space 部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-23T15:12:10.000Z" itemprop="datePublished">2021年09月23日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.1%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20User%20Records%E3%80%81Free%20Space%20%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="数据页-结构-之-User-Records、Free-Space-部分"><a href="#数据页-结构-之-User-Records、Free-Space-部分" class="headerlink" title="数据页 结构 之 User Records、Free Space 部分"></a><code>数据页</code> 结构 之 <code>User Records</code>、<code>Free Space</code> 部分</h1><blockquote>
+<p>在<code>索引⻚</code>的7个组成部分中，我们自己存储的记录会按照我们指定的<code>行格式</code>存储到 <code>User Records 部分</code>。</p>
+</blockquote>
+<blockquote>
+<p>但是在一开始生成⻚的时候，其实并没有 User Records 这个部分，每当我们插入一条记录，都会从 <code>Free Space 部分</code>(也就是尚未使用的存储空间中)申请一个记录大小的空间划分到 <code>User Records 部分</code>，当 <code>Free Space 部分</code>的空间全部被 <code>User Records 部分</code>替代掉之后，也就意味着这个⻚使用完了，如果还有新的记录插入的话，就需要去申请新的⻚了，这个过程的图示如下:<br><img src="/images/MySQL/5.1/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>为了更好的管理 User Records中的这些记录，InnoDB可费了一番力气呢，在哪费力气了呢? 不就是把记录按照指定的行格式一条一条摆在User Records部分么?</p>
+<p>其实这话还得从<code>记录行格式</code>的<code>记录头信息</code>中说起。(回顾：<a href="/2021/09/18/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/">4.1 compact 行格式</a>，当时在提到 记录头信息 时，只是简单地了解了 记录头信息 的基本构成)，下面就着重看下之前学的行格式的知识中的<code>记录头信息</code>部分的秘密吧。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.0 盛放记录的大盒子 - InnoDB的数据页结构" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/">5.0 盛放记录的大盒子 - InnoDB的数据页结构</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-23T13:25:09.000Z" itemprop="datePublished">2021年09月23日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/23/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.0%20%E7%9B%9B%E6%94%BE%E8%AE%B0%E5%BD%95%E7%9A%84%E5%A4%A7%E7%9B%92%E5%AD%90%20-%20InnoDB%E7%9A%84%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="不同类型的页简介"><a href="#不同类型的页简介" class="headerlink" title="不同类型的页简介"></a>不同类型的页简介</h1><blockquote>
+<p>前边已经简单提到过 <code>⻚</code> 的概念了， <strong><code>它是InnoDB管理存储空间的基本单位</code></strong> ，一个⻚的大小一般是16KB。</p>
+</blockquote>
+<blockquote>
+<p>InnoDB为了不同的目的而设计了许多种不同类型的⻚，比如 <code>存放 表空间头部信息 的⻚</code>、<code>存放 Insert Buffer信息 的⻚</code>、<code>存放 INODE信息 的⻚</code>、<code>存放 undo日志信息 的⻚</code> 等等……</p>
+</blockquote>
+<blockquote>
+<p>当然，如果这些名词你一个都没有听过也无所谓~~~目前暂时还不准备说这些类型的⻚。<br><code>我们聚焦的是那些存放我们表中记录的那种类型的⻚</code>，官方称这种存放记录的⻚为<code>索引(INDEX)⻚</code>，鉴于我们还没有了解过索引是个什么东⻄，而这些表中的记录就是我们日常口中所称的数据，所以目前还是叫这种存放记录的⻚为<code>数据⻚</code>吧。</p>
+</blockquote>
+<h1 id="索引-INDEX-⻚的结构概括"><a href="#索引-INDEX-⻚的结构概括" class="headerlink" title="索引(INDEX)⻚的结构概括"></a>索引(INDEX)⻚的结构概括</h1><blockquote>
+<p><code>数据⻚</code>的16KB存储空间可以被划分为多个部分，不同部分有不同的功能:<br><img src="/images/MySQL/5.0/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>可以看出，一个InnoDB数据⻚的存储空间大致被划分成了7个部分，有的部分占用的字节数是确定的，有的部分占用的字节数是不确定的。</p>
+<p>下边我们用表格的方式来大致描述一下这7个部分都存储一些啥内容(快速的瞅一眼就行了，后边会详细唠叨的):</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>中文名</th>
+<th>占用空间大小</th>
+<th>简单描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>👌 File Header</td>
+<td>文件头部</td>
+<td>38字节</td>
+<td>⻚的一些通用信息(所有类型的页都有这个部分)</td>
+</tr>
+<tr>
+<td>✅ <code>Page Header</code></td>
+<td>⻚面头部</td>
+<td>56字节</td>
+<td><code>数据⻚</code>这种页类型<strong>专有</strong>的一些信息</td>
+</tr>
+<tr>
+<td>✅ Infimum + Supremum</td>
+<td>最小记录和最大记录</td>
+<td>26字节</td>
+<td>两个虚拟的行记录</td>
+</tr>
+<tr>
+<td>✅ *<em>User Records</em></td>
+<td>用户记录</td>
+<td>不确定</td>
+<td>实际存储的行记录内容</td>
+</tr>
+<tr>
+<td>✅ Free Space</td>
+<td>空闲空间</td>
+<td>不确定</td>
+<td>⻚中尚未使用的空间</td>
+</tr>
+<tr>
+<td>✅ <strong><code>Page Directory</code></strong></td>
+<td><strong><code>⻚面目录</code></strong></td>
+<td>不确定</td>
+<td>⻚中的某些记录的相对位置</td>
+</tr>
+<tr>
+<td>👌 File Trailer</td>
+<td>文件尾部</td>
+<td>8字节</td>
+<td>校验⻚是否完整</td>
+</tr>
+<tr>
+<td>不过，我们接下来并不打算按照⻚中各个部分的出现顺序来依次介绍它们，因为各个部分中会出现很多大家目前不理解的概念，这会打击 各位读文章的信心与兴趣，希望各位能接受这种拍摄手法~</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/4.4 CHAR(M)中的M值过大的情况" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/">4.4 CHAR(M)中的M值过大的情况</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-21T11:51:16.000Z" itemprop="datePublished">2021年09月21日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.4%20CHAR(M)%E4%B8%AD%E7%9A%84M%E5%80%BC%E8%BF%87%E5%A4%A7%E7%9A%84%E6%83%85%E5%86%B5/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="CHAR-M-中的M值过大的情况"><a href="#CHAR-M-中的M值过大的情况" class="headerlink" title="CHAR(M)中的M值过大的情况"></a>CHAR(M)中的M值过大的情况</h1><blockquote>
+<p>CHAR(M)类型的列所占用的最大字节⻓度等于 <code>该列使用的字符集表示一个字符需要的最大字节数</code>和<code>M</code>的乘积。</p>
+</blockquote>
+<blockquote>
+<p>如果某个列使用的是CHAR(M)类型，并且它<code>存储的最大字节⻓度超过768字节</code>，那么不论我们使用的是之前讲过的4种行格式中的哪种，<code>InnoDB都会把该列当成变⻓字段看待</code>。<br>比方说采用utf8mb4的CHAR(255)类型的列将会被当作变⻓字段看待，因为 <code>4×255 &gt; 768</code>。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/4.3 Dynamic 和 Compressed 行格式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/">4.3 Dynamic 和 Compressed 行格式</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-21T11:11:27.000Z" itemprop="datePublished">2021年09月21日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/21/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.3%20Dynamic%20%E5%92%8C%20Compressed%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Dynamic-和-Compressed-行格式"><a href="#Dynamic-和-Compressed-行格式" class="headerlink" title="Dynamic 和 Compressed 行格式"></a>Dynamic 和 Compressed 行格式</h1><blockquote>
+<p>我现在使用的MySQL版本是5.7，它的默认行格式就是Dynamic，这俩行格式和Compact行格式挺像，只不过在处理行溢出数据时有点儿分歧，它们不会在记录的真实数据处存储字段真实数据的前768个字节，而是把所有的字节都存储到其他⻚面中，只在记录的真实数据处存储其他⻚面的地址，就像这样:<br><img src="/images/MySQL/4.3/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>Compressed行格式和Dynamic不同的一点是，Compressed行格式会采用压缩算法对⻚面进行压缩，以节省空间。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/4.2 行溢出数据 与 溢出页" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/">4.2 行溢出数据 与 溢出页</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-19T14:01:52.000Z" itemprop="datePublished">2021年09月19日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/19/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/4.2%20%E8%A1%8C%E6%BA%A2%E5%87%BA%E6%95%B0%E6%8D%AE%20%E4%B8%8E%20%E6%BA%A2%E5%87%BA%E9%A1%B5/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="VARCHAR-M-最多能存储的数据"><a href="#VARCHAR-M-最多能存储的数据" class="headerlink" title="VARCHAR(M)最多能存储的数据"></a>VARCHAR(M)最多能存储的数据</h1><blockquote>
+<p>我们知道，对于VARCHAR(M)类型的列最多可以占用65535个字节。(lant: 因为在变长字段长度列表中，每个变长字段实际存储的数据的长度值最多占2个字节，而2个字节最大能表示的数就是65535了)。<br>而之前我们也说过，VARCHAR(M)的<code>M</code>代表该类型最多存储的<code>字符数量</code></p>
+</blockquote>
+<h2 id="使用ascii定长字符集"><a href="#使用ascii定长字符集" class="headerlink" title="使用ascii定长字符集"></a>使用ascii定长字符集</h2><blockquote>
+<p>如果我们使用ascii字符集的话，一个字符就代表一个字节，我们看看VARCHAR(65535)是否可用:</p>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65535)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code></p>
+<p><code>ERROR 1118 (42000): Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535. This includes storage overhead, check the manual. You have to change some columns to TEXT or BLOBs</code></p>
+<p><code>mysql&gt;</code></p>
+<p>从报错信息里可以看出，MySQL对一条记录占用的最大存储空间是有限制的，除了BLOB或者TEXT类型的列之外， <strong><code>其他所有的列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> 。所以上面可以看到MySQL服务器建议我们把存储类型改为TEXT或者BLOB的类型。</p>
+<p>这65535个字节除了列本身的数据外，还包括一些其他数据，比如说为了存储一个VARCHAR(M)类型的列，其实需要占用3部分存储空间: <code>真实数据</code>、<code>真实数据的⻓度占用的字节</code>、<code>NULL值标识</code>(如果该列有NOT NULL属性则可以没有这部分存 储空间)…<br>如果该VARCHAR类型的列没有NOT NULL属性，那最多只能存储65532个字节的数据，<code>因为真实数据的⻓度在变长字段列表中会占2个字节，NULL 值标识需要占用1个字节</code>，再次尝试，果然成功了<br><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=ascii ROW_FORMAT=Compact;</code><br><code>Query OK, 0 rows affected (0.02 sec)</code></p>
+</blockquote>
+<h2 id="使用变长字符集"><a href="#使用变长字符集" class="headerlink" title="使用变长字符集"></a>使用变长字符集</h2><p>如果VARCHAR(M)类型的列使用的不是ascii字符集，那会怎么样呢?</p>
+<blockquote>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo( </code><br><code>-&gt; c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=gbk ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 32767); use BLOB or TEXT instead</code></p>
+<p><code>mysql&gt; CREATE TABLE varchar_size_demo(</code><br><code>-&gt;  c VARCHAR(65532)</code><br><code>-&gt; ) CHARSET=utf8 ROW_FORMAT=Compact;</code><br><code>ERROR 1074 (42000): Column length too big for column &#39;c&#39; (max = 21845); use BLOB or TEXT instead</code></p>
+</blockquote>
+<blockquote>
+<p>从执行结果中可以看出，如果VARCHAR(M)类型的列使用的不是ascii字符集，那<code>M的最大取值取决于该字符集表示一个字符最多需要的字节数</code>。<br>gbk字符集表示一个字符最多需要2个字符，在列的值允许为NULL的情况下，M的最大取值就是32766(也就是: 65535-2(变长字段列表占2字节)-1(null列表占1字节) &#x3D; 65532)，也就是说最多能存储32766(65532&#x2F;2)个字符;<br>utf8字符集表示一个字符最多需要3个字符，那在该字符集下，M的最大取值就是21844，就是说最多能存储21844(也就是: (65535-2-1)&#x2F;3)个字符。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>上述所言在列的值允许为NULL的情况下，gbk字符集下M的最大取值就是32766，utf8字符集下M的最大取值就是21844， <strong><code>这都是在表中只有一个字段的情况下说的</code></strong> ， <strong><code>一定要记住一个行中的所有列(不包括隐藏列和记录头信息)占用的字节⻓度加起来不能超过65535个字节</code></strong> !</p>
+</blockquote>
+<h1 id="记录中的数据太多产生的溢出"><a href="#记录中的数据太多产生的溢出" class="headerlink" title="记录中的数据太多产生的溢出"></a>记录中的数据太多产生的溢出</h1><blockquote>
+<p>前边说过， <strong><code>MySQL中磁盘和内存交互的基本单位是⻚</code>，也就是说<code>MySQL是以⻚为基本单位来管理存储空间的</code>，<code>我们的记录都会被分配到某个⻚中存储</code></strong> 。</p>
+<p>而一个⻚的大小一般是16KB，也就是16384字节，而一个VARCHAR(M)类型的列就最多可以存储65532个字节，<code>这样就可能造成一个⻚存放不了一条记录的尴尬情况</code>。</p>
+<p>在Compact和Reduntant行格式中，对于占用存储空间非常大的列，<code>在记录的真实数据处只会存储该列的一部分数据，而剩余的数据则会被分散存储在几个其他的⻚中，然后记录的真实数据处用20个字节存储指向这些⻚的地址</code>(当然这20个字节中还包括这些分散在其他⻚面中的数据的占用的字节数)，从而可以找到剩余数据所在的⻚。<br><img src="/images/MySQL/4.2/1.jpg"></p>
+</blockquote>
+<blockquote>
+<p>从图中可以看出来，对于Compact和Reduntant行格式来说，如果 某一列中的数据非常多的话，在本记录的真实数据处只会存储该列的 前768个字节的数据和一个指向其他⻚的地址，然后把剩下的数据存 放到其他⻚中，这个过程也叫做行溢出，存储超出768字节的那些⻚面也被称为<code>溢出⻚</code>。简图如下：<br><img src="/images/MySQL/4.2/2.jpg"><br>最后需要注意的是，不只是 VARCHAR(M) 类型的列，其他的 TEXT、BLOB 类型的列在存储数据非常多的时候也会发生行溢出。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/4.1 compact 行格式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/">4.1 compact 行格式</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-18T12:41:09.000Z" itemprop="datePublished">2021年09月18日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.1%20compact%20%E8%A1%8C%E6%A0%BC%E5%BC%8F/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="COMPACT行格式"><a href="#COMPACT行格式" class="headerlink" title="COMPACT行格式"></a>COMPACT行格式</h1><blockquote>
+<p>直接看图:<br><img src="/images/MySQL/4.1/1.jpg"><br>从图中可以看出来，一条完整的记录其实可以被分为 <code>记录的额外信息</code> 和 <code>记录的真实数据</code> 两大部分，下边我们详细看一下这两部分的组成。</p>
+</blockquote>
+<h1 id="记录的额外信息"><a href="#记录的额外信息" class="headerlink" title="记录的额外信息"></a>记录的额外信息</h1><p>这部分信息是 <strong><code>服务器为了描述这条记录而不得不额外添加的一些信息</code></strong> 。这些额外信息分为3部分，分别是 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 和 <code>记录头信息</code>，我们分别看一下</p>
+<h2 id="记录的额外信息-之-变⻓字段⻓度列表"><a href="#记录的额外信息-之-变⻓字段⻓度列表" class="headerlink" title="记录的额外信息 之 变⻓字段⻓度列表"></a>记录的额外信息 之 <code>变⻓字段⻓度列表</code></h2><blockquote>
+<p>我们知道MySQL支持一些变⻓的数据类型，比如 VARCHAR(M)、VARBINARY(M)、各种TEXT类型，各种BLOB类型，我们可以把被设置为这些数据类型的列称为<code>变⻓字段</code>；<br>变⻓字段中存储多少字节的数据是不固定的，所以我们在存储真实数据时，InnoDB引擎会顺便把这些数据实际占用的字节数也存起来，这样才不至于把MySQL服务器搞懵，所以这些变⻓字段占用的存储空间分为两部分: <code>真正的数据内容</code>、<code>数据内容占用的字节数</code>。</p>
+<p>在Compact行格式中，把<code>所有变⻓字段的真实数据所占用的字节数</code>都存放在记录的开头部位，从而形成一个<code>变⻓字段⻓度列表</code>。各变⻓字段的真实数据所占用的字节数，按照列的顺序<code>逆序存放</code>。</p>
+</blockquote>
+<blockquote>
+<p>示例:<br><img src="/images/MySQL/4.1/2.jpg"><br>拿 record_format_demo 示例表中的 第一条记录 来举例:</p>
+<p>因为record_format_demo表的c1、c2、c4字段都是 VARCHAR(10)类型(<code>变⻓数据类型</code>)， <strong>所以这三个列的所存储的真实数据的⻓度值都需要保存在当前记录的 <code>变⻓字段⻓度列表中</code></strong> ；</p>
+<p>又因为record_format_demo表中的各个列都使用的是ascii字符集(每个字符只需要1个字节来进行编码);来看一下第一条记录各变⻓字段的 实际内容 的⻓度:<br><img src="/images/MySQL/4.1/4.jpg"></p>
+<p>又因为这些⻓度值需要按照列的逆序存放，所以最后<code>这条记录的变⻓字段⻓度列表</code> 的字节串用十六进制表示的效果就是：<br><img src="/images/MySQL/4.1/5.jpg"></p>
+<p> <strong><code>第一行记录中，c1、c2、c4 每列中的真实数据所占的字节长度的数值比较小(4，3，1这些小数字)，用1个字节就可以表示；但是如果变⻓列的数据占用的字节数比较多，可能就需要用2个字节来表示</code></strong> 。(如果某行记录的c1变长字段的真实数据长度是300字节，300这个数值用一个字节就无法表示了，因为一个字节是8位，最大只能表示的数字是255)<br>每个变长字段在 <code>变长字段列表中</code> 具体用1个还是2个字节来表示真实数据所占用的字节数，InnoDB有它的一套规则，我们首先声明一下<code>W</code>、<code>M</code>和<code>L</code>的意思。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong><code>W</code></strong>:<br>假设一个<code>字符集</code>中表示一个字符最多需要使用的字节数为<code>W</code>，也就是使用 <code>SHOW CHARSET</code> 语句的结果中的<code>Maxlen</code>列。(比方说utf8字符集中的W就是3，utf8mb4字符集中的W就是4)。</p>
+<p><strong><code>M</code></strong>:<br>对于变⻓类型<code>VARCHAR(M)</code>来说， <strong><code>这种类型表示能存储最多M个字符</code></strong> (注意是字符不是字节)，所以这个类型能表示的字符串最多占用的字节数就是 <code>M×W</code>。</p>
+<p> <strong><code>L</code></strong>:<br>假设该变长实际存储的字符串占用的字节数是 <code>L</code>;</p>
+<p>所以确定使用1个字节还是2个字节表示真正字符串占用的字节数的规则就是:</p>
+<ol>
+<li><p>如果 <code>M×W &lt;= 255</code>，那么使用1个字节来表示真正字符串占用的字节数； (一个字节能表示的最大数值就是255)</p>
+</li>
+<li><p>如果<code>M×W &gt; 255</code>，则分为两种情况:</p>
+</li>
+</ol>
+<ul>
+<li>如果 <code>L &lt;= 127</code>，则用1个字节来表示真正字符串占用的字节数。</li>
+<li>如果 <code>L &gt; 127</code>，则用2个字节来表示真正字符串占用的字节数。</li>
+</ul>
+<p>对于一些占用字节数非常多的字段，比方说某个字段⻓度大于了16KB，即 该记录在单个⻚面中都存储不下时，InnoDB 会把一部分数据存放到所谓的<code>溢出⻚</code>中(我们后边会唠叨)，在变⻓字段⻓度列表处只存储留在本⻚面中的⻓度，所以使用两个字节也可以存放下来。</p>
+<p>总结一下就是说: 如果该变长字段允许存储的最大字节数(M×W)超过255字节并且真实存储的字节数(L)超过127字节，则使用2个字节，否则使用1个字节。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>另外需要注意的一点是，<code>变⻓字段⻓度列表中只存储实际内容为非NULL的列数据占用的字节数，值为NULL的列的⻓度是不储存的</code><br>也就是 说对于第二条记录来说，<code>因为c4列的值为NULL，所以第二条记录的变⻓字段⻓度列表只需要存储c1和c2列的⻓度即可</code>（其中c1列存储的值为’eeee’，占用的实际字节数为4，c2列存储的值为’fff’，占用的实际字节数为3。数字4可以用1个字节表示，3也可以用1个字节表示， 所以整个变⻓字段⻓度列表共需2个字节）。<br>填充完变⻓字段⻓度列表 的两条记录的对比图如下:<br><img src="/images/MySQL/4.1/6.jpg"></p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>并不是所有<code>记录</code>都有这个 <code>变⻓字段⻓度列表</code> 部分，比方说表中所有的列都不是变⻓的数据类型的话，这一部分就不需要有。</p>
+</blockquote>
+<h2 id="记录的额外信息-之-NULL值列表"><a href="#记录的额外信息-之-NULL值列表" class="headerlink" title="记录的额外信息 之 NULL值列表"></a>记录的额外信息 之 <code>NULL值列表</code></h2><p>我们知道表中的某些列可能存储NULL值，<code>如果把这些NULL值都放到记录的真实数据中存储，那就会很占地方</code>，所以<code>Compact行格式</code>把这些值为NULL的列统一管理起来，存储到了 <code>记录的额外信息</code> 中的 <code>NULL值列表</code> 中，它的处理过程是这样的:</p>
+<blockquote>
+<ol>
+<li>首先统计表中允许存储NULL的列有哪些<br>像 <code>主键列</code>、<code>被NOT NULL修饰的列</code> 都是不可以存储NULL值的，所以在统计时不会把这些列算进去。</li>
+<li>如果表中没有允许存储 NULL 的列，则NULL值列表也不存在。否则 <strong><code>将每个允许存储NULL的列对应一个二进制位</code></strong> ，二进制位按照列的顺序逆序排列，二进制位的值为1时，代表该列的值为NULL。二进制位的值为0时，代表该列的值不为NULL。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>MySQL规定NULL值列表必须用整数个字节的位表示，如果可以为NULL的字段数 达不到整数个字节，则在字节的高位补0。<br>表record_format_demo只有3个值允许为NULL的列，对应3个二进制位，不足一个字节，所以在字节的高位补0，效果就是这样:<br><img src="/images/MySQL/4.1/7.jpg"></p>
+</blockquote>
+<blockquote>
+<p>对于第一条记录来说，c1、c3、c4 这3个列的值都不为NULL，所以它们对应的二进制位都是0:<br><img src="/images/MySQL/4.1/8.jpg"></p>
+</blockquote>
+<blockquote>
+<p>对于第二条记录来说，c1、c3、c4 这3个列中c3和c4的值都为NULL，所以这3个列对应的二进制位的情况就是:<br><img src="/images/MySQL/4.1/9.jpg"></p>
+</blockquote>
+<blockquote>
+<p>所以这两条记录在填充了NULL值列表后的示意图就是这样:<br><img src="/images/MySQL/4.1/10.jpg"></p>
+</blockquote>
+<h2 id="记录的额外信息-之-记录头信息"><a href="#记录的额外信息-之-记录头信息" class="headerlink" title="记录的额外信息 之 记录头信息"></a>记录的额外信息 之 <code>记录头信息</code></h2><blockquote>
+<p>除了 <code>变⻓字段⻓度列表</code>、<code>NULL值列表</code> 之外，还有一个 <code>用于描述记录</code>的 <code>记录头信息</code>。</p>
+</blockquote>
+<blockquote>
+<p><code>记录头信息</code> 由固定的5个字节组成(也就是40个二进制位，不同的位代表不同的意思)，如图:<br><img src="/images/MySQL/4.1/11.jpg"></p>
+</blockquote>
+<blockquote>
+<p><strong>这些二进制位代表的详细信息如下表</strong>:<br><img src="/images/MySQL/4.1/12.jpg"><br>现在暂时也没必要把它们的意思都记住，只需要看一遍混个脸熟，等之后用到这些属性的时候我们再回过头来看</p>
+<p>现在我们并不清楚这些属性详细的用法，所以这里就不分析各个属性值是怎么产生的了，之后我们遇到会详细看的。</p>
+</blockquote>
+<blockquote>
+<p>所以我们现在直接看一下record_format_demo 表中的两条记录的头信息分别是什么:<br><img src="/images/MySQL/4.1/13.jpg"><br>目前，你只需要对这两条记录的 <code>记录头信息部分</code> 有个印象就行。</p>
+</blockquote>
+<h1 id="记录的真实数据"><a href="#记录的真实数据" class="headerlink" title="记录的真实数据"></a>记录的真实数据</h1><blockquote>
+<p>对于record_format_demo表来说，记录的真实数据除了 c1、c2、c3、c4 这几个我们自己定义的列的数据以外， <strong><code>MySQL会为每个记录默认的添加一些列(也称为隐藏列)</code></strong> ，具体的列如下:</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>是否必须</th>
+<th>占用空间</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>row_id</td>
+<td>否</td>
+<td>6字节</td>
+<td>行ID，唯一标识一条记录</td>
+</tr>
+<tr>
+<td>transaction_id</td>
+<td>是</td>
+<td>6字节</td>
+<td>事务ID</td>
+</tr>
+<tr>
+<td>roll_pointer</td>
+<td>是</td>
+<td>7字节</td>
+<td>回滚指针</td>
+</tr>
+<tr>
+<td>Tips: 实际上这几个列的真正名称其实是: <code>DB_ROW_ID</code>、<code>DB_TRX_ID</code>、 <code>DB_ROLL_PTR</code>，我们为了美观才写成了row_id、 transaction_id和roll_pointer。</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p>这里需要提一下 <strong><code>InnoDB表对主键的生成策略</code></strong>:</p>
+<ul>
+<li>优先使用用户自定义的主键作为主键;</li>
+<li>如果用户没有定义主键，则选取一个Unique键作为主键;</li>
+<li>如果表中连Unique键都没有定义的话，则InnoDB会为表默认添加一个名为<code>row_id</code> 的<code>隐藏列</code>作为主键。</li>
+</ul>
+<p>所以我们可以看出: InnoDB存储引擎会为每条记录都添加 <code>transaction_id</code> 和 <code>roll_pointer</code> 这两个列，但是 <code>row_id</code> 是可选的(在没有自定义主键及Unique键的情况下才会添加该列)。这些隐藏列的值不用我们操心，InnoDB存储引擎会自己帮我们生成的。</p>
+<p>因为表record_format_demo示例表并没有定义主键，所以MySQL服务器会为每条记录增加上述的3个列。现在看一下加上记录的真实数据的、两个记录⻓什么样吧:<br><img src="/images/MySQL/4.1/14.jpg"><br>看这个图的时候我们需要注意几点:<br>表record_format_demo使用的是ascii字符集，所以0x61616161就表示字符串’aaaa’，0x626262就表示字符 串’bbb’，以此类推;</p>
+<p>注意第1条记录中c3列的值，它是CHAR(10)类型的，虽然它实际存储的字符串是:’cc’(ascii字符集的字节表示是’0x6363’)，虽然表示这个字符串只需要用2个字节，但整个c3列仍然占用了10个字节的空间，除真实数据以外的8个字节的统统都用空格字符填充，空格字符在ascii字符集的表示就是0x20。</p>
+<p><strong><code>注意第2条记录中c3和c4列的值都为NULL，它们被存储在了前边的NULL值列表处，在记录的真实数据处就不再冗余存储，从而节省存储空间</code></strong> 。</p>
+</blockquote>
+<h1 id="字符集对-COMPACT-行格式的影响"><a href="#字符集对-COMPACT-行格式的影响" class="headerlink" title="字符集对 COMPACT 行格式的影响"></a>字符集对 COMPACT 行格式的影响</h1><p><code>COMPACT行格式</code>会受<code>字符集</code>的影响。</p>
+<blockquote>
+<p>以 <code>CHAR(M)列的存储格式</code> 为例<br>尽管我们说在 <code>Compact行格式</code> 下只会把<code>变⻓字段存储的实际数据的⻓度</code>逆序存到 <code>变⻓字段⻓度列表</code>中。 <strong><code>但其实除了考虑字段本身的类型是否是变长字段，还需要考虑字符集的影响</code></strong> 。</p>
+<p>对于record_format_demo示例表的c1,c2,c4列来说，它们是变长字段，这个没毛病，但此时我们的表采用的是ascii字符集(这个字符集是一个定⻓字符集，一个字符采用固定的一个字节)。<br>如果采用变⻓的字符集(也就是表示一个字符需要的字节数不确定，比如gbk表示一个字符要1<del>2个字节、utf8表示一个字符要1</del>3个字节等)的话， <strong><code>此时c3列虽然是char(10)这种定长字段，但它的数据⻓度也会被存储到变⻓字段⻓度列表中</code></strong> 。</p>
+</blockquote>
+<blockquote>
+<p>假如我们将record_format_demo表的字符集修改为utf8,修改该列字符集后记录的变⻓字段⻓度列表也发生了变化:<br><img src="/images/MySQL/4.1/15.jpg"></p>
+<p>这就意味着:  <strong><code>对于 CHAR(M) 类型的列来说，当采用的是定⻓字符集时，该列实际数据占用的字节数不会被加到变⻓字段⻓度列表中; 而如果采用的是变⻓字符集时，该列实际数据占用的字节数也会被加到变⻓字段⻓度列表</code></strong> 。</p>
+</blockquote>
+<blockquote>
+<p>Tips:<br>另外有一点还需要注意， <strong><code>变⻓字符集的CHAR(M)类型的列要求至少占用M个字节</code></strong> （utf8表示一个字符要1~3个字节），而VARCHAR(M)却没有这个要求。</p>
+<p>比方说对于使用utf8字符集的CHAR(10)的列来说，该列存储的数据字节⻓度的范围是10~30个字节。即使我们向该列中存储一个空字符串也会占用10个字节。这样的话，将来更新该列的值时，如果字节⻓度小于10个字节时，可以在该记录处直接更新，<code>而不是在存储空间中重新分配一个新的记录空间，导致原有的记录空间成为所谓的碎片</code>。(这里你感受到设计Compact行格式的大叔既想节省存储空间，又不想更新CHAR(M)类型的列产生碎片时的纠结心情了吧。)</p>
+</blockquote>
+<h1 id="Redundant行格式"><a href="#Redundant行格式" class="headerlink" title="Redundant行格式"></a><del>Redundant行格式</del></h1><blockquote>
+<p><del>其实知道了Compact行格式之后，其他的行格式就是依葫芦画瓢了。我们现在要介绍的Redundant行格式是MySQL5.0之前用的一种行格式，也就是说它已经非常老了，大家乐呵乐呵的看就好。</del></p>
+<p>……</p>
+<p><del><strong><code>Redundant行格式: CHAR(M) 不会产生碎片</code></strong><br>我们知道<code>Compact行格式</code>在<code>CHAR(M)类型</code>的列中存储数据的时候还挺麻烦，分 <code>变⻓字符集</code> 和 <code>定⻓字符集</code> 的情况，而在Redundant行格式中十分干脆，不管该列使用的字符集是啥，只要是使用<code>CHAR(M)</code>类型，占用的真实数据空间就是该字符集表示一个字符最多需要的字节数和M的乘积。<br>比方说使用utf8字符集的CHAR(10)类型的列占用的真实数据空间始终为30个字节，使用gbk字符集的CHAR(10)类型的列占用的真实数据空间始终为20个字节。由此可以看出来，使用Redundant行格式的CHAR(M)类型的列是不会产生碎片的。</del></p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/4.0 InnoDB记录存储结构 之 页的概念、行格式的概念" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/">4.0 InnoDB记录存储结构 之 页的概念、行格式的概念</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-18T12:01:19.000Z" itemprop="datePublished">2021年09月18日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/18/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/4.0%20InnoDB%E8%AE%B0%E5%BD%95%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E4%B9%8B%20%E9%A1%B5%E7%9A%84%E6%A6%82%E5%BF%B5%E3%80%81%E8%A1%8C%E6%A0%BC%E5%BC%8F%E7%9A%84%E6%A6%82%E5%BF%B5/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>到现在为止，MySQL对于我们来说还是一个黑盒。我们只是简单使用客户端发送请求并等待服务器返回结果。至于 <code>表中的数据到底存到了哪里?</code> <code>以什么格式存放的?</code> <code>MySQL是以什么方式来访问的这些数据?</code> 这些问题我们统统不知道。</p>
+</blockquote>
+<blockquote>
+<p>不过前面已经多次提到， <strong>MySQL服务器上负责对表中数据的读取和写入工作的部分是<code>存储引擎</code></strong> 。<br>MySQL服务器支持多种不同类型的存储引擎(如InnoDB、MyISAM、Memory……)，不同的存储引擎一般是由不同的人为实现不同的特性而开发的，<code>真实数据在不同存储引擎中存放的方式一般是不同的</code>，甚至有的存储引擎比如Memory都不用磁盘来存储数据。</p>
+</blockquote>
+<blockquote>
+<p>由于<code>InnoDB</code>是MySQL<code>默认的存储引擎</code>，也是我们最常用到的存储引擎，我们也没有那么多时间去把各个存储引擎的内部实现都看一遍，所以本集要唠叨的是使用InnoDB作为存储引擎时的<code>数据存储结构</code>，了解了一个存储引擎的数据存储结构之后，其他的存储引擎都是依葫芦画瓢，等以后用到了再说~</p>
+</blockquote>
+<h1 id="InnoDB存储引擎中⻚的概念"><a href="#InnoDB存储引擎中⻚的概念" class="headerlink" title="InnoDB存储引擎中⻚的概念"></a>InnoDB存储引擎中<code>⻚</code>的概念</h1><blockquote>
+<p>InnoDB是一个将表中的数据存储到磁盘上的存储引擎，所以即使关机后重启我们的数据还是存在的。</p>
+</blockquote>
+<blockquote>
+<p>不过，尽管InnoDB是将数据存储到磁盘上的存储引擎，<code>但真正处理数据的过程却是发生在内存中的</code>，所以需要把磁盘中的数据加载到内存中，如果是处理写入或修改请求的话，还需要把内存中的内容刷新到磁盘上。</p>
+<p>而我们知道读写磁盘的速度非常慢，和内存读写差了几个数量级，所以当我们想从表中获取某些记录时，<code>InnoDB存储引擎需要一条一条的把记录从磁盘上读出来么?</code><br><strong>不，那样会慢死，InnoDB采取的方式是: 将数据划分为若干个<code>⻚</code>，<code>以⻚作为磁盘和内存之间交互的基本单位</code>，InnoDB 中⻚的大小一般为16KB。也就是在一般情况下，一次最少从磁盘中读取16KB的内容到内存中，一次最少把内存中的16KB内容刷新到磁盘中。</strong></p>
+</blockquote>
+<h1 id="InnoDB引擎的行格式-记录格式"><a href="#InnoDB引擎的行格式-记录格式" class="headerlink" title="InnoDB引擎的行格式(记录格式)"></a>InnoDB引擎的行格式(记录格式)</h1><blockquote>
+<p>我们平时是以<code>行</code>(也叫<code>记录</code>)为单位来向表中插入数据的，这些<code>记录</code>在磁盘上的存放方式也被称为<code>行格式</code>或者<code>记录格式</code>。</p>
+</blockquote>
+<blockquote>
+<p>设计InnoDB存储引擎的大叔们到现在为止设计了<code>4种不同类型的行格式</code>，分别是 <code>Compact</code>、<code>Redundant</code>、<code>Dynamic</code> 和 <code>Compressed</code> 行格式，随着时间的推移，他们可能会设计出更多的行格式，但是不管怎么变，在原理上大体都是相同的。</p>
+</blockquote>
+<blockquote>
+<p><strong>如何指定表的行格式？</strong><br>我们可以在创建或修改表的语句中指定行格式:<br>&#x2F;&#x2F; 语法如下<br><code>CREATE TABLE 表名 (</code><br>    <code>列的信息</code><br><code>) ROW_FORMAT=行格式名称</code></p>
+<p><code>ALTER TABLE 表名 ROW_FORMAT=行格式名称</code></p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL知识点整理/3. 字符集和比较规则" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/3.%20%E5%AD%97%E7%AC%A6%E9%9B%86%E5%92%8C%E6%AF%94%E8%BE%83%E8%A7%84%E5%88%99/">3. 字符集和比较规则</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-14T14:53:41.000Z" itemprop="datePublished">2021年09月14日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/14/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/3.%20%E5%AD%97%E7%AC%A6%E9%9B%86%E5%92%8C%E6%AF%94%E8%BE%83%E8%A7%84%E5%88%99/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="字符集的概念"><a href="#字符集的概念" class="headerlink" title="字符集的概念"></a><code>字符集</code>的概念</h1><blockquote>
+<p>我们知道在计算机中只能存储二进制数据，那该怎么存储字符串呢?  <strong><code>当然是建立字符与二进制数据的映射关系了</code></strong> ，建立这个关系最起码要搞清楚两件事儿:</p>
+<ol>
+<li>你要把哪些字符映射成二进制数据? (其实就是字符集要包含的 <code>字符范围</code>)</li>
+<li>怎么映射? (其实就是 <code>编码规则</code>)<br>将一个字符映射成一个二进制数据的过程也叫做<code>编码</code>，将一个二进制数据映射到一个字符的过程叫做<code>解码</code>。</li>
+</ol>
+<p>为此，人们抽象出了一个叫 <code>字符集</code> 的概念来描述某个<code>字符范围</code>的<code>编码规则</code>。</p>
+</blockquote>
+<blockquote>
+<p>比方说，我们现在可以自定义一个名称为 xiaohaizi 的字符集，它包含的 <code>字符范围</code> 和 <code>编码规则</code> 如下:</p>
+<ul>
+<li><code>字符范围</code>: 包含字符：’a’、’b’、’A’、’B’ ；</li>
+<li><code>编码规则</code>是：采用1个字节编码一个字符，字符和字节的映射关系如下:<br>‘a’ -&gt; 00000001 (十六进制:0x01)<br>‘b’ -&gt; 00000010 (十六进制:0x02)<br>‘A’ -&gt; 00000011 (十六进制:0x03)<br>‘B’ -&gt; 00000100 (十六进制:0x04)</li>
+</ul>
+<p>有了 xiaohaizi 这个字符集后，我们就可以用二进制形式表示一些字符串了，下边是一些字符串用 xiaohaizi 这个字符集编码后的二进制表示:<br>bA’ -&gt; 00000010 00000011 (十六进制:0x0203)<br>‘baB’ -&gt; 00000010 00000001 00000100 (十六进 制:0x020104)<br>‘cd’ -&gt; 无法表示，因为字符集xiaohaizi不包含字符’c’和’d’</p>
+</blockquote>
+<p>所以，<code>字符集</code> 其实就是通过制定 <code>字符范围</code> 和 <code>编码规则</code>  来将日常字符数据映射到计算机能存储的二进制数据的一套规则。</p>
+<h1 id="比较规则的概念"><a href="#比较规则的概念" class="headerlink" title="比较规则的概念"></a><code>比较规则</code>的概念</h1><blockquote>
+<p>在我们确定了xiaohaizi字符集表示字符的范围以及编码规则后，怎么比较两个字符的大小呢?</p>
+</blockquote>
+<blockquote>
+<p>最容易想到的就是直接比较这两个字符对应的二进制编码的大小，比方说字符’a’的编码为0x01，字符’b’的编码为0x02，所以’a’小于’b’，这种简单的比较规则也可以被称为<code>二进制比较规则</code>，英文名为<code>binary collation</code>。</p>
+<p><code>二进制比较规则</code> 非常简单，但有时候并不符合现实需求，比如在很多场合对于英文字符我们都是不区分大小写的，也就是说’a’和’A’是相等的，在这种场合下就不能简单粗暴的使用二进制比较规则了，这时候我们可以这样指定比较规则:</p>
+<ul>
+<li>将两个大小写不同的字符全都转为大写或者小写。</li>
+<li>然后再比较这两个字符对应的二进制数据。</li>
+</ul>
+<p>这是一种稍微复杂一点点的比较规则，但是实际生活中的字符不止英文字符一种，比如我们的汉字有几万几十万之多，<code>即便对于某一种字符集来说，比较两个字符大小的规则也可以制定出很多种</code>。<br>后面会介绍各种现实生活中用的字符集以及它们的一些比较规则。</p>
+</blockquote>
+<h1 id="一些重要的字符集"><a href="#一些重要的字符集" class="headerlink" title="一些重要的字符集"></a>一些重要的字符集</h1><p>不幸的是，这个世界太大了，不同的人制定出了<code>好多种字符集</code>，每个字符集表示的<code>字符范围</code>和用到的<code>编码规则</code>可能都不一样。我们看一下一些常用字符集的情况:</p>
+<h2 id="ASCII字符集"><a href="#ASCII字符集" class="headerlink" title="ASCII字符集"></a>ASCII字符集</h2><blockquote>
+<p><code>字符范围</code>：共收录128个字符<br>包括空格、标点符号、数字、大小写字母 和一些不可⻅字符。</p>
+</blockquote>
+<blockquote>
+<p><code>编码规则</code>：由于总共才128个字符，所以可以使用1个字节来进行编码，我们简单看一下该字符集的编码方式:<br>‘L’ -&gt; 01001100(十六进制:0x4C，十进制:76)<br>‘M’ -&gt; 01001101(十六进制:0x4D，十进制:77)</p>
+</blockquote>
+<h2 id="ISO-8859-1字符集"><a href="#ISO-8859-1字符集" class="headerlink" title="ISO 8859-1字符集"></a>ISO 8859-1字符集</h2><p>这个字符集有一个别名 <code>latin1</code></p>
+<blockquote>
+<p><code>字符范围</code>：共收录256个字符，是在ASCII字符集的基础上又扩充了128个⻄欧常用字符(包括德法两国的字母);</p>
+</blockquote>
+<blockquote>
+<p><code>编码 方式/规则/方案</code>：它也是使用1个字节来进行编码。</p>
+</blockquote>
+<h2 id="GB2312字符集"><a href="#GB2312字符集" class="headerlink" title="GB2312字符集"></a>GB2312字符集</h2><blockquote>
+<p><code>字符范围</code>：收录了汉字以及拉丁字母、希腊字母、日文平假名及片假名字母、俄语⻄里尔字母。其中收录汉字6763个，其他文字符号682个。</p>
+</blockquote>
+<blockquote>
+<p><code>编码规则</code>：同时这种字符集又兼容ASCII字符集，所以在编码方式上显得有些奇怪:</p>
+<ul>
+<li><code>如果该字符在ASCII字符集中，则采用1字节编码</code>。</li>
+<li><code>否则采用2字节编码</code>。</li>
+</ul>
+<p>这种表示一个字符需要的字节数可能不同的编码方式称为<code>变⻓编码方式</code>。<br>比方说字符串’爱u’，其中’爱’需要用2个字节进行编码，编码后的十六进制表示为0xCED2;<br>而’u’只需要用1个字节进行编码，编码后的十六进制表示为0x75;<br>所以拼合起来就是0xCED275。</p>
+</blockquote>
+<blockquote>
+<p>⚠️ Tips:<br>我们怎么区分某个字节代表一个单独的字符还是代表某个字符的一部分呢?<br>别忘了ASCII字符集只收录128个字符，使用0<del>127就可以表示全部字符(只用到了01111111 一个字节的前7位)，所以如果某个字节是在0</del>127之内的(如果第8个字节是0)，就意味着一个字节代表一个单独的字符，否则就是两个字节代表一个单独的字符。</p>
+</blockquote>
+<h2 id="GBK字符集"><a href="#GBK字符集" class="headerlink" title="GBK字符集"></a>GBK字符集</h2><blockquote>
+<p><code>字符范围</code>： GBK字符集只是在收录字符范围上对GB2312字符集作了扩充；</p>
+</blockquote>
+<blockquote>
+<p><code>编码方式</code>: 兼容GB2312；</p>
+</blockquote>
+<h2 id="utf8字符集"><a href="#utf8字符集" class="headerlink" title="utf8字符集"></a>utf8字符集</h2><blockquote>
+<p><code>字符范围</code>: 收录地球上能想到的所有字符，而且还在不断扩充。</p>
+</blockquote>
+<blockquote>
+<p><code>编码方式</code>: 这种字符集兼容ASCII字符集，采用<code>变⻓编码方式</code>，编码一个字符需要使用<code>1~4个字节</code>，比方说这样:<br>‘L’ -&gt; 01001100(十六进制:0x4C)<br>‘啊’ -&gt; 111001011001010110001010(十六进 制:0xE5958A)</p>
+</blockquote>
+<blockquote>
+<p>⚠️ Tips:<br>其实准确的说，<code>utf8</code>并不是一个<code>字符集</code>，它只是<code>Unicode字符集</code>的一种<code>编码方案</code>。Unicode字符集可以采用utf8、utf16、utf32这几种编码方案：</p>
+<ul>
+<li>utf8使用1~4个字节编码一个字符；</li>
+<li>utf16使用2个或4个字节编码一个字符；</li>
+<li>utf32使用4个字节编码一个字符。</li>
+</ul>
+<p>更详细的Unicode和其编码方案的知识不是本书的重点，大家上网查查哈~</p>
+<p>虽然 <code>编码方案</code> 只是 <code>字符集</code> 内包含的一部分功能，但 <strong><code>MySQL中并不区分字符集和编码方案的概念</code>，所以后边唠叨的时候把utf8、utf16、utf32都当作一种<code>字符集</code>对待</strong>。</p>
+</blockquote>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p><code>字符集</code>的概念包括<code>字符范围</code>和<code>编码规则</code>两部分功能；<br>可以对<code>字符集</code>制定多种不同的<code>比较规则</code>；</p>
+<p><code>utf8</code>并不是一个<code>字符集</code>，它只是<code>Unicode字符集</code>的一种<code>编码方案</code>；</p>
+<p>MySQL中并不区分<code>字符集</code>和<code>编码方案</code>的概念<code>，所以后边唠叨的时候把 utf8、utf16、utf32都当作一种</code>字符集&#96;对待。</p>
+<h1 id="MySQL中支持的字符集和排序规则"><a href="#MySQL中支持的字符集和排序规则" class="headerlink" title="MySQL中支持的字符集和排序规则"></a>MySQL中支持的字符集和排序规则</h1><h2 id="MySQL中的-utf8-和-utf8mb4"><a href="#MySQL中的-utf8-和-utf8mb4" class="headerlink" title="MySQL中的 utf8 和 utf8mb4"></a>MySQL中的 <code>utf8</code> 和 <code>utf8mb4</code></h2><blockquote>
+<p>我们上边说<code>utf8字符集</code>表示一个字符需要使用<code>1~4个字节</code>，但是我们常用的一些字符使用1~3个字节就可以表示了。而在MySQL中字符集表示一个字符所用最大字节⻓度在某些方面会影响系统的存储和性能，所以设计MySQL的大叔偷偷的定义了两个概念:</p>
+</blockquote>
+<ul>
+<li><code>utf8mb3</code>: 阉割过的utf8字符集，只使用<code>1~3个字节</code>表示字符。</li>
+<li><code>utf8mb4</code>: 正宗的utf8字符集，使用1~4个字节表示字符。</li>
+</ul>
+<blockquote>
+<p>有一点需要大家十分的注意，在MySQL中<code>utf8</code>是<code>utf8mb3</code>的别名，所以之后在MySQL中提到utf8就意味着使用1~3个字节来表示一个字符， <strong><code>如果大家有使用4字节编码一个字符的情况，比如存储一些emoji表情啥的，那请使用utf8mb4</code></strong> 。</p>
+</blockquote>
+<h2 id="字符集的查看"><a href="#字符集的查看" class="headerlink" title="字符集的查看"></a>字符集的查看</h2><blockquote>
+<p>MySQL支持好多好多种字符集，查看当前MySQL中支持的字符集可以用 <code>SHOW (CHARSET) [LIKE 匹配的模式];</code>  这个语句:<br>我们查询一下(支持的字符集太多了，我们省略了一些)，为了让大家的印象更深刻，下面把几个常用到的字符集的Maxlen列摘抄下来，大家务必记住:</p>
+<table>
+<thead>
+<tr>
+<th>字符集名称</th>
+<th>Maxlen</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ascii</td>
+<td>1</td>
+</tr>
+<tr>
+<td>latin1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>gb2312</td>
+<td>2</td>
+</tr>
+<tr>
+<td>gbk</td>
+<td>2</td>
+</tr>
+<tr>
+<td>utf8</td>
+<td>3</td>
+</tr>
+<tr>
+<td>utf8mb4</td>
+<td>4</td>
+</tr>
+</tbody></table>
+</blockquote>
+<h2 id="比较规则的查看"><a href="#比较规则的查看" class="headerlink" title="比较规则的查看"></a>比较规则的查看</h2><blockquote>
+<p>查看MySQL中支持的比较规则的命令为: <code>SHOW COLLATION [LIKE 匹配的模式];</code></p>
+</blockquote>
+<blockquote>
+<p>我们前边说过<code>一种字符集</code>可能对应着<code>若干种比较规则</code>，MySQL支持的字符集就已经非常多了，所以支持的比较规则更多，我们先只查看一下utf8字符集下的比较规则:<code>SHOW COLLATION LIKE &#39;utf8%&#39;;</code></p>
+<p>每种字符集对应若干种比较规则，每种字符集都有一种默认的比较规则，<code>SHOW COLLATION</code>的返回结果中的<code>Default列</code>的值为<code>YES</code>的就是该字符集的默认比较规则，比方说utf8字符集默认的比较规则就是<code>utf8_general_ci</code>。</p>
+</blockquote>
+<h1 id="各级别的字符集和比较规则"><a href="#各级别的字符集和比较规则" class="headerlink" title="各级别的字符集和比较规则"></a>各级别的字符集和比较规则</h1><p>MySQL有4个级别的字符集和比较规则，分别是:</p>
+<ul>
+<li>服务器级别<blockquote>
+<p>MySQL提供了两个系统变量来表示服务器级别的字符集和比较规则<br><code>character_set_server 服务器级别的字符集 </code><br><code>collation_server 服务器级别的比较规则</code></p>
+<p>我们可以在启动服务器程序时通过<code>启动选项</code>或者在服务器程序运行过程中使用SET语句修改这两个变量的值。<br>比如我们可以在配置文件中这样写:<br><code>[server]</code><br><code>character_set_server=gbk</code><br><code>collation_server=gbk_chinese_ci</code></p>
+</blockquote>
+</li>
+<li>数据库级别<blockquote>
+<p>我们在创建和修改数据库时可以指定该数据库的字符集和比较规则；<br>如果想查看当前数据库使用的字符集和比较规则，可以查看下面两个系统变量的值；<br><code>character_set_database</code> 和 <code>collation_database</code> 这两个系统变量是只读的，我们不能通过修改这两个变量的值而改变当前数据库的 字符集和比较规则<br>数据库的创建语句中也可以不指定字符集和比较规则，这样的话将使用服务器级别的字符集和比较规则作为数据库的字符集和比较规则；</p>
+</blockquote>
+</li>
+<li>表级别<blockquote>
+<p>我们也可以在创建和修改表的时候指定表的字符集和比较规则<br>如果创建和修改表的语句中没有指明字符集和比较规则，将使用该表所在数据库的字符集和比较规则作为该表的字符集和比较规则</p>
+</blockquote>
+</li>
+<li>列级别<blockquote>
+<p>需要注意的是，对于存储字符串的列，同一个表中的不同的列也可以 有不同的字符集和比较规则。<br>对于某个列来说，如果在创建和修改的语句中没有指明字符集和比较 规则，将使用该列所在表的字符集和比较规则作为该列的字符集和比 较规则。</p>
+</blockquote>
+</li>
+</ul>
+<h1 id="客户端和服务器通信中的字符集"><a href="#客户端和服务器通信中的字符集" class="headerlink" title="客户端和服务器通信中的字符集"></a>客户端和服务器通信中的字符集</h1><blockquote>
+<p>如果对于同一个字符串编码和解码使用的<code>字符集</code>不一样，会产生意想不到的结果，作为人类的我们看上去就像是产生了<code>乱码</code>一样。</p>
+</blockquote>
+<blockquote>
+<p>我们知道从客户端发往服务器的请求本质上就是一个字符串，服务器向客户端返回的结果本质上也是一个字符串，而字符串其实是使用某种字符集编码的二进制数据。这个字符串可不是使用一种字符集的编码方式一条道走到黑的，从发送请求到返回结果这个过程中伴随着多次字符集的转换，在这个过程中会用到<code>3个系统变量</code>，我们先把它们写出来看一下:</p>
+</blockquote>
+<blockquote>
+<table>
+<thead>
+<tr>
+<th>系统变量</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>character_set_client</code></td>
+<td>服务器解码请求时使用的字符集</td>
+</tr>
+<tr>
+<td><code>character_set_connection</code></td>
+<td>服务器运行过程中使用的字符集</td>
+</tr>
+<tr>
+<td><code>character_set_results</code></td>
+<td>服务器向客户端返回数据时使用的字符集</td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p><strong>我们通常都把 <code>character_set_client</code> 、<code>character_set_connection</code>、<code>character_set_results</code> 这三个 系统变量设置成和客户端使用的字符集一致的情况，这样减少了很多无谓的字符集转换。</strong></p>
+<p>为了方便我们设置，MySQL提供了一条非常简便的语句: <code>SET NAMES 字符集名;</code> 这一条语句产生的效果和下面这3条的效果是一样的:<br><code>SET character_set_client = 字符集名;</code><br><code>SET character_set_connection = 字符集名;</code><br><code>SET character_set_results = 字符集名;</code></p>
+</blockquote>
+<blockquote>
+<p>另外，如果你想在启动客户端的时候就把这三个系统变量的值设置成一样的，那我们可以在启动客户端的时候指定一个叫<code>default-character-set</code>的启动选项，比如在配置文件里可以这么写:<br><code>[client]</code><br><code>default-character-set=utf8</code><br>它起到的效果和执行一遍 <code>SET NAMES utf8</code> 是一样一样的，都会将那三个系统变量的值设置成utf8。<br>lant: 这怪方便，只用设置这个，mysql启动后，所有的客户端都连接上来都会先设置这三个系统变量…. 妥妥的无乱码喽</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+
+    <nav id="page-nav">
+
+<a class="extend prev" rel="prev" href="/page/5/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/">下一页</a>
+</nav>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

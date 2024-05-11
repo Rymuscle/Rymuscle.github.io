@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>21.1 Log Sequeue Number | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL知识点整理/21.1 Log Sequeue Number" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      21.1 Log Sequeue Number
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-12-12T14:19:04.000Z" itemprop="datePublished">2021年12月12日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/12/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.1%20Log%20Sequeue%20Number/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Log-Sequeue-Number"><a href="#Log-Sequeue-Number" class="headerlink" title="Log Sequeue Number"></a>Log Sequeue Number</h1><p>自系统开始运行，就在不断地修改⻚面，这也就意味着会不断的生成redo日志。redo日志的量在不断的递增，就像人的年龄一样，自打出生起就不断递增，永远不可能缩减。</p>
+<p>设计InnoDB的大叔设计了一个名为<code>Log Sequeue Number</code>的<code>全局变量</code>(<code>日志序列号</code>，简称<code>lsn</code>)，用来记录当前总共已经写入的redo日志量。 不过不像人一出生的年龄是0岁，设计InnoDB的大叔规定初始的lsn值为8704(人家就这么规定的,也就是一条redo日志也没写入时，lsn的值就是8704)。</p>
+<p>我们知道在向<code>log buffer</code>中写入<code>redo日志</code>时不是一条一条写入的，而是以<code>mtr</code>生成的<code>一组redo日志</code>为单位进行写入的。而且实际上是把日志内容写在了<code>log blcok body</code>处。<br>但是在统计<code>lsn</code>的增⻓量时，是按照实际写入的日志量加上占用的<code>log block header</code>和<code>log block trailer</code>来计算的。我们来看一个例子:</p>
+<ul>
+<li>系统第一次启动后初始化<code>log buffer</code>时，<code>buf_free</code>(就是标记下一条redo日志应该写入到log buffer的位置的变量) 就会指向第一个block的偏移量为12字节(log block header的大小)的地方，那么lsn值也会跟着增加12:<blockquote>
+<img src="/images/MySQL/21/6.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote>
+</li>
+<li>如果某个mtr产生的一组redo日志占用的存储空间比较小，也就是待插入的block剩余空闲空间能容纳这个mtr提交的日志时，lsn增⻓的量就是该mtr生成的redo日志占用的字节数， 就像这样<blockquote>
+<img src="/images/MySQL/21/7.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+我们假设上图中mtr_1产生的redo日志量为200字节，那么lsn就要在8716的基础上增加200，变为8916。</blockquote>
+</li>
+<li>如果某个mtr产生的一组redo日志占用的存储空间比较大，也就是待插入的block剩余空闲空间不足以容纳这个mtr提交的日志时，lsn增⻓的量就是该mtr生成的redo日志占用的字节数加上额外占用的<code>log block header</code>和<code>log block trailer</code>的字节数，就像这样:<blockquote>
+<img src="/images/MySQL/21/8.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+我们假设上图中mtr_2产生的redo日志量为1000字节，为了将mtr_2产生的redo日志写入log buffer，我们不得不额外多分配两个block，所以lsn的值需要在8916的基础上增加 1000 + 12×2 + 4 × 2 = 1032。</blockquote>
+</li>
+</ul>
+<p>从上边的描述中可以看出来，<strong>每一组由mtr生成的redo日志都有一个唯一的LSN值与其对应，LSN值越小，说明redo日志产生的越早。</strong></p>
+<h1 id="flushed-to-disk-lsn"><a href="#flushed-to-disk-lsn" class="headerlink" title="flushed_to_disk_lsn"></a>flushed_to_disk_lsn</h1><p><code>redo日志</code>是先写到<code>Log buffer</code>中，之后才会被刷新到磁盘的<code>redo日志文件</code>中。所以设计InnoDB的大叔提出了一个名为<code>buf_next_to_write</code>的全局变量，用来标记当前<code>log buffer</code>中已经有哪些日志被刷新到磁盘中了。如下图:</p>
+<blockquote>
+<img src="/images/MySQL/21/9.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+</blockquote>
+<p>我们前边说<code>lsn</code>是表示当前系统中写入的redo日志量，这包括了写到log buffer而没有刷新到磁盘的日志。<br>相应的，设计InnoDB的大叔提出了一个表示刷新到磁盘中的redo日志量的全局变量，名为<code>flushed_to_disk_lsn</code>。 </p>
+<p>系统第一次启动时，该变量的值和初始的lsn值是相同的，都是8704。<br>随着系统的运行，<code>redo日志</code>被不断写入<code>log buffer</code>，但是并不会立即刷新到磁盘，<code>lsn</code>的值 就和 <code>flushed_to_disk_lsn</code> 的值拉开了差距。我们演示一下:</p>
+<ul>
+<li>系统第一次启动后，向log buffer中写入了 mtr_1、mtr_2、mtr_3这三个mtr产生的redo日志，假设这三个mtr开始和结束时对应的lsn值分别是: <code>mtr_1:8716 ~ 8916</code>、 <code>mtr_2:8916 ~ 9948</code>、 <code>mtr_3:9948 ~ 10000</code><br>此时的lsn已经增⻓到了10000，但是由于没有刷新操作，所以此时flushed_to_disk_lsn的值仍为8704，如图:<blockquote>
+<img src="/images/MySQL/21/10.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote>
+</li>
+<li>随后进行将log buffer中的block刷新到redo日志文件的操作，假设将mtr_1和mtr_2的日志刷新到磁盘，那么flushed_to_disk_lsn就应该增⻓mtr_1和mtr_2写入的日志量，所以flushed_to_disk_lsn的值增⻓到了9948， 如图:<blockquote>
+<img src="/images/MySQL/21/11.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></blockquote>
+</li>
+</ul>
+<p>综上所述，当有新的redo日志写入到log buffer时，首先lsn的值会增⻓，但flushed_to_disk_lsn不变，随后随着不断有log buffer中的日志被刷新到磁盘上，flushed_to_disk_lsn的值也跟着增⻓。如果两者的值相同时，说明log buffer中的所有redo日志都已经刷新到磁盘中了。</p>
+<h1 id="lsn值和redo日志文件偏移量的对应关系"><a href="#lsn值和redo日志文件偏移量的对应关系" class="headerlink" title="lsn值和redo日志文件偏移量的对应关系"></a>lsn值和redo日志文件偏移量的对应关系</h1><p>因为lsn的值是代表系统写入的redo日志量的一个总和，一个mtr中产生多少日志，lsn的值就增加多少(当然有时候要加上log block header和log block trailer的大小)，这样mtr产生的日志写到磁盘中时，很容易计算某一个lsn值在redo日志文件组中的偏移量，如图:</p>
+<blockquote>
+<img src="/images/MySQL/21/12.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+初始时的LSN值是8704，对应文件偏移量2048，之后每个mtr向磁盘中写入多少字节日志，lsn的值就增⻓多少。
+</blockquote>
+<h1 id="flush链表中的LSN"><a href="#flush链表中的LSN" class="headerlink" title="flush链表中的LSN"></a>flush链表中的LSN</h1><p>我们知道一个mtr代表一次对底层⻚面的原子访问，在访问过程中可能会产生一组不可分割的redo日志，在mtr结束时，会把这一组redo日志写入到<code>log buffer</code>中。除此之外，在mtr结束时还有一件非常重要的事情要做，就是把在mtr执行过程中可能修改过的⻚面加入到Buffer Pool的flush链表。</p>
+<blockquote>
+<p>为了防止大家早已忘记flush链表是个啥，我们再看一下图:<br><img src="/images/MySQL/21/13.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/><br>当第一次修改某个缓存在Buffer Pool中的⻚面时，就会把这个⻚面对应的控制块插入到flush链表的头部，之后再修改该⻚面时由于 它已经在flush链表中了，就不再次插入了。也就是说flush链表中的脏⻚是按照⻚面的第一次修改时间从大到小进行排序的。在这个过程中会在缓存⻚对应的控制块中记录两个关于⻚面何时修改的属性:</p>
+<ul>
+<li><code>oldest_modification</code>：如果某个⻚面被加载到Buffer Pool后进行第一次修改，那么就将修改该⻚面的mtr开始时对应的lsn值写入这个属性。</li>
+<li><code>newest_modification</code>：每修改一次⻚面，都会将修改该⻚面的mtr结束时对应的lsn值写入这个属性。也就是说该属性表示⻚面最近一次修改后对应的系统lsn值。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>我们接着上边唠叨flushed_to_disk_lsn的例子看一下:</p>
+<ul>
+<li>假设mtr_1执行过程中修改了⻚a，那么在mtr_1执行结束时，就会将⻚a对应的控制块加入到flush链表的头部。并且将mtr_1开始时对应的lsn，也就是8716写入⻚a对应的控制块的oldest_modification属性中，把mtr_1结束时对应的lsn，也就是8404写入⻚a对应的控制块的newest_modification属性中。<br>画个图表示一下(为了让图 片美观一些，我们把oldest_modification缩写成了o_m， 把newest_modification缩写成了n_m):<img src="/images/MySQL/21/14.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li>
+<li>接着假设mtr_2执行过程中又修改了⻚b和⻚c两个⻚面，那么在mtr_2执行结束时，就会将⻚b和⻚c对应的控制块都加入到flush链表的头部。并且将mtr_2开始时对应的lsn，也就是8404写入⻚b和⻚c对应的控制块的oldest_modification属性中，把mtr_2结束时对应的lsn，也就是9436写入⻚b和⻚c对应的控制块的newest_modification属性中。<br>画个图表示一下:<img src="/images/MySQL/21/15.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/>
+从图中可以看出来，每次新插入到flush链表中的节点都是被放在了头部，也就是说flush链表中前边的脏⻚修改的时间比较晚，后边的脏⻚修改时间比较早。</li>
+<li>接着假设mtr_3执行过程中修改了⻚b和⻚d，不过⻚b之前已经被修改过了，所以它对应的控制块已经被插入到了flush链表，所以在mtr_3执行结束时，只需要将⻚d对应的控制块都加入到flush链表的头部即可。所以需要将mtr_3开始时对应的lsn，也就是9436写入⻚c对应的控制块的oldest_modification属性中，把mtr_3结束时对应的lsn，也就是10000写入⻚c对应的控制块的newest_modification属性中。另外，由于⻚b在mtr_3执行过程中又发生了一次修改，所以需要更新⻚b对应的控制块中newest_modification的值为10000。<br>画个图表示一下:<img src="/images/MySQL/21/16.png" width="500" style="margin-left:0px;border: 1px solid #ccc;border-radius: 5px;"/></li>
+</ul>
+</blockquote>
+<p>总结一下上边说的，就是:flush链表中的脏⻚按照修改发生的时间顺序进行排序，也就是按照oldest_modification代表的LSN值进行排序，被多次更新的⻚面不会重复插入到flush链表中，但是会更新newest_modification属性的值。</p>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Log-Sequeue-Number"><span class="toc-text">Log Sequeue Number</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#flushed-to-disk-lsn"><span class="toc-text">flushed_to_disk_lsn</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lsn%E5%80%BC%E5%92%8Credo%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%81%8F%E7%A7%BB%E9%87%8F%E7%9A%84%E5%AF%B9%E5%BA%94%E5%85%B3%E7%B3%BB"><span class="toc-text">lsn值和redo日志文件偏移量的对应关系</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#flush%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84LSN"><span class="toc-text">flush链表中的LSN</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/12/12/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.0%20redo%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          21.0 redo日志文件
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/12/13/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/21.2%20redo%E6%97%A5%E5%BF%97%20%E5%90%8E%E7%BB%AD%E7%9F%A5%E8%AF%86%E7%82%B9/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          21.2 redo日志后续知识点
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>

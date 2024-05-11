@@ -87,7 +87,7 @@
 
       <div class="outer">
         <section id="main">
-  <article id="post-MySQL知识点整理/0. 初阶需要重点关注 InnoDB存储引擎 存储结构 的相关知识" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL-InnoDB-页结构/6.5 InnoDB 的联合索引" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -95,7 +95,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/">0. 初阶需要重点关注 InnoDB存储引擎 存储结构 的相关知识</a>
+      <a class="p-name article-title" href="/2021/10/13/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/">6.5 InnoDB 的联合索引</a>
     </h1>
   
 
@@ -106,7 +106,7 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2021-09-11T11:43:20.000Z" itemprop="datePublished">2021年09月11日</time>
+  <time class="dt-published" datetime="2021-10-13T13:19:37.000Z" itemprop="datePublished">2021年10月13日</time>
 </span>
       
   <div class="article-category">
@@ -116,7 +116,7 @@
 
       
       
-<a href="/2021/09/11/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/0.%20%E5%88%9D%E9%98%B6%E9%9C%80%E8%A6%81%E9%87%8D%E7%82%B9%E5%85%B3%E6%B3%A8%20InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%20%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84%20%E7%9A%84%E7%9B%B8%E5%85%B3%E7%9F%A5%E8%AF%86/#comments" class="article-comment-link">
+<a href="/2021/10/13/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.5%20InnoDB%20%E7%9A%84%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -126,9 +126,20 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>开篇需要提醒你的是，在MySQL中， <strong><code>InnoDB存储引擎 的 存储结构</code></strong> 的相关知识(比如 <strong><code>记录结构</code><strong>、</strong><code>⻚结构</code><strong>、</strong><code>索引结构</code><strong>、</strong><code>表空间结构</code></strong> 等等)，是所有后续知识的基础，也是 <strong>重中之重</strong>，一定要重点掌握。</p>
+        <blockquote>
+<p>我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引。<br>比方说我们想让B+树按照c2和c3列的大小进行排序,这个包含两层含义:</p>
+<ul>
+<li>先把各个记录和⻚按照c2列进行排序；</li>
+<li>在记录的c2列相同的情况下，采用c3列进行排序；</li>
+</ul>
+</blockquote>
 <blockquote>
-<p>Jeremy Cole 已经使用 Ruby 开发了一个简易的工具来解析这些基础结构（<a target="_blank" rel="noopener" href="https://github.com/jeremycole/innodb_ruby">innodb_ruby的github地址</a>），你可以按照说明安装上这个工具，从而更好的理解 InnoDB 中的一些存储结构(此工具虽然是针对MySQL 5.6 的，但是幸好MySQL的基础存储结构基本没多大变化 ，所以大部分场景下这个innodb_ruby工具还是可以使用的)。</p>
+<p>为c2和c3列建立的联合索引的示意图如下：<br><img src="/images/MySQL/6.5/1.jpg"></p>
+<p>如图所示，我们需要注意以下几点:</p>
+<ul>
+<li>每条<code>目录项记录</code>都由 <code>c2、c3、⻚号</code> 这三个部分组成，各条记录先按照c2列的值进行排序，如果记录的c2列相同，则按照c3列的值进行排序。<br>  B+树叶子节点处的用户记录由 <code>c2、c3、主键c1列</code>组成。</li>
+<li>千万要注意一点，以c2和c3列的大小为排序规则建立的B+树称为<code>联合索引</code>，本质上也是一个二级索引。它的意思与分别为c2和c3列分别建立索引的表述是不同的，建立联合索引只会建立如上图一样的1棵B+树。而为c2和c3列分别建立索引会分别以c2和c3列的大小为排序规则建立2棵B+树</li>
+</ul>
 </blockquote>
 
         
@@ -159,7 +170,7 @@
 </article>
 
 
-  <article id="post-HTTP/4. method" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL-InnoDB-页结构/6.4 InnoDB 的 二级索引及其回表操作" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -167,7 +178,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2017/11/27/HTTP/4.%20method/">HTTP 之 method</a>
+      <a class="p-name article-title" href="/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/">6.4 InnoDB 的 二级索引及其回表操作</a>
     </h1>
   
 
@@ -178,17 +189,17 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2017-11-27T11:43:20.000Z" itemprop="datePublished">2017年11月27日</time>
+  <time class="dt-published" datetime="2021-10-06T14:04:19.000Z" itemprop="datePublished">2021年10月06日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2017/11/27/HTTP/4.%20method/#comments" class="article-comment-link">
+<a href="/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.4%20InnoDB%20%E7%9A%84%20%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E5%9B%9E%E8%A1%A8%E6%93%8D%E4%BD%9C/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -198,42 +209,139 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h2 id="PUT-vs-POST"><a href="#PUT-vs-POST" class="headerlink" title="PUT vs POST"></a>PUT vs POST</h2><ol>
-<li><p><code>PUT</code>: 替换资源;</p>
-</li>
-<li><p><code>PUT</code> 和 <code>POST</code>的区别: 在HTTP中, PUT被定义为 <a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.1.2"><code>idempotent(幂等性)</code></a> 的方法, POST则不是, <strong>这是一个很重要的区别</strong></p>
-</li>
-<li><p>应该用 <code>PUT</code> 还是 <code>POST</code>?</p>
+        <blockquote>
+<p>之前介绍的 <code>聚簇索引</code> <strong>只能在搜索条件是主键值时才能发挥作用</strong> 😓，因为B+树中的记录都是<code>按照主键进行排序</code>的。</p>
+</blockquote>
+<h1 id="二级索引"><a href="#二级索引" class="headerlink" title="二级索引"></a>二级索引</h1><blockquote>
+<p>如果我们想以别的列作为搜索条件该咋办呢? 难道只能从头到尾沿着链表依次遍历记录么? 🤔</p>
+<p>不，我们可以多建几棵B+树，<code>不同的B+树中的数据采用不同的排序规则</code> ✅。</p>
+</blockquote>
+<blockquote>
+<p>比方说我们用c2列的大小作为数据⻚、⻚中记录的排序规则，再建一棵B+树，效果如下图所示:<br><img src="/images/MySQL/6.4/1.jpg"><br>这个B+树与上边介绍的<code>聚簇索引</code>有几处不同:</p>
 <ul>
-<li><p>取决于这个REST服务的行为是否是idempotent(幂等)的<br> 假如发送两个请求, 希望服务器端是产生两个新数据，那就说明这个服务不是idempotent的, 因为多次使用产生了副作用了, 那就应该使用 <code>POST</code> 方法;<br> 但如果是希望后一个请求把第一个请求覆盖掉(这不正是修改么), 那这个服务就是idempotent的, 那就应该使用 <code>PUT</code> 方法;</p>
+<li><p>使用记录c2列的大小进行 <code>记录</code> 和 <code>⻚</code> 的排序，这包括三个方面的含义:</p>
 </li>
-<li><p>虽然 <code>POST</code> 和 <code>PUT</code> 差别不大, 用错了也没关系, 但是你的服务一放到internet上，如果不遵从HTTP协议的规范，就可能给自己带来麻烦;</p>
+<li><ol>
+<li><code>⻚内的记录</code>是按照c2列的大小顺序排成一个<code>单向链表</code>；</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>存放用户记录的<code>⻚</code>之间也是根据⻚中记录的c2列大小顺序排成一个<code>双向链表</code>；</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>存放<code>目录项记录</code>的<code>⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的c2列大小顺序排成一个<code>双向链表</code>。</li>
+</ol>
+</li>
+<li><p>B+树的叶子节点存储的并不是完整的用户记录，而只是 c2列 +主键 这两个列的值；</p>
+</li>
+<li><p><code>目录项记录</code>中不再是主键+⻚号的搭配，而变成了 c2列+⻚号的 搭配；</p>
 </li>
 </ul>
-</li>
-</ol>
-<h2 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h2><ol>
-<li><p><code>POST</code>: 上面已经提过了, <strong>POST是非幂等的</strong>;</p>
-</li>
-<li><p><code>POST</code> 和 <code>PUT</code> 都可以上传文件或者创建新信息, 但主要看你的REST服务行为是否是幂等的;</p>
-</li>
-</ol>
-<h2 id="PATCH"><a href="#PATCH" class="headerlink" title="PATCH"></a>PATCH</h2><p><strong>PATCH不是HTTP标准方法的，服务端需要考虑客户端是否能够支持的问题</strong>;</p>
+</blockquote>
+<blockquote>
+<p>所以如果我们现在想通过c2列的值查找某些记录的话就可以使用我们刚刚建好的这个B+树了。</p>
+<p>以查找c2列的值为4的记录为例，查找过程如下:</p>
+<ul>
+<li>确定目录项记录⻚<br>根据根⻚面，也就是⻚44，可以快速定位到目录项记录所在的⻚为⻚42(因为2 &lt; 4 &lt; 9)。</li>
+<li>通过目录项记录⻚确定用户记录真实所在的⻚。<br>在⻚42中可以快速定位到实际存储用户记录的⻚，但是由于c2列并没有唯一性约束，所以c2列值为4的记录可能分布在多个数据⻚中，又因为2 &lt; 4 ≤ 4，所以确定实际存储用户记录的⻚在⻚34和⻚35中。<br>在真实存储用户记录的⻚中定位到具体的记录。<br>  到⻚34和⻚35中定位到具体的记录。<br>  但是这个B+树的叶子节点中的记录只存储了c2和c1(也就是主键)两个列，所以我们<code>必须再根据主键值去聚簇索引中再查找一遍完整的用户记录</code>。</li>
+</ul>
+</blockquote>
+<h1 id="二级索引需要回表哦"><a href="#二级索引需要回表哦" class="headerlink" title="二级索引需要回表哦"></a>二级索引需要回表哦</h1><blockquote>
+<p>各位看到上面步骤4的操作了么?<br>我们根据这个以c2列大小排序的B+树只能确定我们要查找记录的主键值，所以如果我们想根据c2列的值查找到完整的用户记录的话，仍然需要到<code>聚簇索引</code>中再查一遍， 这个过程也被称为<code>回表</code>。</p>
+</blockquote>
+<blockquote>
+<p><strong><code>也就是根据c2列的值查询一条完整的用户记录需要使用到2棵B+树!!!</code></strong></p>
+</blockquote>
+<blockquote>
+<p>为什么我们还需要一次回表操作呢?直接把完整的用户记录放到叶子节点不就好了么?</p>
+<p>你说的对，如果把完整的用户记录放到叶子节点是可以不用回表，但是太占地方了呀~<br>相当于每建立一棵B+树都需要把所有的用户记录再都拷⻉一遍，这就有点太浪费存储空间了。</p>
+<p>因为 这种按照非主键列建立的B+树需要一次回表操作才可以定位到完整的用户记录，所以这种B+树也被称为二级索引(英文名secondary index)，或者辅助索引。由于我们使用的是c2列的大小作为B+树 的排序规则，所以我们也称这个B+树为为c2列建立的索引。</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/6.3 InnoDB 的 聚簇索引 - 索引即数据" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/">6.3 InnoDB 的 聚簇索引 - 索引即数据</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-06T10:21:31.000Z" itemprop="datePublished">2021年10月06日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>我们上边介绍的B+树索有两个特点:</p>
 <ol>
-<li><p>对已有资源的操作: 用于对资源的 <strong>部分内容</strong> 进行更新 (例如更新某一个字段, 具体比如说只更新用户信息的电话号码字段);   </p>
-</li>
-<li><p>而 <code>PUT</code> 则用于更新某个资源较完整的内容, 比如说用户要重填完整表单更新所有信息, 后台处理更新时可能只是保留内部记录ID不变;</p>
-</li>
+<li>使用记录主键值的大小进行记录和⻚的排序，这包括三个方面 的含义:</li>
 </ol>
-<h2 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h2><ol>
-<li>HEAD和 <code>GET</code> 本质是一样的, 区别在于如果使用HEAD, 响应体将不会被返回, 而仅仅返回HTTP头信息;<br>比如: 欲判断某个资源是否存在, 我们通常使用GET, <strong>但这里用HEAD则意义更加明确</strong>;</li>
+<ul>
+<li><code>⻚内的记录</code>是按照主键的大小顺序排成一个<code>单向链表</code>；</li>
+<li><code>存放用户记录的⻚</code>之间也是根据⻚中用户记录的主键大小顺序排成一个<code>双向链表</code>；</li>
+<li><code>存放目录项记录的⻚</code>分为不同的层次，在同一层次中的⻚也是根据⻚中目录项记录的主键大小顺序排成一个<code>双向链表</code>。</li>
+</ul>
+<ol start="2">
+<li><code>B+树的叶子节点存储的是完整的用户记录</code>，所谓完整的用户记录，就是指这个记录中存储了所有列的值 (包括隐藏列)。</li>
 </ol>
-<h2 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h2><p>比较简单, 直接获取资源;</p>
-<h2 id="OPTIONS"><a href="#OPTIONS" class="headerlink" title="OPTIONS"></a>OPTIONS</h2><p>这个方法使用比较少, 它用于获取当前URL所支持的方法;<br>若请求成功, 则它会在HTTP头中包含一个名为 <code>Allow</code> 的头, 值是服务器所支持的方法, 如 GET, POST;<br>之前跨域相关博文 <a href="/2016/09/18/2016-09-18-sameoriginpolicy-06/">CORS方案 not-so-simple request</a> 中的”预检”请求用的请求方法就是 <code>OPTIONS</code>;</p>
-<h2 id="CONNECT"><a href="#CONNECT" class="headerlink" title="CONNECT"></a>CONNECT</h2><p>要求用隧道协议连接代理, 如使用SSL</p>
-<h2 id="TRACE"><a href="#TRACE" class="headerlink" title="TRACE"></a>TRACE</h2><p>~~未完待续</p>
-<h2 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h2><p><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc2616#section-9.7">参考</a></p>
-<h2 id="PURGE"><a href="#PURGE" class="headerlink" title="PURGE"></a>PURGE</h2><p>非规范中定义的方法</p>
+</blockquote>
+<p>我们把具有这两种特性的B+树称为<code>聚簇索引</code>， <strong><code>所有完整的用户记录都存放在这个聚簇索引的叶子节点处</code></strong> 。<br>这种聚簇索引并不需要我们在MySQL语句中显式的使用INDEX语句去创建(后边会介绍索引相关的语句)，<code>InnoDB存储引擎会自动的为我们创建聚簇索引</code>。</p>
+<p>另外有趣的一点是，在InnoDB存储引擎中， <strong><code>聚簇索引就是数据的存储方式</code></strong> (所有的用户记录都存储在了叶子节点)，也就是所谓的 <code>索引即数据</code>，<code>数据即索引</code>。</p>
 
         
         
@@ -245,7 +353,7 @@
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -263,7 +371,7 @@
 </article>
 
 
-  <article id="post-HTTP/3. 认证与授权" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <article id="post-MySQL-InnoDB-页结构/6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方: B+树`" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-inner">
     
     
@@ -271,7 +379,7 @@
         
   
     <h1 itemprop="name">
-      <a class="p-name article-title" href="/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/">认证与授权</a>
+      <a class="p-name article-title" href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/">6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`</a>
     </h1>
   
 
@@ -282,17 +390,17 @@
       
       <span class="article-date">
   <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2017-11-25T13:12:54.000Z" itemprop="datePublished">2017年11月25日</time>
+  <time class="dt-published" datetime="2021-10-04T14:09:13.000Z" itemprop="datePublished">2021年10月04日</time>
 </span>
       
   <div class="article-category">
     <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
   </div>
 
       
       
-<a href="/2017/11/25/HTTP/3.%20%E8%AE%A4%E8%AF%81%E4%B8%8E%E6%8E%88%E6%9D%83/#comments" class="article-comment-link">
+<a href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/#comments" class="article-comment-link">
   
   <i class="fa fa-commt"></i>
   留言
@@ -302,376 +410,269 @@
     </div>
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <h3 id="认证-Authentication-和-授权-Authorization-的区别？"><a href="#认证-Authentication-和-授权-Authorization-的区别？" class="headerlink" title="认证 (Authentication)  和 授权 (Authorization) 的区别？"></a>认证 (Authentication)  和 授权 (Authorization) 的区别？</h3><p>这是一个绝大多数人都会混淆的问题。简单点说：</p>
-<h4 id="认证-Authentication-：-你是谁"><a href="#认证-Authentication-：-你是谁" class="headerlink" title="认证 (Authentication)： 你是谁"></a>认证 (Authentication)： 你是谁</h4><ul>
-<li><p>是验证您的身份的凭据（例如用户名&#x2F;用户ID和密码），通过这个凭据，系统得以知道你就是你，也就是说系统是否存在你这个用户。所以，Authentication 被称为身份&#x2F;用户验证。</p>
-</li>
-<li><p><strong>401 Unauthorized</strong> : 表示 认证(Authentication) 类型的错误<br>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</p>
-</li>
-</ul>
-<h4 id="授权-Authorization-：-你有权限干什么"><a href="#授权-Authorization-：-你有权限干什么" class="headerlink" title="授权 (Authorization)： 你有权限干什么"></a>授权 (Authorization)： 你有权限干什么</h4><ul>
-<li><p>Authorization（授权） 发生在 Authentication（认证） 之后。它主要掌管我们访问系统的权限。<br>比如有些特定资源只能具有特定权限的人才能访问比如admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。</p>
-</li>
-<li><p><strong>403 Forbidden</strong> : 经常和401状态码混淆; 其实403表示的是 授权(Authotization) 类型的错误, 授权和认证的不同之处是:</p>
-</li>
-</ul>
-<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”<br>这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。</p>
-<h3 id="Cookie-Session-身份验证"><a href="#Cookie-Session-身份验证" class="headerlink" title="Cookie Session 身份验证"></a>Cookie Session 身份验证</h3><ol>
-<li><p>Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。</p>
-</li>
-<li><p>用户成功登陆系统，然后返回给客户端具有 SessionID 的 Cookie，只有用户向再后端发起请求的时候会把 SessionID 带上，这样后端就知道你的身份状态了。</p>
-</li>
-<li><p>使用 Session 的时候需要注意下面几个点：</p>
-</li>
-</ol>
-<ul>
-<li>依赖Session的关键业务一定要确保客户端开启了Cookie</li>
-<li>注意Session的过期时间</li>
-</ul>
-<ol start="4">
-<li>如果没有Cookie的话Session还能用吗？<br>一般是通过 Cookie 来保存 SessionID，假如你使用了 Cookie 保存 SessionID的方案的话，如果客户端禁用了Cookie，那么 Session就无法正常工作。但是，并不是没有 Cookie 之后就不能用 Session 了，比如你可以将SessionID放在请求的 url 里面 <a target="_blank" rel="noopener" href="https://javaguide.cn/?session_id=xxx">https://javaguide.cn/?session_id=xxx</a> 。这种方案可行，但是安全性和用户体验感降低。当然，你也可以对 SessionID 进行一次加密之后再传入后端。</li>
-</ol>
-<h3 id="Cookie-无法防止CSRF攻击，而token可以"><a href="#Cookie-无法防止CSRF攻击，而token可以" class="headerlink" title="Cookie 无法防止CSRF攻击，而token可以"></a>Cookie 无法防止CSRF攻击，而token可以</h3><p>CSRF（Cross Site Request Forgery）一般被翻译为 跨站请求伪造 。简单来说就是用你的身份去发送一些对你不友好的请求。举个简单的例子：</p>
-<blockquote>
-<p>小壮登录了某网上银行，他来到了网上银行的帖子区，看到一个帖子下面有一个链接写着“科学理财，年盈利率过万”，小壮好奇的点开了这个链接，结果发现自己的账户少了10000元。这是这么回事呢？原来黑客在链接中藏了一个请求，这个请求直接利用小壮的身份给银行发送了一个转账请求,也就是通过你的 Cookie 向银行发出请求。<br>&lt;a src&#x3D;<a target="_blank" rel="noopener" href="http://www.mybank.com/Transfer?bankId=11&money=10000%3E%E7%A7%91%E5%AD%A6%E7%90%86%E8%B4%A2%EF%BC%8C%E5%B9%B4%E7%9B%88%E5%88%A9%E7%8E%87%E8%BF%87%E4%B8%87">http://www.mybank.com/Transfer?bankId=11&amp;money=10000&gt;科学理财，年盈利率过万</a>&lt;&#x2F;&gt;<br>上面也提到过，进行Session 认证的时候，我们一般使用 Cookie 来存储 SessionId, 当我们登陆后，后端生成一个SessionId放在Cookie中返回给客户端，服务端通过Redis或者其他存储工具记录保存着这个Sessionid，客户端登录以后每次请求都会带上这个SessionId，服务端通过这个SessionId来标识你这个人。如果别人通过 cookie拿到了 SessionId ，那他就可以代替你的身份访问系统了。而 Session 认证中，Cookie 中的 SessionId是由浏览器发送到服务端的，借助这个特性，攻击者就可以通过让用户误点攻击链接，达到攻击效果。</p>
+        <h1 id="普通用户记录-vs-目录项记录"><a href="#普通用户记录-vs-目录项记录" class="headerlink" title="普通用户记录 vs 目录项记录"></a><code>普通用户记录</code> vs <code>目录项记录</code></h1><blockquote>
+<p>设计InnoDB的大叔们为了灵活管理所有<code>目录项</code>。他们发现这些<code>目录项</code>其实跟我们的<code>用户记录</code>也差不多，只不过<code>目录项</code>中的两个列是主键和⻚号而已。<br>所以大叔们复用了之前存储用户记录的<code>数据⻚</code>来存储<code>目录项</code>，为了和用户记录做一下区分，我们把这些用来表示目录项的记录称为<code>目录项记录</code>。</p>
+<p>为了区分一条记录是<code>普通用户记录</code>还是<code>目录项记录呢</code>，InnoDB 就用到了<code>记录头信息</code>里的<code>record_type</code>属性(<code>0:普通的用户记录</code>、<code>1:目录项记录</code>、2:最小记录、3:最大记录)</p>
+<p>所以我们把前面使用到的目录项放到数据⻚中的样子就是这样:<br><img src="/images/MySQL/6.2/1.jpg"></p>
+<p>从图中可以看出来，我们新分配了一个编号为30的⻚来专⻔存储 <code>目录项记录</code>。</p>
+<p>Tips:<br><code>目录项记录</code>和<code>普通的用户记录</code> 除了 <code>内容不同</code>、<code>记录头信息 里的 record_type 不同</code>，还有个不同点(可参考 <a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/">5.2 回顾: 行格式 之 记录头信息 的秘密</a>) :<br>我们之前在唠叨记录头信息时提到过一个叫 <code>min_rec_mask</code>的，只有在存储目录项记录的⻚中的主键值最小的目录项记录的min_rec_mask值为1，其他别的记录的min_rec_mask值都是0。</p>
+<p>除了上述几点外，这两者就没啥差别了，它们用的是一样的<code>数据⻚</code>。⻚的组成结构也是一样一样的。</p>
 </blockquote>
-<p>但是，我们使用 token 的话就不会存在这个问题，在我们登录成功获得 token 后，然后我们在前端通过某些方式会给每个发到后端的请求加上这个 token,这样就不会出现 CSRF 漏洞的问题。因为，<strong>即使你点击了某个非法链接发送请求到服务端，这个非法请求是无法自动携带 token 的</strong>，所以这个请求将是非法的。</p>
-<p>** 其实CSRF主要是利用浏览器会携带已登录的用户标识，来达到冒充用户的目的，从而对被攻击的网站执行某项操作。**</p>
-<h3 id="无论-Cookie-还是-token-都无法避免-跨站脚本攻击（Cross-Site-Scripting）XSS"><a href="#无论-Cookie-还是-token-都无法避免-跨站脚本攻击（Cross-Site-Scripting）XSS" class="headerlink" title="无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS"></a>无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS</h3><p>跨站脚本攻击（Cross Site Scripting）缩写为 CSS 但这会与层叠样式表（Cascading Style Sheets，CSS）的缩写混淆。因此，有人将跨站脚本攻击缩写为XSS。<br>XSS中攻击者会用各种方式将恶意代码注入到其他用户的页面中。就可以通过脚本盗用信息比如cookie。</p>
-<h3 id="推荐阅读：如何防止CSRF攻击？—美团技术团队"><a href="#推荐阅读：如何防止CSRF攻击？—美团技术团队" class="headerlink" title="推荐阅读：如何防止CSRF攻击？—美团技术团队"></a>推荐阅读：如何防止CSRF攻击？—美团技术团队</h3><p>CSRF的特点：</p>
-<ul>
-<li>攻击一般发起在第三方网站，而不是被攻击的网站。</li>
-<li>攻击利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；而不是直接窃取数据。</li>
-<li>整个过程攻击者并不能获取到受害者的登录凭证，仅仅是“冒用”。</li>
-<li>跨站请求可以用各种方式：图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。<br><strong>CSRF通常是跨域的，因为外域通常更容易被攻击者掌控</strong>(lant:也就是说，如果你的站点是跨域的，这个域最好有个一级域名的限制，否则其他网站都能钓鱼了)。但是<strong>如果本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险</strong>。</li>
-</ul>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-HTTP/2. status_code" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2017/11/25/HTTP/2.%20status_code/">03. HTTP状态码详解</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2017-11-25T05:30:12.000Z" itemprop="datePublished">2017年11月25日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
-  </div>
-
-      
-      
-<a href="/2017/11/25/HTTP/2.%20status_code/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="1xx"><a href="#1xx" class="headerlink" title="1xx"></a>1xx</h2><ol>
-<li><code>101</code>: 参考博文<a href="/2017/10/28/WebSocket/2017-10-28-websocket-02/">WebSocket简单示例分析</a> (做协议升级, 还会响应: <code>Connection: Upgrade</code>)</li>
-</ol>
-<h2 id="2xx"><a href="#2xx" class="headerlink" title="2xx"></a>2xx</h2><blockquote>
-<p><strong>Web API的设计与开发 P109</strong></p>
-</blockquote>
-<p><strong>200 OK</strong> : 200码非常出名, 似乎没有对它进一步说明的必要;</p>
-<p><strong>201 Created</strong> : 当在服务器端创建数据成功时, 会返回201状态码;</p>
-<ul>
-<li>也就是使用 <code>POST</code> 请求方法的场景 (如:用户登录后添加了新用户, 上传了图片等新创建数据的场景)</li>
-</ul>
-<p><strong>202 Accepted</strong> : 在异步处理客户端请求时, 它用来表示服务器端已经接受了来自客户端的请求, 但处理尚未结束;</p>
-<ul>
-<li>在文件格式转换, 处理远程通知(Apple Push Notification等)这类很耗时的场景中, 如果等到所有处理都结束后才向客户端返回响应消息, 就会花费相当长的时间, 造成应用可用性不高; 这时采用的方法是服务器向客户端返回一次响应消息, 然后立刻开始异步处理。</li>
-<li>202状态码就被用于告知客户端服务器端已经开始处理请求, 但整个处理过程尚未结束;</li>
-<li>比如: 以LinkedIn的参与讨论的API为例<br>如果成功参与讨论并发表意见, 服务器端通常会返回201状态码;<br>但如果需要得到群主的确认, 那么所发表的意见就无法立即在页面显示出来, 这时服务器端就需要返回202状态码; 从广义上来看, 该场景也属于异步处理, 但和程序设计里的异步执行当然不同;</li>
-</ul>
-<p><strong><a target="_blank" rel="noopener" href="http://www.laruence.com/2011/01/20/1844.html">204 No Content</a></strong> : 正如其字面意思, 当响应消息为空时会返回该状态码。</p>
-<ul>
-<li>其实就是告诉浏览器, 服务端执行成功了, 但是没什么数据返回给你, 所以你不用刷新页面, 也不用导向新的页面; </li>
-<li>在用 <code>DELETE</code> 方法删除数据时, 服务器端通常会返回204状态码(阮一峰博文也提到过, 对<code>DELETE</code>适用);</li>
-<li>除此之外, 也有人认为在使用 <code>PUT</code>或<code>PATCH</code> 方法更新数据时, 因为只是更新已有数据, 所以返回204状态码更加自然;<br>书中建议 <code>DELETE</code> 返回204; <code>PUT</code>或<code>PATCH</code>返回200并返回该方法所操作的数据; </li>
-<li>关于204状态码的讨论可以参考 p111;</li>
-</ul>
-<p><strong>205 Reset Content</strong> : 告诉浏览器, 页面表单需要被重置; </p>
-<ul>
-<li>205的意思是服务端在接收了浏览器POST请求以后, 处理成功以后, 告诉浏览器, 执行成功了, 请清空用户填写的Form表单, 方便用户再次填写;</li>
-</ul>
-<p><strong>206 Partial Content</strong> : 成功执行了一个部分或Range(范围)的请求; </p>
-<ul>
-<li>206响应中, 必须包含 <code>Content-Range</code>, <code>Date</code> 以及 <code>ETag</code>或<code>Content-Location</code>首部;</li>
-</ul>
-<h2 id="3xx"><a href="#3xx" class="headerlink" title="3xx"></a>3xx</h2><p><strong>300 Multiple Choices</strong> : 客户端驱动方式进行内容协商时, 服务器可能返回多个连接供客户端进行选择 (比如多语言网站可能会出现);</p>
-<p><strong>301 Moved Permanently</strong> : 在请求的URL已经被移除时使用, 响应的Location首部中应该包含资源现在所处的URL; (比较适合永久重定向)</p>
-<ul>
-<li><p>比如你从 <a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a> 中location跳转到 <a target="_blank" rel="noopener" href="http://www.test.com/index.html">www.test.com/index.html</a> 时, 如果响应的是301;</p>
-</li>
-<li><p>则即便稍后取消了location.php中的跳转(或者修改了跳转地址), 由于浏览器还是会认为你之前的跳转是永久性的, 再次访问<a target="_blank" rel="noopener" href="http://www.test.com/location.php%E4%BB%8D%E7%84%B6%E4%BC%9A%E8%B7%B3%E8%BD%AC%E5%88%B0%E4%B9%8B%E5%89%8D%E7%9A%84%E8%B7%B3%E8%BD%AC%E9%93%BE%E6%8E%A5(%E9%99%A4%E9%9D%9E%E6%B8%85%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98)">www.test.com/location.php仍然会跳转到之前的跳转链接(除非清浏览器缓存)</a>;</p>
-</li>
-<li><p>另外, 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 会转成<strong>GET</strong>;</p>
-</li>
-</ul>
-<p><strong>302 Found</strong>: 与301类似, 但是客户端应该使用Location首部给出的URL来进行<strong>临时</strong>定位资源, 将来的请求仍应该使用老的URL;</p>
-<ul>
-<li><p>比如你从 <a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a> 中location跳转到 <a target="_blank" rel="noopener" href="http://www.test.com/index.html">www.test.com/index.html</a> 时, 如果响应的是302;</p>
-</li>
-<li><p>如果稍后取消了location.php中的跳转, 再次访问<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 会发现不会进行跳转, 而是访问到 location.php 修改后的代码 (不用清浏览器缓存);</p>
-</li>
-<li><p>另外, 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 会转成<strong>GET</strong>;</p>
-</li>
-</ul>
-<p><strong>303 See Other</strong> : HTTP&#x2F;1.1使用303来实现和302一样的<strong>临时</strong>重定向;</p>
-<p><strong>307 Temporary Redirect</strong></p>
-<ul>
-<li>HTTP&#x2F;1.1规范要求用307来取代302进行临时重定向; (302临时重定向留给HTTP&#x2F;1.0)</li>
-<li>所以他也具备302临时重定向的特点;</li>
-<li>但是, 与 302, 303 不同, 它会将客户端的POST请求, 发送给location的目标页; 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 仍然是<strong>POST</strong>;</li>
-</ul>
-<p><strong><a target="_blank" rel="noopener" href="https://tools.ietf.org/html/draft-reschke-http-status-308-07">308 Permanent Redirect</a></strong></p>
-<ul>
-<li>貌似不是rfc2616的标准</li>
-<li>具备和301永久重定向的特点, 需要清除浏览器缓存才行;</li>
-<li>但是, 与 301 不同, 它会将客户端的POST请求, 发送给location的目标页; 假设你之前是先访问<a target="_blank" rel="noopener" href="http://www.test.com/test.html">www.test.com/test.html</a>, 然后通过<strong>post</strong>提交到<a target="_blank" rel="noopener" href="http://www.test.com/location.php">www.test.com/location.php</a>, 最后由location.php再进行跳转的话, 仍然是<strong>POST</strong>;</li>
-</ul>
-<p><strong>304 Not Modified</strong> : 参考博文<a href="/2017/11/30/http/2017-11-30-HTTP-05/">缓存相关</a></p>
-<h2 id="4xx"><a href="#4xx" class="headerlink" title="4xx"></a>4xx</h2><blockquote>
-<p><strong>Web API的设计与开发 P113</strong><br>4字头状态码主要用于描述因客户端请求的问题而引发的错误。<br>也就是说, 服务器端不存在问题, 但服务器端无法理解客户端发送的请求, 或虽然服务器端能够理解但请求却没有被执行, 当遇到这些情况引发的错误时, 服务器端便会向客户端返回这一类别的状态码。<br>因此, 当服务器端返回4字头的状态码时, 就表示客户端的访问方式发生了问题, 用户需要检查一下客户端的访问方式或访问的目标资源等。</p>
-</blockquote>
-<p><strong>400 Bad Request</strong> : 表示其他错误的意思, 即其他4字头状态码都无法描述的错误类型;</p>
-<p><strong>401 Unauthorized</strong> : 表示<code>认证(Authentication)</code>类型的错误</p>
-<ul>
-<li>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</li>
-</ul>
-<p><strong>403 Forbidden</strong> : 和401状态码比较相似, 所以也经常被混淆; 其实403表示的是<code>授权(Authotization)</code>类型的错误, 授权和认证的不同之处是:</p>
-<ul>
-<li><code>认证</code>表示”识别前来访问的是谁”, 而<code>授权</code>则表示”赋予特定用户执行特定操作的权限”</li>
-<li>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”</li>
-</ul>
-<p><strong>404 Not Found</strong> : 表示访问的数据不存在, 但是</p>
-<ul>
-<li>例如当客户端湿度获取不存在的用户信息时, 或者试图访问原本就不存在的端点时, 服务器就会返回404状态码;</li>
-<li>所以, 如果客户端想要获取用户信息, 却得到服务器端返回的404状态码, 客户端仅凭”404 Not Found”将难以区分究竟是用户不存在, 还是端点URI错误导致访问了原本不存在的URI;</li>
-</ul>
-<p><strong>405 Method Not Allowed</strong> : 表示虽然访问的端点存在, 但客户端使用的HTTP方法不被服务器端允许;</p>
-<ul>
-<li>比如客户端使用了POST方法来访问只支持GET方法的信息检索专用的API;</li>
-<li>又比如客户端用了GET方法来访问更新数据专用的API等;</li>
-</ul>
-<p><strong>406 Not Acceptable</strong> : 服务器端API不支持客户端指定的数据格式时, 服务器端所返回的状态码; </p>
-<ul>
-<li>比如, 服务器端只支持JSON和XML输出的API被客户端指定返回YAML的数据格式时, 服务器端就会返回406状态码;</li>
-</ul>
-<p><strong>408 Request Timeout</strong> : 当客户端发送请求至服务器端所需的时间过长时, 就会触发服务器端的超时处理, 从而使服务器端返回该状态码;</p>
-<p><strong>409 Conflict</strong>: 用于表示资源发生冲突时的错误 (es中就会有该错误码)</p>
-<ul>
-<li>比如通过指定ID等唯一键值信息来调用注册功能的API时, 倘若已有相同ID的数据存在, 就会导致服务器端返回409状态码;</li>
-<li>在使用邮箱地址及Facebook ID等信息进行新用户注册时, 如果该邮箱地址或者ID已经被其他用户注册, 就会引起冲突, 这时服务器端就会返回409状态码告知客户端该邮箱地址或ID已被使用;</li>
-</ul>
-<p><strong>410 Gone</strong> : 和 404状态码 相同, 都表示访问资源不存在, 只是410状态码不单表示资源不存在, 还进一步告知<strong>资源曾经存在</strong>, 只是目前已经消失了;</p>
-<ul>
-<li>因此服务器端常在访问被删除的数据时返回该状态码, 但是为了返回该状态码, 服务器必须保存该数据已被删除的信息, 而且客户端也应该知晓服务器端保存了这样的信息;</li>
-<li>但是在通过邮箱地址搜索用户信息的API中, 从保护个人信息的角度来说, <strong>返回410状态码的做法也会受到质疑</strong>; (所以在此种资源不存在的情况下, 为了稍微安全一些, 返回410状态码需要慎重)</li>
-</ul>
-<p><strong>413 Request Entity Too Large</strong> : 413也是比较容易出现的一种状态码, 表示请求实体过大而引发的错误</p>
-<ul>
-<li>请求消息体过长是指, 比如在上传文件这样的API中, 如果发送的数据超过了所允许的最大值, 就会引发这样的错误;</li>
-</ul>
-<p><strong>414 Request-URI Too Large</strong> : 414是表示请求首部过长而引发的错误</p>
-<ul>
-<li>如果在进行GET请求时, 查询参数被指定了过长的数据, 就会导致服务器端返回414状态码</li>
-</ul>
-<p><strong>415 Unsupported Media Type</strong> : 和406比较相似</p>
-<ul>
-<li>406我们知道是表示服务器端不支持客户端想要接收的数据格式</li>
-<li>而415表示的是服务器端不支持客户端请求首部 <code>Content-Type</code> 里指定的数据格式, 也就是说, 当客户端通过POST,PUT,PATCH等方法发送的请求消息体的数据格式不被服务器支持时, 服务器端就会返回415状态码;</li>
-<li>例如在只接收JSON格式的API里, 如果客户端请求时发送的是XML格式的数据去请求服务器端, 或者在 <code>Content-Type</code> 首部指定 <code>application/xml</code>, 都会导致该类型错误;</li>
-</ul>
-<p><strong>429 Too Many Requests</strong> : 是2012年RFC6585文档中新定义的状态码, 表示访问次数超过了所允许的范围;</p>
-<ul>
-<li>例如某API存在一小时内只允许访问100次的访问限制, 这种情况下入股哦客户端视图进行第101次访问, 服务器便会返回该状态码;</li>
-<li>表示在一定的时间内用户发送了太多的请求, 即超出了”频次限制”, 在响应中，可以提供一个 <code>Retry-After</code> 首部来提示用户需要等待多长时间之后再发送新的请求;</li>
-</ul>
-<h2 id="5xx"><a href="#5xx" class="headerlink" title="5xx"></a>5xx</h2><blockquote>
-<p>5字头状态码表示错误不发生在客户端, 而是由服务器自身问题引发的。</p>
-</blockquote>
-<p><strong>500 Internal Server Error</strong> : 是web应用程序开发里非常常见的错误, 当服务器代码里存在bug, 输出错误信息并停止运行等情况下, 就会返回该类型的错误;</p>
-<ul>
-<li>因此, 不仅限于API, 对于5字头状态码的错误, 都要认真监视错误日志, 使系统在出错时及时告知管理员, 以便在错误发生时做好应对措施, 防止再次发生。</li>
-</ul>
-<p><strong>501 Not Implemented</strong> : ???</p>
-<p><strong>502 Bad GateWay</strong> : ???</p>
-<p><strong>503 Service Unavaliable</strong> : 用来表示服务器当前处于<strong>暂</strong>不可用状态</p>
-<ul>
-<li>可以回送:响应首部 <code>Retry-After</code> 表示多久恢复;</li>
-<li>不同的客户端与服务器端应用对于 Retry-After 首部的支持依然不太一致;</li>
-<li>不过，一些爬虫程序，比如谷歌的爬虫程序Googlebot, 会遵循Retry-After响应首部的规则, 将其与503(Service Unavailable,当前服务不存在)响应一起发送有助于互联网引擎做出判断,在宕机结束之后继续对网站构建索引。</li>
-<li>参考:<a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Retry-After">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Retry-After</a></li>
-</ul>
-<p><strong>504 Gateway Time-out</strong>: 复现这个错误码比较简单, 让你的php程序模拟耗时请求, 如下代码<br>    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">sleep(70);//模拟耗时，睡70秒</span><br><span class="line">echo &quot;睡醒了&quot;;</span><br></pre></td></tr></table></figure><br>    就会返回<br>    <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">504 Gateway Time-out</span><br><span class="line">nginx/1.11.4</span><br></pre></td></tr></table></figure><br><strong>505 HTTP Version Not Supported</strong>: 服务器收到的请求, 使用的是它无法支持的HTTP协议版本;</p>
-<p>参考:《HTTP权威指南》、《Web API的设计与开发》</p>
-
-        
-        
-      
-    </div>
-    <footer class="article-footer">
-      
-        <div class="article-tag-wrap">
-          
-
-          
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
-
-          
-    <div class="social-share">
-      <span>分享到:</span>
-    </div>
-
-
-
-        </div>
-      
-      
-      
-    </footer>
-  </div>
-</article>
-
-
-  <article id="post-HTTP/1. 同源策略" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/">HTTP 之 同源策略SOP</a>
-    </h1>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      
-      <span class="article-date">
-  <i class="fa fa-date"></i>
-  <time class="dt-published" datetime="2017-11-24T15:01:19.000Z" itemprop="datePublished">2017年11月24日</time>
-</span>
-      
-  <div class="article-category">
-    <i class="fa fa-classify"></i>
-    <a class="article-category-link" href="/categories/HTTP/">HTTP</a>
-  </div>
-
-      
-      
-<a href="/2017/11/24/HTTP/1.%20%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/#comments" class="article-comment-link">
-  
-  <i class="fa fa-commt"></i>
-  留言
-</a>
-
-
-    </div>
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h3 id="同源策略SOP"><a href="#同源策略SOP" class="headerlink" title="同源策略SOP"></a>同源策略SOP</h3><p><strong>浏览器安全的基石是”同源政策”（same-origin policy）</strong></p>
+<h1 id="只有单个存储目录项记录的数据⻚时的查找"><a href="#只有单个存储目录项记录的数据⻚时的查找" class="headerlink" title="只有单个存储目录项记录的数据⻚时的查找"></a>只有单个<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>现在以查找主键为20的记录为例，查找记录的步骤就可以大致拆分成下边两步:</p>
 <ol>
-<li><p>1995年，同源政策由 Netscape 公司引入浏览器。目前所有浏览器都实行这个政策;</p>
-</li>
-<li><p>简单来说，A站点设置的Cookie，B站点不能打开，除非这两个站点属同源，所谓<strong>同源</strong>指的是 <strong>“三个相同”</strong>:</p>
-</li>
+<li>先到<code>存储目录项记录的数据⻚</code>(也就是⻚30)中，<code>通过二分法快速定位到对应目录项</code> (因为12 &lt; 20 &lt; 209，所以定位到对应的记录所在的⻚就是⻚9)；</li>
+<li>再到存储用户记录的⻚9中定位到主键值为20的用户记录。(之前多次提到的页内查找方法：O(log n) + O(1))</li>
 </ol>
-<ul>
-<li><p><strong>协议相同</strong><br><a target="_blank" rel="noopener" href="http://blog.renyimin.com/">http://blog.renyimin.com</a> 和 <a target="_blank" rel="noopener" href="https://blog.renyimin.com/">https://blog.renyimin.com</a> 就不是同一个源 ；</p>
-</li>
-<li><p><strong>域名完全相同</strong><br><a target="_blank" rel="noopener" href="http://blog.renyimin.com/test/index.php">http://blog.renyimin.com/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://blog.renyimin.com/welcome/index.html">http://blog.renyimin.com/welcome/index.html</a> 就是同一个源;<br>但是 <a target="_blank" rel="noopener" href="http://www.renyimin.com/test/index.php">http://www.renyimin.com/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://blog.renyimin.com/test/index.php">http://blog.renyimin.com/test/index.php</a> 就不是同一个源 ；<br>localhost 和 127.0.0.1 也不是同一个源 ;</p>
-</li>
-<li><p><strong>端口相同</strong><br><a target="_blank" rel="noopener" href="http://www.renyimin.com:8080/test/index.php">http://www.renyimin.com:8080/test/index.php</a> 和 <a target="_blank" rel="noopener" href="http://www.renyimin.com/test/index.php">http://www.renyimin.com:80/test/index.php</a> 就不是同一个源 ;</p>
-</li>
-</ul>
-<h3 id="同源策略的限制"><a href="#同源策略的限制" class="headerlink" title="同源策略的限制"></a>同源策略的限制</h3><p>随着互联网的发展, “同源政策”越来越严格, 目前, 如果非同源, 共有三种行为受到限制:</p>
-<ul>
-<li>Cookie、LocalStorage 和 IndexDB 无法读取</li>
-<li>DOM 无法获得 </li>
-<li>AJAX 请求不能发送</li>
-</ul>
-<h3 id="同源策略目的"><a href="#同源策略目的" class="headerlink" title="同源策略目的"></a>同源策略目的</h3><p>为了保证用户信息的安全，防止恶意的网站窃取并利用数据</p>
-<blockquote>
-<p>比如用户登录一家银行网站后，又去浏览其他站点, 如果没有同源策略限制, 其他站点就也能读取银行网站的 Cookie, 这样的话，如果 Cookie 包含用户的私密信息，泄漏给第三方站点就比较危险, 当然, Cookie中包含的敏感信息通常经过加密，很难将其反向破解, 但这并不意味着绝对安全;<br>虽然第三方无法通过解密获取cookie中的信息, 但它可以不解密,而是直接使用Cookie去骗取银行网站的信任;<br>由此可见，”同源政策” 是必需的，否则, 各站点的 Cookie 可以随便共享，那互联网就毫无安全可言了;</p>
 </blockquote>
-<h3 id="同源策略和CSRF安全问题"><a href="#同源策略和CSRF安全问题" class="headerlink" title="同源策略和CSRF安全问题"></a>同源策略和CSRF安全问题</h3><p>需要注意一点: 同源策略的限制, 并没有限制住<strong>CSRF攻击</strong></p>
-<blockquote>
-<p>假如你当前已经登录了邮箱，或bbs，同时你又访问了另外一个站点，假设这就是一个钓鱼网站(站点中伪装了很多诱导用户去点击的超链接, 而这些超链接都是其他站点的一些敏感操作, 就这样放好诱饵等待曾经登陆过那些站点的用户去点击, 等鱼儿上钩);<br>假设这个网站上面可能因为某个图片吸引你，你去点击一下，而这个点击正是去往你的bbs站点进行一个发帖操作，<br>由于当前你的浏览器状态已经是登陆了bbs站点，此时你点击这个钓鱼网站的连接是就会使用你之前登陆bbs站点在浏览器cookie罐中保存的信息, 就和正常的请求一样。<br>于是钓鱼站点就纯天然的利用了其他站点的登陆状态，让用户在不知情的情况下，帮“它们”发帖或干其他更多危险的事情; </p>
-</blockquote>
-<p>这也就是我们通常所说的CSRF攻击, CSRF攻击的主要目的是用户在不知情的情况下无辜使用自己在某个已登录系统的cookie信息，执行一个对自己有害的操作;</p>
-<h3 id="引出跨域问题"><a href="#引出跨域问题" class="headerlink" title="引出跨域问题"></a>引出跨域问题</h3><p>由于同源策略的这些限制都是为了安全考虑, 自然是必要的; 但是有时很不方便, 可能会导致合理的用途也受到影响, 接下来将详细介绍如何在需要的时候合理地去 规避”同源政策”的限制;</p>
-<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a target="_blank" rel="noopener" href="https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html">https://www.ruanyifeng.com/blog/2016/04/same-origin-policy.html</a></p>
-<p>认证 (Authentication)  和 授权 (Authorization) 的区别？<br>这是一个绝大多数人都会混淆的问题。简单点说：<br>认证 (Authentication)： 你是谁<br>是验证您的身份的凭据（例如用户名&#x2F;用户ID和密码），通过这个凭据，系统得以知道你就是你，也就是说系统是否存在你这个用户。所以，Authentication 被称为身份&#x2F;用户验证。</p>
-<p>401 Unauthorized : 表示 认证(Authentication) 类型的错误<br>比如当需要先进行登录操作, 而却没有告诉服务器端所需的会话信息(比如token..), 服务器端就会返回401状态码, 告知客户端出错的大致原因;</p>
-<p>授权 (Authorization)： 你有权限干什么<br>Authorization（授权） 发生在 Authentication（认证） 之后。它主要掌管我们访问系统的权限。比如有些特定资源只能具有特定权限的人才能访问比如admin，有些对系统资源操作比如删除、添加、更新只能特定人才具有。</p>
-<p>403 Forbidden : 经常和401状态码混淆; 其实403表示的是 授权(Authotization) 类型的错误, 授权和认证的不同之处是:<br>通俗地说: 401状态码表示”我不知道你是谁”, 403状态码表示”虽然知道你是谁, 但你没有执行该操作的权限”</p>
-<p>这两个一般在我们的系统中被结合在一起使用，目的就是为了保护我们系统的安全性。</p>
-<p>Cookie Session 身份验证<br>Cookie 数据保存在客户端(浏览器端)，Session 数据保存在服务器端。</p>
-<p>用户成功登陆系统，然后返回给客户端具有 SessionID 的 Cookie，只有用户向再后端发起请求的时候会把 SessionID 带上，这样后端就知道你的身份状态了。</p>
-<p>使用 Session 的时候需要注意下面几个点：<br>依赖Session的关键业务一定要确保客户端开启了Cookie<br>注意Session的过期时间</p>
-<p>如果没有Cookie的话Session还能用吗？<br>一般是通过 Cookie 来保存 SessionID，假如你使用了 Cookie 保存 SessionID的方案的话，如果客户端禁用了Cookie，那么 Session就无法正常工作。但是，并不是没有 Cookie 之后就不能用 Session 了，比如你可以将SessionID放在请求的 url 里面 <a target="_blank" rel="noopener" href="https://javaguide.cn/?session_id=xxx">https://javaguide.cn/?session_id=xxx</a> 。这种方案可行，但是安全性和用户体验感降低。当然，你也可以对 SessionID 进行一次加密之后再传入后端。</p>
-<p>Cookie 无法防止CSRF攻击，而token可以<br>CSRF（Cross Site Request Forgery）一般被翻译为 跨站请求伪造 。简单来说就是用你的身份去发送一些对你不友好的请求。举个简单的例子：<br>小壮登录了某网上银行，他来到了网上银行的帖子区，看到一个帖子下面有一个链接写着“科学理财，年盈利率过万”，小壮好奇的点开了这个链接，结果发现自己的账户少了10000元。这是这么回事呢？原来黑客在链接中藏了一个请求，这个请求直接利用小壮的身份给银行发送了一个转账请求,也就是通过你的 Cookie 向银行发出请求。<br>&lt;a src&#x3D;<a target="_blank" rel="noopener" href="http://www.mybank.com/Transfer?bankId=11&money=10000%3E%E7%A7%91%E5%AD%A6%E7%90%86%E8%B4%A2%EF%BC%8C%E5%B9%B4%E7%9B%88%E5%88%A9%E7%8E%87%E8%BF%87%E4%B8%87">http://www.mybank.com/Transfer?bankId=11&amp;money=10000&gt;科学理财，年盈利率过万</a>&lt;&#x2F;&gt;<br>上面也提到过，进行Session 认证的时候，我们一般使用 Cookie 来存储 SessionId, 当我们登陆后后端生成一个SessionId放在Cookie中返回给客户端，服务端通过Redis或者其他存储工具记录保存着这个Sessionid，客户端登录以后每次请求都会带上这个SessionId，服务端通过这个SessionId来标识你这个人。如果别人通过 cookie拿到了 SessionId ，那他就可以代替你的身份访问系统了。而 Session 认证中，Cookie 中的 SessionId是由浏览器发送到服务端的，借助这个特性，攻击者就可以通过让用户误点攻击链接，达到攻击效果。</p>
-<p>但是，我们使用 token 的话就不会存在这个问题，在我们登录成功获得 token 之后，一般会选择存放在 local storage 中。然后我们在前端通过某些方式会给每个发到后端的请求加上这个 token,这样就不会出现 CSRF 漏洞的问题。因为，即使你点击了某个非法链接发送请求到服务端，这个非法请求是无法自动携带 token 的，所以这个请求将是非法的。</p>
-<p>其实CSRF主要是利用浏览器会携带已登录的用户标识，来达到冒充用户的目的，从而对被攻击的网站执行某项操作。</p>
-<p>无论 Cookie 还是 token 都无法避免 跨站脚本攻击（Cross Site Scripting）XSS<br>跨站脚本攻击（Cross Site Scripting）缩写为 CSS 但这会与层叠样式表（Cascading Style Sheets，CSS）的缩写混淆。因此，有人将跨站脚本攻击缩写为XSS。<br>XSS中攻击者会用各种方式将恶意代码注入到其他用户的页面中。就可以通过脚本盗用信息比如cookie。</p>
-<p>推荐阅读：如何防止CSRF攻击？—美团技术团队<br>CSRF的特点：</p>
+<h1 id="大量存储目录项记录的数据⻚时的查找"><a href="#大量存储目录项记录的数据⻚时的查找" class="headerlink" title="大量存储目录项记录的数据⻚时的查找"></a>大量<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>虽然说目录项记录中只存储主键值和对应的⻚号，比用户记录需要的存储空间小多了，但是不论怎么说一个⻚只有16KB大小，能存放的目录项记录也是有限的，如果表中的数据太多，以至于一个数据⻚不足以存放所有的目录项记录，该咋办呢?<br>当然是<code>再多整一个存储目录项记录的⻚喽</code>~</p>
+<p>为了大家更好的理解新分配一个<code>目录项记录⻚</code>的过程，我们假设一个存储目录项记录的⻚最多只能存放4条目录项记录，所以如果此时我们再向上图中插入一条主键值为320的用户记录的话，那就需要分配一个新的存储目录项记录的⻚喽:<br><img src="/images/MySQL/6.2/2.jpg"><br>从图中可以看出，我们插入了一条主键值为320的用户记录之后需要两个新的数据⻚:</p>
 <ul>
-<li>攻击一般发起在第三方网站，而不是被攻击的网站。被攻击的网站无法防止攻击发生。</li>
-<li>攻击利用受害者在被攻击网站的登录凭证，冒充受害者提交操作；而不是直接窃取数据。</li>
-<li>整个过程攻击者并不能获取到受害者的登录凭证，仅仅是“冒用”。</li>
-<li>跨站请求可以用各种方式：图片URL、超链接、CORS、Form提交等等。部分请求方式可以直接嵌入在第三方论坛、文章中，难以进行追踪。<br>CSRF通常是跨域的，因为外域通常更容易被攻击者掌控。但是如果本域下有容易被利用的功能，比如可以发图和链接的论坛和评论区，攻击可以直接在本域下进行，而且这种攻击更加危险。</li>
+<li>为存储该用户记录而新生成了⻚31。</li>
+<li>因为原先<code>存储目录项记录</code>的⻚30的容量已满(我们前边假设只能存储4条目录项记录)，所以不得不需要一个新的⻚32来存放⻚31对应的目录项。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>现在因为<code>存储目录项记录的⻚不止一个</code>，所以如果我们想根据主键值查找一条用户记录大致需要3个步骤，以查找主键值为20的记录为例:</p>
+<ol>
+<li>确定目录项记录⻚<br>  我们现在的存储目录项记录的⻚有两个，即⻚30和⻚32，又因为⻚30表示的目录项的主键值的范围是[1, 320)，⻚32表示的目录项的主键值不小于320，所以主键值为20的记录对应的目录项记录在⻚30中。</li>
+<li>在一个存储目录项记录的⻚中通过主键值定位一条目录项记录的方式说过了，不赘述了~</li>
+<li>在真实存储用户记录的⻚中定位到具体的记录。 也多次提过了，不赘述了~</li>
+</ol>
+</blockquote>
+<h1 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h1><blockquote>
+<p>那么问题又来了:<br>在这个查询步骤的第1步中我们需要定位 <code>存储目录项记录的⻚</code>，但是这些⻚在存储空间中也可能不挨着，如果我们表中的数据非常多则会产生很多存储目录项记录的⻚，那我们怎么根据主键值快速定位一个存储目录项记录的⻚呢?<br>其实也简单， <strong><code>为这些存储目录项记录的⻚再生成一个更高级的目录</code></strong> ，所以现在各个⻚的 示意图就是这样子:<br><img src="/images/MySQL/6.2/3.jpg"><br>如图，我们生成了一个存储更高级目录项的⻚33，这个⻚中的两条记录分别代表⻚30和⻚32，如果用户记录的主键值在[1, 320)之间，则到⻚30中查找更详细的目录项记录，如果主键值不小于320的话，就到⻚32中查找更详细的目录项记录。</p>
+</blockquote>
+<blockquote>
+<p>不过，随着表中记录的增加，这个目录的层级会继续增加，如果简化一下，<br><img src="/images/MySQL/6.2/4.jpg"><br>这玩意儿就像一个倒过来的树，上头是树根，下头是树叶! 这种组织数据的形式，或者说是一种数据结构，它的名称是<code>B+树</code>。</p>
+<p>不论是<code>存放用户记录的数据⻚</code>，还是<code>存放目录项记录的数据⻚</code>，我们都把它们存放到B+树这个数据结构中了，所以我们也称这些数据⻚为<code>节点</code>。<br>从图中可以看出来，我们的<code>实际用户记录其实都存放在B+树的最底层的节点上</code>，这些节点也被称为<code>叶子节点</code>或叶节点，其余用来<code>存放目录项记录的节点</code>称为<code>非叶子节点</code>或者内节点，其中B+树最上边的那个节点也称为<code>根节点</code>。</p>
+<p>从图中可以看出来，一个B+树的节点其实可以分成好多层，设计InnoDB的大叔们为了讨论方便，规定最下边的那层，也就是存放我们用户记录的那层为第0层，之后依次往上加。</p>
+</blockquote>
+<blockquote>
+<p>之前的讨论我们做了一个非常极端的假设:存放用户记录的⻚最多存放3条记录，存放目录项记录的⻚最多存放4条记录。其实真实环境中一个⻚存放的记录数量是非常大的</p>
+<p>假设，假设，假设所有存放用户记录的叶子节点代表的数据⻚可以存放100条用户记录，所有存放目录项记录的内节点代表的数据⻚可以存放1000条目录项记录，那么:</p>
+<ul>
+<li>如果B+树只有1层，也就是只有1个用于存放用户记录的节点，最多能存放100条记录。</li>
+<li>如果B+树有2层，最多能存放1000×100&#x3D;100000条记录。</li>
+<li>如果B+树有3层，最多能存放1000×1000×100&#x3D;100000000 条记录。</li>
+<li>如果B+树有4层，最多能存放1000×1000×1000×100&#x3D;100000000000条记录。</li>
+</ul>
+<p>你的表里能存放100000000000条记录么?<br>所以<code>一般情况下，我们用到的B+树都不会超过4层</code>，那我们通过主键值去查找某条记录最多只需要做4个⻚面内的查找(查找<code>3个目录项⻚</code>和<code>1个用户记录⻚</code>)，又因为在每个⻚面内有所谓的<code>Page Directory(⻚目录)</code>，所以在⻚面内也可以通过二分法实现快速定位记录，这不是很牛么，哈哈!</p>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/">6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-04T12:17:57.000Z" itemprop="datePublished">2021年10月04日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="Demo表"><a href="#Demo表" class="headerlink" title="Demo表"></a>Demo表</h1><blockquote>
+<p>为了故事的顺利发展，我们先建一个表:<br><code>mysql&gt; CREATE TABLE index_demo( c1 INT,</code><br><code>-&gt; c2 INT,</code><br><code>-&gt; c3 CHAR(1),</code><br><code>-&gt; PRIMARY KEY(c1)</code><br><code>-&gt; ) ROW_FORMAT = Compact;</code><br><code>-&gt; Query OK, 0 rows affected (0.03 sec)</code></p>
+<p>这个新建的index_demo表中有2个INT类型的列，1个CHAR(1)类型的列，而且我们规定了c1列为主键。</p>
+<p>这个表是使用Compact行格式来实际存储记录的。<br>为了我们理解上的方便，我们简化了一下 index_demo表 的行格式示意图:<br><img src="/images/MySQL/6.1/1.jpg"></p>
+<ul>
+<li><code>record_type</code>: <code>记录头信息</code>的一个属性，表示记录的类型：0 表示普通记录、2表示最小记录、3表示最大记录、1我们还没用过，等会再说~</li>
+<li><code>next_record</code>: <code>记录头信息</code>的一个属性，表示下一条地址相对于本条记录的地址偏移量，为了方便大家理解，我们都会用箭头来表明下一条记录是谁。</li>
+<li>各个列的值: 这里只记录在index_demo表中的三个列，分别是c1、c2和c3。</li>
+<li>其他信息:除了上述3种信息以外的所有信息，包括其他隐藏列的值以及记录的额外信息。</li>
+</ul>
+<p>我们之后的示意图中会把  记录的其他信息 这个部分省略掉，因为它占地方并且不会有什么观赏效果:<br><img src="/images/MySQL/6.1/2.jpg"></p>
+</blockquote>
+<blockquote>
+<p>把一些记录放到⻚里边的示意图就是:<br><img src="/images/MySQL/6.1/3.jpg"></p>
+</blockquote>
+<h1 id="一个简单的索引方案"><a href="#一个简单的索引方案" class="headerlink" title="一个简单的索引方案"></a>一个简单的索引方案</h1><blockquote>
+<p>现在我们已经知道，当我们根据某个搜索条件查找一些记录时，首先<code>需要遍历所有的数据⻚ O(n)</code>，然后再在每个数据页内利用 <code>pagedirectory二分法定位槽 O(logn)</code> + <code>组内遍历单链表 O(1)</code> 进行记录的匹配。</p>
+<p>所以…   效率问题目前是出在第一步，也就是在所有数据页中快速定位我们需要的页。<br>还记得我们 <code>通过主键</code> 在 <code>页内查找</code> 时为了快速定位一条记录在⻚中的位置而设立的 <code>⻚目录</code> 么?<br>我们也可以想办法为快速定位记录所在的 <code>数据⻚</code> 而建立一个别的<code>目录</code>，不过，要建这个目录必须完成下边的事儿；</p>
+</blockquote>
+<h2 id="数据页可以像页内记录那样也按主键顺序排列"><a href="#数据页可以像页内记录那样也按主键顺序排列" class="headerlink" title="数据页可以像页内记录那样也按主键顺序排列"></a><code>数据页</code>可以像<code>页内记录</code>那样也按主键顺序排列</h2><p><strong>下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。</strong></p>
+<blockquote>
+<p><strong><code>页分裂</code>问题：</strong> 😱</p>
+<p>为了故事的顺利发展，我们这里需要做一个假设: 假设我们的每个数据⻚最多能存放3条记录(实际上一个数据⻚非常大，可以存放下好多记录)。</p>
+<p>有了这个假设之后，如果我们向index_demo表插入4条记录，因为⻚10最多只能放3条记录，所以我们不得不再分配一个新⻚:<br><img src="/images/MySQL/6.1/4.jpg"><br>你可以看到，新分配的数据页的页号并不是11，而是28<br><code>这是因为我们使用的这些⻚在存储空间里可能并不挨着</code>。它们只是通过维护着上一个⻚和下一个⻚的编号而建立了<code>链表关系</code>。<br>另外，⻚10中用户记录最大的主键值是5，而⻚28中有一条记录的主键值是4，因为5 &gt; 4，所以<code>不符合下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值的要求</code>，**<code>所以在插入主键值为4的记录时需要伴随着一次记录移动</code>**，也就是把主键值为5的记录移动到⻚28中，然后再把主键值为4的记录插入到⻚10中，这个过程的示意图如下:<br><img src="/images/MySQL/6.1/5.jpg"></p>
+</blockquote>
+<blockquote>
+<p>这个过程表明了在对⻚中的记录进行增删改操作的过程中， <strong><code>我们必须通过一些诸如 记录移动的操作 来始终保证这个状态一直成立</code></strong> : 下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值。<br>这个过程我们也可以称为 **<code>⻚分裂</code>**。<br>(lant:所以，所以这也说明了，主键为什么我们一般设置自增的，最好不要乱动主键，因为如果要保证“下一个数据⻚中用户记录的主键值必须大于上一个⻚中用户记录的主键值”的要求，逐渐最好自增，不然就会经常出现页分裂，这显然是个低效的动作。即便要删除记录，我们最好也是给记录标记一个删除状态即可。)</p>
+</blockquote>
+<h2 id="数据页也可以像页内记录那样也有一个-Page-Directory-页目录"><a href="#数据页也可以像页内记录那样也有一个-Page-Directory-页目录" class="headerlink" title="数据页也可以像页内记录那样也有一个 Page Directory 页目录"></a><code>数据页</code>也可以像<code>页内记录</code>那样也有一个 <code>Page Directory 页目录</code></h2><blockquote>
+<p>由于数据⻚的编号可能并不是连续的，所以在向index_demo 表中插入许多条记录后，可能是这样的效果:<br><img src="/images/MySQL/6.1/6.jpg"></p>
+</blockquote>
+<blockquote>
+<p>如果想从更大量的⻚中根据主键值快速定位某些记录所在的⻚，我们也可以<code>给这些页做个目录</code>，每个⻚对应一个目录项，每个<code>目录项</code>包括下边两个部分:</p>
+<ul>
+<li>⻚的用户记录中最小的主键值，我们用key来表示。</li>
+<li>⻚号，我们用page_no表示。<br>所以我们为上边几个⻚做好的目录就像这样子:<br><img src="/images/MySQL/6.1/7.jpg"></li>
+</ul>
+</blockquote>
+<blockquote>
+<p>以⻚28为例，它对应目录项2，这个目录项中包含着该⻚的⻚号28以及该⻚中用户记录的最小主键值5。<br>比方说我们想找主键值为20的记录，具体查找过程分两步:</p>
+<ul>
+<li>先从目录项中根据二分法快速确定出主键值为20的记录在目录项3中，它对应的⻚是 ⻚9。</li>
+<li>再根据前边说的在⻚中查找记录的方式去⻚9中定位具体的记录。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>由一个个的<code>目录项</code>组成的类似书籍中的<code>简易目录</code>，其实就是索引的雏形</p>
+</blockquote>
+<p>至此，针对数据⻚做的<code>简易目录</code>就搞定了。不过忘了说了，这个目录有一个别名，称为<code>索引</code>。</p>
+<p>所以：<br>上一篇讲的，<code>数据页内，为许多记录设计的目录，叫 页目录</code>；<br>本篇讲的，<code>为许多数据页设计的目录，叫 索引</code>；</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/6.0 没有索引时，如何查找数据？" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/">6.0 没有索引时，如何查找数据？</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-04T11:53:21.000Z" itemprop="datePublished">2021年10月04日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.0%20%E6%B2%A1%E6%9C%89%E7%B4%A2%E5%BC%95%E6%97%B6%EF%BC%8C%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E6%95%B0%E6%8D%AE%EF%BC%9F/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="没有索引的查找"><a href="#没有索引的查找" class="headerlink" title="没有索引的查找"></a>没有索引的查找</h1><p>本集的主题是<code>索引</code>，在正式介绍<code>索引</code>之前，我们需要了解一下没有索引时是怎么查找记录的。为了方便理解，下边先只唠叨搜索条件为对某个列精确匹配的情况，如：<code>SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;</code></p>
+<h2 id="在单个数据页中的查找"><a href="#在单个数据页中的查找" class="headerlink" title="在单个数据页中的查找"></a>在<code>单个数据页</code>中的查找</h2><blockquote>
+<p>假设目前表中的记录比较少，所有的记录都可以被存放到一个⻚中。在查找记录的时候可以根据搜索条件的不同分为两种情况:</p>
+<ul>
+<li>以<code>主键</code>为搜索条件 (😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)<br>可参考 <a target="_blank" rel="noopener" href="https://app.yinxiang.com/shard/s69/nl/50006762/4bed2a5d-ea50-4c85-80fb-f2e9613bb6c6/">5. 7 前情回顾: 数据页、目录页、槽、(页内)分组、记录</a></li>
+<li>以<code>其他列</code>作为搜索条件 (😭 <code>O(n)</code>)<br>对非主键列的查找的过程可就不这么幸运了，因为在<code>数据⻚中并没有对非主键列建立所谓的⻚目录</code>，所以我们<code>无法通过二分法快速定位相应的槽</code>。<br><code>这种情况下只能从最小记录开始依次遍历单链表中的每条记录，然后对比每条记录是不是符合搜索条件</code>。很显然，<code>这种查找的效率是非常低的</code>。</li>
+</ul>
+</blockquote>
+<p><strong>所以结论就是：在单个数据页内</strong></p>
+<ul>
+<li><code>主键查找</code>可以使用 “二分找槽 + 页内遍历”；(😄 <code>O(log n)</code> + <code>O(1)</code> &#x3D; <code>O(log n)</code>)</li>
+<li><code>非主键查找</code>还无法做到快速查找；(😭 <code>O(n)</code>)</li>
+</ul>
+<h2 id="在很多⻚中查找"><a href="#在很多⻚中查找" class="headerlink" title="在很多⻚中查找"></a>在很多⻚中查找</h2><blockquote>
+<p>大部分情况下我们表中存放的记录都是非常多的，<code>需要好多的 数据⻚</code> 来存储这些记录。<br>在很多⻚中查找记录的话可以分为两个步骤:</p>
+<ol>
+<li>定位到记录所在的⻚；</li>
+<li><code>⻚内查找</code>； (这个前面已经多次提过了)</li>
+</ol>
+</blockquote>
+<blockquote>
+<p><strong>现在问题就是第1步了，<code>如何定位记录所在的页?</code></strong><br>由于目前我们还没有讲什么方法去快速的定位到记录所在的⻚，<code>所以只能从第一个⻚沿着双向链表一直往下找</code>; 这种遍历所有数据⻚的方式显然是超级耗时的，如果一个表有一亿条记录，使用这种方式去查找记录那要等到猴年⻢月才能等到查找结果。（<code>定位页的操作，时间复杂度此时成了 O(n)</code>，显然很低效 ）<br>所以祖国和人⺠都在期盼一种能高效完成搜索的方法，<code>索引同志</code>就要亮相登台了。</p>
+</blockquote>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>lant: 所以…… 到了这里，我们应该清楚：</p>
+<ul>
+<li><code>索引 这个方案</code> 是为了：当数据量很大时(InnoDB会用到大量的数据页)，在 <code>大量的 数据页</code> 中高效定位到 <code>某个数据页</code>；</li>
+<li><code>Page Directory</code>、<code>槽</code>(对应<code>分组</code>) 是为了：在<code>页内</code>高效定位到某行记录（<code>在页的目录页中通过二分法定位槽(页内分组)</code> + <code>分组内遍历</code>）。</li>
 </ul>
 
         
@@ -684,7 +685,485 @@
           
 
           
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a></li></ul>
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.7 前情回顾 数据页、目录页、槽、(页内)分组、记录" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/10/02/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/">5.7 前情回顾 数据页、目录页、槽、(页内)分组、记录</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-02T02:21:43.000Z" itemprop="datePublished">2021年10月02日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/10/02/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.7%20%E5%89%8D%E6%83%85%E5%9B%9E%E9%A1%BE%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E3%80%81%E7%9B%AE%E5%BD%95%E9%A1%B5%E3%80%81%E6%A7%BD%E3%80%81(%E9%A1%B5%E5%86%85)%E5%88%86%E7%BB%84%E3%80%81%E8%AE%B0%E5%BD%95/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系"><a href="#前情回顾-数据页、目录页、槽、-页内-分组、记录-之间的关系" class="headerlink" title="前情回顾: 数据页、目录页、槽、(页内)分组、记录 之间的关系"></a>前情回顾: <code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系</h1><blockquote>
+<p>前边我们详细唠叨了InnoDB数据⻚的7个组成部分，知道了:</p>
+<ul>
+<li>各个<code>数据⻚</code> 可能在物理结构上并不相连，而是通过<code>双向链表</code>相关联；</li>
+<li>而<code>每个数据⻚中的记录会按照主键值从小到大的顺序组成一个单向链表</code>；<br>  <img src="/images/MySQL/5.7/1.jpg"></li>
+</ul>
+</blockquote>
+<p><strong><code>数据页</code>、<code>目录页</code>、<code>槽</code>、<code>(页内)分组</code>、<code>记录</code> 之间的关系 回顾:</strong></p>
+<ul>
+<li>每个<code>数据页</code>内的记录，会被分成一个个的<code>(页内)分组</code>；</li>
+<li>每个<code>分组</code>中的记录也都是按照主键值从小到大由单链表串联起来的(页内记录本来就是这样串联的)；</li>
+<li>每个<code>分组</code>中的最大记录的<code>地址偏移量</code>被叫做<code>槽</code> （由于槽就是分组中最大那条记录的地址偏移量，所以<code>槽其实也就指向(代表)了对应分组中的最大那条记录的主键值</code>）；</li>
+<li>每个<code>分组</code>对应的<code>槽</code>都被放到了页内一个叫<code>页目录</code>的地方；</li>
+</ul>
+<blockquote>
+<p><strong><code>在某个页中</code></strong> 通过主键查找某条记录的时候:</p>
+<ul>
+<li>可以先在<code>⻚目录</code>中使用二分法快速定位到对应的<code>槽</code> (<code>O(log n)</code>)</li>
+<li>然后再遍历该<code>槽</code>对应<code>分组</code>中的记录，即可快速找到指定的记录(<code>O(1)</code>)。</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.6 通用页结构 之 File Trailer(文件尾)部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/29/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/">5.6 `通用页`结构 之 File Trailer(文件尾)部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-29T13:37:31.000Z" itemprop="datePublished">2021年09月29日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/29/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.6%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Trailer(%E6%96%87%E4%BB%B6%E5%B0%BE)%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通用页结构-之-File-Trailer-文件尾-部分"><a href="#通用页结构-之-File-Trailer-文件尾-部分" class="headerlink" title="通用页结构 之 File Trailer(文件尾)部分"></a><code>通用页</code>结构 之 <code>File Trailer</code>(文件尾)部分</h1><blockquote>
+<p><code>File Trailer(文件尾)</code> 部分和 <code>File Header</code> 部分 一样，都是所有类型的⻚通用的。</p>
+</blockquote>
+<blockquote>
+<p>我们知道InnoDB存储引擎会把数据存储到磁盘上，但是磁盘速度太慢，需要以⻚为单位把数据加载到内存中处理，如果该⻚中的数据在内存中被修改了，那么在修改后的某个时间还需要把数据刷新到磁盘中。<strong>但是， 如果在刷新还没有结束时断电了咋办，这不是相当尴尬么?</strong></p>
+</blockquote>
+<blockquote>
+<p>为了检测一个⻚是否完整(也就是在刷新时有没有发生只刷新了一部分的尴尬情况)，设计InnoDB的大叔们在每个⻚的尾部都加了一个<code>File Trailer</code>部分，这个部分由8个字节组成，可以分成2个小部分:</p>
+<ul>
+<li><strong>前4个字节代表⻚的校验和</strong>：<br>这个部分是和 <code>File Header</code> 中的校验和相对应的。<br>每当一个⻚面在内存中发生修改时，在刷新之前就要把页面的校验和算出来。因为<code>File Header</code>在⻚面的前边，所以<code>File Header</code>中的校验和会被首先刷新到磁盘，当完全写完时，校验和也会被写到⻚的尾部。如果页面刷新完全成功，则⻚的首部和尾部的校验和应该是一致的。如果是刷新一部分后断电了，那么在<code>File Header</code>中的校验和就代表着已经修改过的⻚，而在<code>File Trialer</code>中的校验和则代表着原先的⻚，二者不同则意味着同步中间出了错。</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>后4个字节代表⻚面被最后修改时对应的日志序列位置(LSN)的后4个字节，正常情况下应该与<code>File Header</code>部分的<code>FIL_PAGE_LSN</code>的后4字节相同。<br>这个部分也是为了校验⻚的完整性的，只不过我们目前还没说LSN是个什么意思，所以大家可以先不用管这个属性。</li>
+</ul>
+</blockquote>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.5 通用页结构 之 File Header(文件头)部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/28/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/">5.5 `通用页`结构 之 File Header(文件头)部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-28T14:07:14.000Z" itemprop="datePublished">2021年09月28日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/28/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.5%20%E9%80%9A%E7%94%A8%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20File%20Header(%E6%96%87%E4%BB%B6%E5%A4%B4)%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="通用页结构-之-File-Header-文件头-部分"><a href="#通用页结构-之-File-Header-文件头-部分" class="headerlink" title="通用页结构 之 File Header(文件头)部分"></a><code>通用页</code>结构 之 <code>File Header</code>(文件头)部分</h1><blockquote>
+<p>上一篇讲的 数据页结构的<code>Page Header</code>部分 是 <code>专⻔针对</code> 页类型为 <code>数据⻚</code> 的这种页。<br>它的各个属性描述了 <code>数据页</code> 中的<code>记录的各种状态信息</code>，比方说⻚里头有多少个记录了呀，有多少个槽了呀。</p>
+</blockquote>
+<blockquote>
+<p>而我们现在讲到的 页结构的<code>File Header部分</code> 是属于各种类型的⻚都<code>通用</code>的部分，它描述了一些针对各种⻚都通用的一些信息，比方说 <code>这个⻚的编号是多少</code>，<code>它的上一个⻚、下一个⻚是谁</code> ……<br>这个部分占用固定的38个字节，是由下边这些内容组成的:</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>占用空间</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>📌 <strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code></strong></td>
+<td>4字节</td>
+<td><strong><code>页的校验和(checksum值)</code></strong></td>
+</tr>
+<tr>
+<td>✅ FIL_PAGE_OFFSET</td>
+<td>4字节</td>
+<td>页号</td>
+</tr>
+<tr>
+<td>✅ <strong><code>FIL_PAGE_PREV</code></strong></td>
+<td>4字节</td>
+<td><code>上一个页的页号</code></td>
+</tr>
+<tr>
+<td>✅ <strong><code>FIL_PAGE_NEXT</code></strong></td>
+<td>4字节</td>
+<td><code>下一个页的页号</code></td>
+</tr>
+<tr>
+<td>FIL_PAGE_LSN</td>
+<td>8字节</td>
+<td>页面被最后修改时对应的日志序列(LSN)位置(log sequence number)</td>
+</tr>
+<tr>
+<td>✅ <strong><code>FIL_PAGE_TYPE</code></strong></td>
+<td>2字节</td>
+<td><code>该⻚的类型</code></td>
+</tr>
+<tr>
+<td>FIL_PAGE_FILE_FLUSH_LSN</td>
+<td>8字节</td>
+<td>仅在系统表空间的第一个⻚中定义，代表文件至少被刷新到了对应的LSN值</td>
+</tr>
+<tr>
+<td>FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID</td>
+<td>4字</td>
+<td>⻚属于哪个表空间</td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p>对照着这个表格，我们看几个目前比较重要的部分:<br><strong><code>FIL_PAGE_SPACE_OR_CHKSUM</code>:</strong><br>这个属性代表当前⻚面的<code>校验和(checksum)</code>。啥是<code>校验和</code>?<br>就是对于一个很⻓很⻓的字节串来说，我们会通过某种算法计算出一个比较短的值来代表这个很⻓的字节串，这个比较短的值就称为<code>校验和</code>。**<code>这样在比较两个很⻓的字节串之前先比较这两个⻓字节串的校验和，如果校验和都不一样两个⻓字节串肯定是不同的，所以省去了直接比较两个比较⻓的字节串的时间损耗</code>**。</p>
+</blockquote>
+<blockquote>
+<p><strong><code>FIL_PAGE_OFFSET</code>:</strong><br>每一个⻚都有一个单独的⻚号，InnoDB通过⻚号来可以唯一定位一个⻚。</p>
+</blockquote>
+<blockquote>
+<p><strong><code>FIL_PAGE_TYPE</code>:</strong><br>这个代表当前⻚的类型，我们前边说过，InnoDB为了不同的目的而把⻚分为不同的类型，<code>我们上边介绍的其实都是存储记录的数据⻚</code>，其实还有很多别的类型的⻚。<br>(我们存放记录的数据⻚的类型其实是<code>FIL_PAGE_INDEX</code>，也就是所谓的<code>索引⻚</code>。至于啥是个索引，且听下回分解~)<br><img src="/images/MySQL/5.5/2.png" width="550px" style="border: 1px solid #ccc;border-radius: 5px;"/></p>
+</blockquote>
+<blockquote>
+<p><strong><code>FIL_PAGE_PREV</code></strong> 和 <strong><code>FIL_PAGE_NEXT</code></strong>:<br>我们前边强调过，<code>InnoDB是以⻚为单位存放数据的</code>，有时候我们存放的数据占用的空间非常大(比如一张表中可以有成千上万条记录)，InnoDB可能不可以一次性为这么多数据分配一个非常大的存储空间，<code>如果分散到多个不连续的⻚中存储的话需要把这些⻚关联起来</code>，FIL_PAGE_PREV和 FIL_PAGE_NEXT就分别代表本⻚的上一个和下一个⻚的⻚号。这样**<code>通过建立一个双向链表把许许多多的⻚就都串联起来 了</code>**，而无需这些⻚在物理上真正连着。(Tips: 也不是所有类型的⻚都有上一个和下一个⻚的属性，不过我们本集中唠叨的数据⻚(也就是类型为FIL_PAGE_INDEX的⻚)是有这两个属性的）。<br>所以所有的数据⻚其实是一个双链表，就像这样:<br><img src="/images/MySQL/5.5/1.jpg"></p>
+</blockquote>
+<p>关于File Header的其他属性我们暂时用不到，等用到的时候再提~</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+      
+    </footer>
+  </div>
+</article>
+
+
+  <article id="post-MySQL-InnoDB-页结构/5.4 数据页结构 之 Page Header(页面头部)部分" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/09/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/">5.4 `数据页`结构 之 Page Header(页面头部)部分</a>
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-09-26T13:46:53.000Z" itemprop="datePublished">2021年09月26日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+      
+<a href="/2021/09/26/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/5.4%20%E6%95%B0%E6%8D%AE%E9%A1%B5%E7%BB%93%E6%9E%84%20%E4%B9%8B%20Page%20Header(%E9%A1%B5%E9%9D%A2%E5%A4%B4%E9%83%A8)%E9%83%A8%E5%88%86/#comments" class="article-comment-link">
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="数据页结构-之-Page-Header-页面头部-部分"><a href="#数据页结构-之-Page-Header-页面头部-部分" class="headerlink" title="数据页结构 之 Page Header(页面头部)部分"></a><code>数据页</code>结构 之 <code>Page Header</code>(页面头部)部分</h1><blockquote>
+<p>设计InnoDB的大叔们为了能得到某个<code>数据⻚中存储的记录的状态信息</code>，比如 <code>本⻚中已经存储了多少条记录</code>、<code>第一条记录的地址是什么</code>、<code>⻚目录中存储了多少个槽</code>(通过<code>页目录</code>中的<code>槽</code>的数量，其实也就能知道本页面被分出了多少个分组) 等信息……。大叔们特意在⻚中定义了一个叫 <code>Page Header的部分</code>，页结构的这个部分占用固定的56个字节，通过多个属性专⻔来存储各种状态信息:</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>占用空间</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>✅ <code>PAGE_N_DIR_SLOTS</code></td>
+<td>2字节</td>
+<td><code>页目录</code>中<code>槽</code>的数量</td>
+</tr>
+<tr>
+<td>✅ PAGE_HEAP_TOP</td>
+<td>2字节</td>
+<td>还未使用空间的起始地址，你自然能明白，该地址之后就是 <code>页结构的 Free Space 部分</code>了</td>
+</tr>
+<tr>
+<td>✅ <code>PAGE_N_HEAP</code></td>
+<td>2字节</td>
+<td>本⻚中的记录数量(包括最小和最大记录以及标记为删除的记录)</td>
+</tr>
+<tr>
+<td>✅ PAGE_FREE</td>
+<td>2字节</td>
+<td>第一个已经标记为删除的记录地址(各个已删除的记录通过next_record也会组成一个单链表)</td>
+</tr>
+<tr>
+<td>✅ PAGE_GARBAGE</td>
+<td>2字节</td>
+<td>已删除记录占用的字节数</td>
+</tr>
+<tr>
+<td>✅ PAGE_LAST_INSERT</td>
+<td>2字节</td>
+<td>最后插入记录的位置</td>
+</tr>
+<tr>
+<td>PAGE_DIRECTION</td>
+<td>2字节</td>
+<td>记录插入的方向</td>
+</tr>
+<tr>
+<td>PAGE_N_DIRECTION</td>
+<td>2字节</td>
+<td>一个方向连续插入的记录数量</td>
+</tr>
+<tr>
+<td>✅ <strong><code>PAGE_N_RECS</code></strong></td>
+<td>2字节</td>
+<td><code>本⻚中的记录数量(不包括最小和最大记录以及被标记为删除的记录)</code></td>
+</tr>
+<tr>
+<td><code>PAGE_MAX_TRX_ID</code></td>
+<td>8字节</td>
+<td>修改当前⻚的最大事务ID，该值仅在二级索引中定义</td>
+</tr>
+<tr>
+<td>📌 <strong><code>PAGE_LEVEL</code></strong></td>
+<td>2字节</td>
+<td><strong><code>当前⻚在B+树中所处的层级</code></strong></td>
+</tr>
+<tr>
+<td><code>PAGE_INDEX_ID</code></td>
+<td>8字节</td>
+<td>索引ID，表示当前页属于哪个索引</td>
+</tr>
+<tr>
+<td>PAGE_BTR_SEG_LEAF</td>
+<td>10字节</td>
+<td>B+树叶子节点段的头部信息，尽在B+树的Root页定义</td>
+</tr>
+<tr>
+<td>PAGE_BTR_SEG_TOP</td>
+<td>10字节</td>
+<td>B+树非叶子节点段的头部信息，尽在B+树的Root页定义</td>
+</tr>
+<tr>
+<td>如果大家认真看过前边的文章，从 <code>PAGE_N_DIR_SLOTS</code> 到 <code>PAGE_LAST_INSERT</code> 以及 <code>PAGE_N_RECS</code> 的意思大家一定是清楚的。⚠️ 如果不清楚，对不起，你应该回头再看一遍前边的文章。⚠️</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>剩下的状态信息看不明白不要着急，饭要一口一口吃，东⻄要一点一点学 (一定要稍安勿躁哦，不要被这些名词吓到)。</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</blockquote>
+<blockquote>
+<p>接下来我们先唠叨一下 <code>PAGE_DIRECTION</code> 和 <code>PAGE_N_DIRECTION</code> 的意思:</p>
+<ul>
+<li><code>PAGE_DIRECTION</code>:<br>假如新插入的一条记录的主键值比上一条记录的主键值大，我们说这条记录的插入方向是右边，反之则是左边。用来表示最后一条记录插入方向的状态就<code>PAGE_DIRECTION</code>。</li>
+<li><code>PAGE_N_DIRECTION</code>:<br>假设连续几次插入新记录的方向都是一致的，InnoDB会把沿着同一个方向插入记录的条数记下来，这个条数就用 <code>PAGE_N_DIRECTION</code> 这个状态表示。当然，如果最后一条记录的插入方向改变了的话，这个状态的值会被清零重新统计。(🤔TODO :目前是能读懂意思，至于用途嘛…暂时还不明白)</li>
+</ul>
+</blockquote>
+<p>至于上面还没提到的那些状态属性，现在大家还不需要知道。不要着急，当我们学完了后边的内容，你再回头看，一切都是那么清晰。</p>
+
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
 
           
     <div class="social-share">
@@ -705,7 +1184,7 @@
 
     <nav id="page-nav">
 
-<a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+<a class="extend prev" rel="prev" href="/page/4/">上一页</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/">下一页</a>
 </nav>
 
 
@@ -720,23 +1199,23 @@
       <ul>
         
           <li>
-            <a href="/2021/11/09/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/11.%20%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%8E%9F%E7%90%86/">11. 连接的原理</a>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
           </li>
         
           <li>
-            <a href="/2021/11/06/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/10.0%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E6%B3%95/">10. 单表访问方法</a>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
           </li>
         
           <li>
-            <a href="/2021/11/04/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.6%20InnoDB%20%E7%B3%BB%E7%BB%9F%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%9A%84%E7%BB%93%E6%9E%84/">9.6 InnoDB 系统表空间的结构</a>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
           </li>
         
           <li>
-            <a href="/2021/10/29/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.5%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(5)/">9.5 InnoDB独立表空间结构 之 各类型⻚面详细情况</a>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
           </li>
         
           <li>
-            <a href="/2021/10/28/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/9.4%20InnoDB%E7%9A%84%E8%A1%A8%E7%A9%BA%E9%97%B4%20%E4%B9%8B%20%E7%8B%AC%E7%AB%8B%E8%A1%A8%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84(4)/">9.4 InnoDB的表空间 之 独立表空间结构(4)</a>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
           </li>
         
       </ul>
@@ -749,7 +1228,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
     </div>
   </div>
 
@@ -758,7 +1237,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">41</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
     </div>
   </div>
 
@@ -768,7 +1247,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">41</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -778,7 +1257,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">41</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
     </div>
   </div>
 

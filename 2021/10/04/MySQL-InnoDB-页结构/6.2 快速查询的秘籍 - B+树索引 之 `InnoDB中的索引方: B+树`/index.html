@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树` | rymuscle的技术博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  
+  
+    <link rel="alternate" href="/atom.xml" title="rymuscle的技术博客" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+  
+    
+<link rel="stylesheet" href="/localshare/css/share.css">
+
+  
+  
+    
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.0.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">rymuscle的技术博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">一切美好都如约而至!</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/."><i class="fa fa-home"></i> 首页</a>
+        
+          <a class="main-nav-link" href="/archives/"><i class="fa fa-archive"></i> 归档</a>
+        
+          <a class="main-nav-link" href="/about/"><i class="fa fa-user"></i> 关于</a>
+        
+          <a class="main-nav-link" href="/atom.xml"><i class="fa fa-rss"></i> 订阅</a>
+        
+      </nav>
+    </div>
+    <div id="search-form">
+      <div id="result-mask" class="hide"></div>
+      <label><input id="search-key" type="text" autocomplete="off" placeholder="搜索"></label>
+      <div id="result-wrap" class="hide">
+        <div id="search-result"></div>
+      </div>
+      <div class="hide">
+        <template id="search-tpl">
+          <div class="item">
+            <a href="/{path}" title="{title}">
+              <div class="title">{title}</div>
+              <div class="time">{date}</div>
+              <div class="tags">{tags}</div>
+            </a>
+          </div>
+        </template>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-MySQL-InnoDB-页结构/6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方: B+树`" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      6.2 快速查询的秘籍 - B+树索引 之 `InnoDB中的索引方案 B+树`
+    </h1>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      
+      <span class="article-date">
+  <i class="fa fa-date"></i>
+  <time class="dt-published" datetime="2021-10-04T14:09:13.000Z" itemprop="datePublished">2021年10月04日</time>
+</span>
+      
+  <div class="article-category">
+    <i class="fa fa-classify"></i>
+    <a class="article-category-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a>
+  </div>
+
+      
+        <span class="article-views">
+  <i class="fa fa-views"></i>
+  <i id="busuanzi_container_page_pv">
+      <i id="busuanzi_value_page_pv"></i>
+  </i>
+</span>
+
+      
+      
+<a href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.2%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%60InnoDB%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9:%20B+%E6%A0%91%60/#comments" class="article-comment-link">
+  
+    
+    
+    
+    
+    
+  
+  <i class="fa fa-commt"></i>
+  留言
+</a>
+
+
+    </div>
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="普通用户记录-vs-目录项记录"><a href="#普通用户记录-vs-目录项记录" class="headerlink" title="普通用户记录 vs 目录项记录"></a><code>普通用户记录</code> vs <code>目录项记录</code></h1><blockquote>
+<p>设计InnoDB的大叔们为了灵活管理所有<code>目录项</code>。他们发现这些<code>目录项</code>其实跟我们的<code>用户记录</code>也差不多，只不过<code>目录项</code>中的两个列是主键和⻚号而已。<br>所以大叔们复用了之前存储用户记录的<code>数据⻚</code>来存储<code>目录项</code>，为了和用户记录做一下区分，我们把这些用来表示目录项的记录称为<code>目录项记录</code>。</p>
+<p>为了区分一条记录是<code>普通用户记录</code>还是<code>目录项记录呢</code>，InnoDB 就用到了<code>记录头信息</code>里的<code>record_type</code>属性(<code>0:普通的用户记录</code>、<code>1:目录项记录</code>、2:最小记录、3:最大记录)</p>
+<p>所以我们把前面使用到的目录项放到数据⻚中的样子就是这样:<br><img src="/images/MySQL/6.2/1.jpg"></p>
+<p>从图中可以看出来，我们新分配了一个编号为30的⻚来专⻔存储 <code>目录项记录</code>。</p>
+<p>Tips:<br><code>目录项记录</code>和<code>普通的用户记录</code> 除了 <code>内容不同</code>、<code>记录头信息 里的 record_type 不同</code>，还有个不同点(可参考 <a href="/2021/09/24/MySQL%E7%9F%A5%E8%AF%86%E7%82%B9%E6%95%B4%E7%90%86/5.2%20%E5%9B%9E%E9%A1%BE:%20%E8%A1%8C%E6%A0%BC%E5%BC%8F%20%E4%B9%8B%20%E8%AE%B0%E5%BD%95%E5%A4%B4%E4%BF%A1%E6%81%AF%20%E7%9A%84%E7%A7%98%E5%AF%86/">5.2 回顾: 行格式 之 记录头信息 的秘密</a>) :<br>我们之前在唠叨记录头信息时提到过一个叫 <code>min_rec_mask</code>的，只有在存储目录项记录的⻚中的主键值最小的目录项记录的min_rec_mask值为1，其他别的记录的min_rec_mask值都是0。</p>
+<p>除了上述几点外，这两者就没啥差别了，它们用的是一样的<code>数据⻚</code>。⻚的组成结构也是一样一样的。</p>
+</blockquote>
+<h1 id="只有单个存储目录项记录的数据⻚时的查找"><a href="#只有单个存储目录项记录的数据⻚时的查找" class="headerlink" title="只有单个存储目录项记录的数据⻚时的查找"></a>只有单个<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>现在以查找主键为20的记录为例，查找记录的步骤就可以大致拆分成下边两步:</p>
+<ol>
+<li>先到<code>存储目录项记录的数据⻚</code>(也就是⻚30)中，<code>通过二分法快速定位到对应目录项</code> (因为12 &lt; 20 &lt; 209，所以定位到对应的记录所在的⻚就是⻚9)；</li>
+<li>再到存储用户记录的⻚9中定位到主键值为20的用户记录。(之前多次提到的页内查找方法：O(log n) + O(1))</li>
+</ol>
+</blockquote>
+<h1 id="大量存储目录项记录的数据⻚时的查找"><a href="#大量存储目录项记录的数据⻚时的查找" class="headerlink" title="大量存储目录项记录的数据⻚时的查找"></a>大量<code>存储目录项记录的数据⻚</code>时的查找</h1><blockquote>
+<p>虽然说目录项记录中只存储主键值和对应的⻚号，比用户记录需要的存储空间小多了，但是不论怎么说一个⻚只有16KB大小，能存放的目录项记录也是有限的，如果表中的数据太多，以至于一个数据⻚不足以存放所有的目录项记录，该咋办呢?<br>当然是<code>再多整一个存储目录项记录的⻚喽</code>~</p>
+<p>为了大家更好的理解新分配一个<code>目录项记录⻚</code>的过程，我们假设一个存储目录项记录的⻚最多只能存放4条目录项记录，所以如果此时我们再向上图中插入一条主键值为320的用户记录的话，那就需要分配一个新的存储目录项记录的⻚喽:<br><img src="/images/MySQL/6.2/2.jpg"><br>从图中可以看出，我们插入了一条主键值为320的用户记录之后需要两个新的数据⻚:</p>
+<ul>
+<li>为存储该用户记录而新生成了⻚31。</li>
+<li>因为原先<code>存储目录项记录</code>的⻚30的容量已满(我们前边假设只能存储4条目录项记录)，所以不得不需要一个新的⻚32来存放⻚31对应的目录项。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>现在因为<code>存储目录项记录的⻚不止一个</code>，所以如果我们想根据主键值查找一条用户记录大致需要3个步骤，以查找主键值为20的记录为例:</p>
+<ol>
+<li>确定目录项记录⻚<br>  我们现在的存储目录项记录的⻚有两个，即⻚30和⻚32，又因为⻚30表示的目录项的主键值的范围是[1, 320)，⻚32表示的目录项的主键值不小于320，所以主键值为20的记录对应的目录项记录在⻚30中。</li>
+<li>在一个存储目录项记录的⻚中通过主键值定位一条目录项记录的方式说过了，不赘述了~</li>
+<li>在真实存储用户记录的⻚中定位到具体的记录。 也多次提过了，不赘述了~</li>
+</ol>
+</blockquote>
+<h1 id="B-树"><a href="#B-树" class="headerlink" title="B+树"></a>B+树</h1><blockquote>
+<p>那么问题又来了:<br>在这个查询步骤的第1步中我们需要定位 <code>存储目录项记录的⻚</code>，但是这些⻚在存储空间中也可能不挨着，如果我们表中的数据非常多则会产生很多存储目录项记录的⻚，那我们怎么根据主键值快速定位一个存储目录项记录的⻚呢?<br>其实也简单， <strong><code>为这些存储目录项记录的⻚再生成一个更高级的目录</code></strong> ，所以现在各个⻚的 示意图就是这样子:<br><img src="/images/MySQL/6.2/3.jpg"><br>如图，我们生成了一个存储更高级目录项的⻚33，这个⻚中的两条记录分别代表⻚30和⻚32，如果用户记录的主键值在[1, 320)之间，则到⻚30中查找更详细的目录项记录，如果主键值不小于320的话，就到⻚32中查找更详细的目录项记录。</p>
+</blockquote>
+<blockquote>
+<p>不过，随着表中记录的增加，这个目录的层级会继续增加，如果简化一下，<br><img src="/images/MySQL/6.2/4.jpg"><br>这玩意儿就像一个倒过来的树，上头是树根，下头是树叶! 这种组织数据的形式，或者说是一种数据结构，它的名称是<code>B+树</code>。</p>
+<p>不论是<code>存放用户记录的数据⻚</code>，还是<code>存放目录项记录的数据⻚</code>，我们都把它们存放到B+树这个数据结构中了，所以我们也称这些数据⻚为<code>节点</code>。<br>从图中可以看出来，我们的<code>实际用户记录其实都存放在B+树的最底层的节点上</code>，这些节点也被称为<code>叶子节点</code>或叶节点，其余用来<code>存放目录项记录的节点</code>称为<code>非叶子节点</code>或者内节点，其中B+树最上边的那个节点也称为<code>根节点</code>。</p>
+<p>从图中可以看出来，一个B+树的节点其实可以分成好多层，设计InnoDB的大叔们为了讨论方便，规定最下边的那层，也就是存放我们用户记录的那层为第0层，之后依次往上加。</p>
+</blockquote>
+<blockquote>
+<p>之前的讨论我们做了一个非常极端的假设:存放用户记录的⻚最多存放3条记录，存放目录项记录的⻚最多存放4条记录。其实真实环境中一个⻚存放的记录数量是非常大的</p>
+<p>假设，假设，假设所有存放用户记录的叶子节点代表的数据⻚可以存放100条用户记录，所有存放目录项记录的内节点代表的数据⻚可以存放1000条目录项记录，那么:</p>
+<ul>
+<li>如果B+树只有1层，也就是只有1个用于存放用户记录的节点，最多能存放100条记录。</li>
+<li>如果B+树有2层，最多能存放1000×100&#x3D;100000条记录。</li>
+<li>如果B+树有3层，最多能存放1000×1000×100&#x3D;100000000 条记录。</li>
+<li>如果B+树有4层，最多能存放1000×1000×1000×100&#x3D;100000000000条记录。</li>
+</ul>
+<p>你的表里能存放100000000000条记录么?<br>所以<code>一般情况下，我们用到的B+树都不会超过4层</code>，那我们通过主键值去查找某条记录最多只需要做4个⻚面内的查找(查找<code>3个目录项⻚</code>和<code>1个用户记录⻚</code>)，又因为在每个⻚面内有所谓的<code>Page Directory(⻚目录)</code>，所以在⻚面内也可以通过二分法实现快速定位记录，这不是很牛么，哈哈!</p>
+</blockquote>
+
+        
+            <div id="toc-article">
+                
+  <div class="widget-wrap" id="toc-wrap">
+    <h3 class="widget-title"><i class="fa fa-toc"></i> 文章目录</h3>
+    <div class="widget">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E8%AE%B0%E5%BD%95-vs-%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95"><span class="toc-text">普通用户记录 vs 目录项记录</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%AA%E6%9C%89%E5%8D%95%E4%B8%AA%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95%E7%9A%84%E6%95%B0%E6%8D%AE%E2%BB%9A%E6%97%B6%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-text">只有单个存储目录项记录的数据⻚时的查找</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%A7%E9%87%8F%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95%E7%9A%84%E6%95%B0%E6%8D%AE%E2%BB%9A%E6%97%B6%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-text">大量存储目录项记录的数据⻚时的查找</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#B-%E6%A0%91"><span class="toc-text">B+树</span></a></li></ol>
+    </div>
+  </div>
+
+
+            </div>
+        
+        
+      
+    </div>
+    <footer class="article-footer">
+      
+        <div class="article-tag-wrap">
+          
+
+          
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a></li></ul>
+
+          
+    <div class="social-share">
+      <span>分享到:</span>
+    </div>
+
+
+
+        </div>
+      
+      
+        
+<nav id="article-nav">
+  
+    <a href="/2021/10/04/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.1%20%E5%BF%AB%E9%80%9F%E6%9F%A5%E8%AF%A2%E7%9A%84%E7%A7%98%E7%B1%8D%20-%20B+%E6%A0%91%E7%B4%A2%E5%BC%95%20%E4%B9%8B%20%E7%AE%80%E6%98%93%E7%9B%AE%E5%BD%95(%E7%B4%A2%E5%BC%95%E7%9A%84%E9%9B%8F%E5%BD%A2)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">older</strong>
+      <div class="article-nav-title">
+        
+          6.1 快速查询的秘籍 - B+树索引 之 简易目录(索引的雏形)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/10/06/MySQL-InnoDB-%E9%A1%B5%E7%BB%93%E6%9E%84/6.3%20InnoDB%20%E7%9A%84%20%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%20-%20%E7%B4%A2%E5%BC%95%E5%8D%B3%E6%95%B0%E6%8D%AE/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">newer</strong>
+      <div class="article-nav-title">
+        
+          6.3 InnoDB 的 聚簇索引 - 索引即数据
+        
+      </div>
+    </a>
+  
+</nav>
+
+      
+      
+        
+  <div id="comments"></div>
+
+
+
+
+
+
+
+
+
+      
+    </footer>
+  </div>
+</article>
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-posts"></i> 最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2022/01/25/TCP/05.%E6%94%AF%E6%92%91TCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E5%9F%BA%E7%9F%B3--%E5%89%96%E6%9E%90%E9%A6%96%E9%83%A8%E5%AD%97%E6%AE%B5/">05.支撑 TCP 协议的基石 —— 剖析首部字段</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/24/TCP/04.%E6%9D%A5%E8%87%AA%20Google%20%E7%9A%84%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%B5%8B%E8%AF%95%E7%A5%9E%E5%99%A8%20packetdrill/">04.来自 Google 的协议栈测试神器 —— packetdrill</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/23/TCP/03.TCP%E6%A6%82%E8%BF%B0%20--%20%E5%8F%AF%E9%9D%A0%E7%9A%84%E3%80%81%E9%9D%A2%E5%90%91%E8%BF%9E%E6%8E%A5%E7%9A%84%E3%80%81%E5%9F%BA%E4%BA%8E%E5%AD%97%E8%8A%82%E6%B5%81%E3%80%81%E5%85%A8%E5%8F%8C%E5%B7%A5%E7%9A%84%E5%8D%8F%E8%AE%AE/">03.TCP概述 -- 可靠的、面向连接的、基于字节流、全双工的协议</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/22/TCP/02.TCP%E3%80%81IP%20%E5%8E%86%E5%8F%B2%E4%B8%8E%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B/">02.TCP/IP 历史与分层模型</a>
+          </li>
+        
+          <li>
+            <a href="/2022/01/21/TCP/01.%E7%8E%AF%E5%A2%83/">01. 环境</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/CAS/" style="font-size: 10px;">CAS</a> <a href="/tags/HTTP/" style="font-size: 15px;">HTTP</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/TCP/" style="font-size: 17.5px;">TCP</a> <a href="/tags/%E4%B8%8D%E8%A6%81-select/" style="font-size: 12.5px;">不要 select*</a> <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" style="font-size: 10px;">数据结构</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-classify"></i> 分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/HTTP/">HTTP</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL/">MySQL</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/MySQL-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">MySQL 读书笔记</a><span class="category-list-count">58</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/SSO/">SSO</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/TCP-%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">TCP 读书笔记</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/redis/">redis</a><span class="category-list-count">0</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E4%B8%8E%E7%AE%97%E6%B3%95/">数据结构与算法</a><span class="category-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-archive"></i> 归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2022/">2022年</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/">2021年</a><span class="archive-list-count">58</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/">2017年</a><span class="archive-list-count">4</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title"><i class="fa fa-tag"></i> 标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/CAS/" rel="tag">CAS</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/HTTP/" rel="tag">HTTP</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/" rel="tag">MySQL</a><span class="tag-list-count">58</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TCP/" rel="tag">TCP</a><span class="tag-list-count">5</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E4%B8%8D%E8%A6%81-select/" rel="tag">不要 select*</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" rel="tag">数据结构</a><span class="tag-list-count">0</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a><span class="tag-list-count">0</span></li></ul>
+    </div>
+  </div>
+
+
+  
+</aside>
+        
+      </div>
+      <a id="totop" href="#top"></a>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      <p>
+        <a href="/sitemap.xml">网站地图</a>
+        <span> | </span><a href="/atom.xml">订阅本站</a>
+        <span> | </span><a href="/about/">联系博主</a>
+      </p>
+      
+      <p>
+        <span>Copyright &copy; 2024 Rymuscle.</span>
+        <span>Theme by <a href="https://github.com/chaooo/hexo-theme-BlueLake/" target="_blank">BlueLake.</a></span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo.</a></span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+    </div>
+  </div>
+  
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+<script src="/js/search.json.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+
+
+
+  
+    
+<script src="/localshare/js/social-share.js"></script>
+
+    
+<script src="/localshare/js/qrcode.js"></script>
+
+  
+  
+
+
+
+  
+    
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+    
+<script src="//cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+
+    <script>
+      var gitalk = new Gitalk({
+        clientID: '49b906f6d47dbab8d929',
+        clientSecret: 'feefa238937784ccea0420515ab72c29d89b3ca6',
+        repo: 'rymuscle.github.io',
+        owner: 'rymuscle',
+        admin: ['rymuscle'],
+        id: md5(window.location.pathname),
+        distractionFreeMode: false,
+        language: 'zh-CN',
+        pagerDirection: 'last'
+      });
+      gitalk.render('comments');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+
+
+
+
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+  </script>
+  <script src="//cdn.bootcss.com/mathjax/2.7.1/latest.js?config=TeX-AMS-MML_HTMLorMML" async type="text/javascript"></script>
+
+</body>
+</html>
